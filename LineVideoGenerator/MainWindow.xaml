@@ -1,0 +1,42 @@
+﻿<Window x:Class="line.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:line"
+        mc:Ignorable="d"
+        Title="MainWindow" Width="1000" Height="640">
+    <Grid>
+        <Grid x:Name="grid"
+              Background="LightBlue"
+              Width="960"
+              Height="540"
+              HorizontalAlignment="Center"
+              VerticalAlignment="Top"
+              Margin="0" />
+        <Button x:Name="editButton"
+                Content="編集"
+                Width="75"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Top"
+                Margin="0,560,300,0"
+                Click="EditButton_Click"/>
+        <Button x:Name="playButton"
+                Content="再生"
+                Width="75"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Top"
+                Margin="0,560,0,0"
+                IsEnabled="False"
+                Click="PlayButton_Click"/>
+        <Button x:Name="saveButton"
+                Content="保存"
+                Width="75"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Top"
+                Margin="300,560,0,0"
+                IsEnabled="False"
+                Click="SaveButton_Click"/>
+
+    </Grid>
+</Window>
