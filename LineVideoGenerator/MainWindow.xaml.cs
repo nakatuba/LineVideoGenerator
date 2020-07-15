@@ -33,13 +33,14 @@ namespace line
         private const double messageBlockDistance = 50;
         private double messageBlockTop = messageBlockDistance;
         private double messageBlockSide = 30;
-        private int frameRate = 1;
+        private int frameRate = 4;
         private List<Bitmap> bitmapList = new List<Bitmap>();
         private TimeSpan soundTimeSpan = TimeSpan.FromSeconds(1);
 
         public MainWindow()
         {
             InitializeComponent();
+            mediaElement.Source = new Uri("snow.avi", UriKind.Relative);
         }
 
         private void EditButton_Click(object sender, RoutedEventArgs e)
@@ -59,8 +60,8 @@ namespace line
             messageBlockTop = messageBlockDistance;
 
             DispatcherTimer dispatcherTimer = new DispatcherTimer();
-            dispatcherTimer.Interval = TimeSpan.FromSeconds(1 / frameRate);
-            dispatcherTimer.Tick += AddBitmapList;
+            dispatcherTimer.Interval = TimeSpan.FromSeconds(1.0 / frameRate);
+            dispatcherTimer.Tick += AddBitmap;
             dispatcherTimer.Start();
 
             List<ISampleProvider> sampleProviderList = new List<ISampleProvider>();
@@ -97,16 +98,16 @@ namespace line
             {
                 AviManager aviManager = new AviManager(saveFileDialog.FileName, false);
                 VideoStream aviStream = aviManager.AddVideoStream(false, frameRate, bitmapList[0]);
-                for (int i = 1; i < bitmapList.Count; i++)
+                foreach (var bitmap in bitmapList)
                 {
-                    aviStream.AddFrame(bitmapList[i]);
+                    aviStream.AddFrame(bitmap);
                 }
                 aviManager.AddAudioStream("temp.wav", 0);
                 aviManager.Close();
             }
         }
 
-        private void AddBitmapList(object sender, EventArgs e)
+        private void AddBitmap(object sender, EventArgs e)
         {
             Bitmap bitmap = new Bitmap((int)grid.Width * 2, (int)grid.Height * 2);
             Graphics graphics = Graphics.FromImage(bitmap);
@@ -197,6 +198,11 @@ namespace line
 
                 grid.Children.Add(firstBorder);
             }
+        }
+
+        private void mediaElement_MediaEnded(object sender, RoutedEventArgs e)
+        {
+            mediaElement.Position = TimeSpan.Zero;
         }
     }
 }

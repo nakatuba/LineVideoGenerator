@@ -7,13 +7,26 @@
         mc:Ignorable="d"
         Title="MainWindow" Width="1000" Height="640">
     <Grid>
-        <Grid x:Name="grid"
-              Background="LightBlue"
+        <Grid Background="LightBlue"
               Width="960"
               Height="540"
               HorizontalAlignment="Center"
               VerticalAlignment="Top"
-              Margin="0" />
+              Margin="0">
+            <MediaElement x:Name="mediaElement"
+                          Width="960"
+                          Height="540"
+                          HorizontalAlignment="Left"
+                          VerticalAlignment="Top"
+                          Margin="0"
+                          MediaEnded="mediaElement_MediaEnded"/>
+            <Grid x:Name="grid"
+                  Width="960"
+                  Height="540"
+                  HorizontalAlignment="Left"
+                  VerticalAlignment="Top"
+                  Margin="0"/>
+        </Grid>
         <Button x:Name="editButton"
                 Content="編集"
                 Width="75"
