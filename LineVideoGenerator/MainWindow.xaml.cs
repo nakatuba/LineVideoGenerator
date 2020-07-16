@@ -21,9 +21,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
-using Point = System.Windows.Point;
 using Brushes = System.Windows.Media.Brushes;
-using Accord;
 
 namespace line
 {
@@ -38,13 +36,12 @@ namespace line
         private double messageBlockSide = 30; // メッセージの横の余白
         private TimeSpan messageTimeSpan = TimeSpan.FromSeconds(1); // メッセージ同士の時間間隔
         private List<Bitmap> messageBitmapList = new List<Bitmap>();
-        private List<Bitmap> backgroundBitmapList = new List<Bitmap>();
         private int frameRate; // フレームレート
         private int frameWidth = 1920; // フレームの幅
         private int frameHeight = 1080; // フレームの高さ
         private List<string> messagePathList = new List<string>(); // メッセージの画像の保存先
         private string backgroudPath = "snow.mp4"; // 背景のアニメーション
-        private string soundEffectPath = "send.wav"; // サウンドエフェクト
+        private string soundEffectPath = "send.mp3"; // サウンドエフェクト
         private string tempAudioPath = "temp.wav"; // 動画の音声の保存先
         private Ellipse tempEllipse;
         private TextBlock tempNameBlock;
@@ -135,10 +132,10 @@ namespace line
 
             if (saveFileDialog.ShowDialog() == true)
             {
-                AviManager aviManager = new AviManager(saveFileDialog.FileName, false);
-                VideoStream aviStream = null;
                 VideoFileReader videoFileReader = new VideoFileReader();
                 videoFileReader.Open(backgroudPath);
+                VideoFileWriter videoFileWriter = new VideoFileWriter();
+                videoFileWriter.Open(saveFileDialog.FileName, frameWidth, frameHeight, frameRate);
                 for (int i = 0; i < messageBitmapList.Count; i++)
                 {
                     Bitmap backgroundBitmap = videoFileReader.ReadVideoFrame();
@@ -147,13 +144,7 @@ namespace line
                     graphics.DrawImage(backgroundBitmap, 0, 0, frameBitmap.Width, frameBitmap.Height);
                     graphics.DrawImage(messageBitmapList[i], 0, 0, frameBitmap.Width, frameBitmap.Height);
 
-                    if (i == 0)
-                    {
-                        aviStream = aviManager.AddVideoStream(false, frameRate, frameBitmap);
-                    } else
-                    {
-                        aviStream.AddFrame(frameBitmap);
-                    }
+                    videoFileWriter.WriteVideoFrame(frameBitmap);
 
                     if (i % videoFileReader.FrameCount == 0)
                     {
@@ -166,8 +157,12 @@ namespace line
                     graphics.Dispose();
                 }
                 videoFileReader.Close();
+                videoFileWriter.Close();
+
+                AviManager aviManager = new AviManager(saveFileDialog.FileName, true);
                 aviManager.AddAudioStream(tempAudioPath, 0);
                 aviManager.Close();
+
                 MessageBox.Show("保存されました");
             }
         }
