@@ -29,7 +29,7 @@ namespace line
             InitializeComponent();
         }
 
-        private void iconButton_Click(object sender, RoutedEventArgs e)
+        private void IconButton_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
 
@@ -87,6 +87,12 @@ namespace line
             mainWindow.playButton.IsEnabled = true;
             mainWindow.saveButton.IsEnabled = false;
             textBox.Text = string.Empty;
+        }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            MainWindow mainWindow = Owner as MainWindow;
+            mainWindow.editButton.IsEnabled = true;
         }
     }
 }

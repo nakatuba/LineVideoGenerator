@@ -5,11 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:line"
         mc:Ignorable="d"
-        Title="MainWindow" Width="1000" Height="640">
+        Title="MainWindow" Width="1000" Height="640" Closed="Window_Closed">
     <Grid>
         <Grid Background="LightBlue"
-              Width="960"
-              Height="540"
               HorizontalAlignment="Center"
               VerticalAlignment="Top"
               Margin="0">

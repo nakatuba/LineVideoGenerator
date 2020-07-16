@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:line"
         mc:Ignorable="d"
-        Title="EditWindow" Height="450" Width="800">
+        Title="EditWindow" Height="450" Width="800" Closed="Window_Closed">
     <Grid>
         <TextBox x:Name="myTextBox"
                  Width="400"
@@ -31,7 +31,7 @@
                 HorizontalAlignment="Center"
                 VerticalAlignment="Top"
                 Margin="0,140,600,0"
-                Click="iconButton_Click">
+                Click="IconButton_Click">
             <Button.Template>
                 <ControlTemplate TargetType="Button">
                     <Grid>
