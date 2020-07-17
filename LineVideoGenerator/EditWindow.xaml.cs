@@ -1,7 +1,6 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,7 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 
-namespace line
+namespace LineVideoGenerator
 {
     /// <summary>
     /// EditWindow.xaml の相互作用ロジック
@@ -35,11 +34,18 @@ namespace line
 
             if (openFileDialog.ShowDialog() == true)
             {
-                ImageBrush imageBrush = (ImageBrush)iconButton.Template.FindName("imageBrush", iconButton);
-                BitmapImage bitmapImage = new BitmapImage(new Uri(openFileDialog.FileName));
-                imageBrush.ImageSource = bitmapImage;
-                isSetIcon = true;
-                CheckOtherSendButton();
+                try
+                {
+                    ImageBrush imageBrush = (ImageBrush)iconButton.Template.FindName("imageBrush", iconButton);
+                    BitmapImage bitmapImage = new BitmapImage(new Uri(openFileDialog.FileName));
+                    imageBrush.ImageSource = bitmapImage;
+                    isSetIcon = true;
+                    CheckOtherSendButton();
+                }
+                catch (NotSupportedException)
+                {
+                    MessageBox.Show("異なる形式を選択してください");
+                }
             }
         }
 

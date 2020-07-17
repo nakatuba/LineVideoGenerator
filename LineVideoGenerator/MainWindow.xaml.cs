@@ -23,7 +23,7 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using Brushes = System.Windows.Media.Brushes;
 
-namespace line
+namespace LineVideoGenerator
 {
     /// <summary>
     /// MainWindow.xaml の相互作用ロジック
@@ -36,11 +36,12 @@ namespace line
         private double messageBlockSide = 30; // メッセージの横の余白
         private TimeSpan messageTimeSpan = TimeSpan.FromSeconds(1); // メッセージ同士の時間間隔
         private List<Bitmap> messageBitmapList = new List<Bitmap>();
-        private int frameRate; // フレームレート
+        public int frameRate; // フレームレート
         private int frameWidth = 1920; // フレームの幅
         private int frameHeight = 1080; // フレームの高さ
         private List<string> messagePathList = new List<string>(); // メッセージの画像の保存先
-        private string backgroudPath = "snow.mp4"; // 背景のアニメーション
+        public string backgroundPath = "background.png"; // 背景
+        public bool isAnimated = false;
         private string soundEffectPath = "send.mp3"; // サウンドエフェクト
         private string tempAudioPath = "temp.wav"; // 動画の音声の保存先
         private Ellipse tempEllipse;
@@ -49,11 +50,8 @@ namespace line
         public MainWindow()
         {
             InitializeComponent();
-            mediaElement.Source = new Uri(backgroudPath, UriKind.Relative);
-            VideoFileReader videoFileReader = new VideoFileReader();
-            videoFileReader.Open(backgroudPath);
-            frameRate = (int)videoFileReader.FrameRate;
-            videoFileReader.Close();
+            BitmapImage bitmapImage = new BitmapImage(new Uri(backgroundPath, UriKind.Relative));
+            backgroundImage.Source = bitmapImage;
         }
 
         private void EditButton_Click(object sender, RoutedEventArgs e)
@@ -62,6 +60,15 @@ namespace line
             editWindow.Owner = this;
             editWindow.Show();
             editButton.IsEnabled = false;
+        }
+
+        private void BackgroundButton_Click(object sender, RoutedEventArgs e)
+        {
+            BackgroundWindow backgroundWindow = new BackgroundWindow();
+            backgroundWindow.Owner = this;
+            backgroundWindow.Show();
+            if (backgroundPath != "background.png") backgroundWindow.resetButton.IsEnabled = true;
+            backgroundButton.IsEnabled = false;
         }
 
         private async void PlayButton_Click(object sender, RoutedEventArgs e)
@@ -77,6 +84,18 @@ namespace line
             messageBitmapList.Clear();
             messagePathList.Clear();
             messageBlockTop = messageBlockDistance;
+
+            if(isAnimated)
+            {
+                VideoFileReader videoFileReader = new VideoFileReader();
+                videoFileReader.Open(backgroundPath);
+                frameRate = (int)videoFileReader.FrameRate;
+                videoFileReader.Close();
+            }
+            else
+            {
+                frameRate = 25;
+            }
 
             List<ISampleProvider> sampleProviderList = new List<ISampleProvider>();
             for (int i = 0; i < messageList.Count; i++)
@@ -123,48 +142,6 @@ namespace line
             editButton.IsEnabled = true;
             playButton.IsEnabled = true;
             saveButton.IsEnabled = true;
-        }
-
-        private void SaveButton_Click(object sender, RoutedEventArgs e)
-        {
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.DefaultExt = ".avi";
-
-            if (saveFileDialog.ShowDialog() == true)
-            {
-                VideoFileReader videoFileReader = new VideoFileReader();
-                videoFileReader.Open(backgroudPath);
-                VideoFileWriter videoFileWriter = new VideoFileWriter();
-                videoFileWriter.Open(saveFileDialog.FileName, frameWidth, frameHeight, frameRate);
-                for (int i = 0; i < messageBitmapList.Count; i++)
-                {
-                    Bitmap backgroundBitmap = videoFileReader.ReadVideoFrame();
-                    Bitmap frameBitmap = new Bitmap(frameWidth, frameHeight);
-                    Graphics graphics = Graphics.FromImage(frameBitmap);
-                    graphics.DrawImage(backgroundBitmap, 0, 0, frameBitmap.Width, frameBitmap.Height);
-                    graphics.DrawImage(messageBitmapList[i], 0, 0, frameBitmap.Width, frameBitmap.Height);
-
-                    videoFileWriter.WriteVideoFrame(frameBitmap);
-
-                    if (i % videoFileReader.FrameCount == 0)
-                    {
-                        videoFileReader.Close();
-                        videoFileReader.Open(backgroudPath);
-                    }
-
-                    backgroundBitmap.Dispose();
-                    frameBitmap.Dispose();
-                    graphics.Dispose();
-                }
-                videoFileReader.Close();
-                videoFileWriter.Close();
-
-                AviManager aviManager = new AviManager(saveFileDialog.FileName, true);
-                aviManager.AddAudioStream(tempAudioPath, 0);
-                aviManager.Close();
-
-                MessageBox.Show("保存されました");
-            }
         }
 
         public void SendMessage(BitmapImage icon, string name, string text)
@@ -260,7 +237,86 @@ namespace line
             }
         }
 
-        private void mediaElement_MediaEnded(object sender, RoutedEventArgs e)
+        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.DefaultExt = ".avi";
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                try
+                {
+                    if (isAnimated) SaveAnimationBackground(saveFileDialog.FileName);
+                    else SaveImageBackground(saveFileDialog.FileName);
+                    MessageBox.Show("保存されました");
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("保存できませんでした");
+                }
+            }
+        }
+
+        private void SaveImageBackground(string fileName)
+        {
+            VideoFileWriter videoFileWriter = new VideoFileWriter();
+            videoFileWriter.Open(fileName, frameWidth, frameHeight, frameRate);
+            for (int i = 0; i < messageBitmapList.Count; i++)
+            {
+                Bitmap backgroundBitmap = new Bitmap(backgroundPath);
+                Bitmap frameBitmap = new Bitmap(frameWidth, frameHeight);
+                Graphics graphics = Graphics.FromImage(frameBitmap);
+                graphics.DrawImage(backgroundBitmap, 0, 0, frameBitmap.Width, frameBitmap.Height);
+                graphics.DrawImage(messageBitmapList[i], 0, 0, frameBitmap.Width, frameBitmap.Height);
+
+                videoFileWriter.WriteVideoFrame(frameBitmap);
+
+                backgroundBitmap.Dispose();
+                frameBitmap.Dispose();
+                graphics.Dispose();
+            }
+            videoFileWriter.Close();
+
+            AviManager aviManager = new AviManager(fileName, true);
+            aviManager.AddAudioStream(tempAudioPath, 0);
+            aviManager.Close();
+        }
+
+        private void SaveAnimationBackground(string fileName)
+        {
+            VideoFileReader videoFileReader = new VideoFileReader();
+            videoFileReader.Open(backgroundPath);
+            VideoFileWriter videoFileWriter = new VideoFileWriter();
+            videoFileWriter.Open(fileName, frameWidth, frameHeight, frameRate);
+            for (int i = 0; i < messageBitmapList.Count; i++)
+            {
+                Bitmap backgroundBitmap = videoFileReader.ReadVideoFrame();
+                Bitmap frameBitmap = new Bitmap(frameWidth, frameHeight);
+                Graphics graphics = Graphics.FromImage(frameBitmap);
+                graphics.DrawImage(backgroundBitmap, 0, 0, frameBitmap.Width, frameBitmap.Height);
+                graphics.DrawImage(messageBitmapList[i], 0, 0, frameBitmap.Width, frameBitmap.Height);
+
+                videoFileWriter.WriteVideoFrame(frameBitmap);
+
+                if (i % videoFileReader.FrameCount == 0)
+                {
+                    videoFileReader.Close();
+                    videoFileReader.Open(backgroundPath);
+                }
+
+                backgroundBitmap.Dispose();
+                frameBitmap.Dispose();
+                graphics.Dispose();
+            }
+            videoFileReader.Close();
+            videoFileWriter.Close();
+
+            AviManager aviManager = new AviManager(fileName, true);
+            aviManager.AddAudioStream(tempAudioPath, 0);
+            aviManager.Close();
+        }
+
+        private void MediaElement_MediaEnded(object sender, RoutedEventArgs e)
         {
             mediaElement.Position = TimeSpan.Zero;
         }
