@@ -97,3 +97,8 @@ C:\Users\nakagawatsubasa\source\repos\LineVideoGenerator\LineVideoGenerator\bin\
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\obj\Debug\LineVideoGenerator.csproj.CopyComplete
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\obj\Debug\LineVideoGenerator.exe
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\obj\Debug\LineVideoGenerator.pdb
+\\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\bin\Debug\LineVideoGenerator.exe.manifest
+\\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\bin\Debug\LineVideoGenerator.application
+\\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\obj\Debug\LineVideoGenerator.exe.manifest
+\\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\obj\Debug\LineVideoGenerator.application
+\\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\bin\Debug\send.mp3
