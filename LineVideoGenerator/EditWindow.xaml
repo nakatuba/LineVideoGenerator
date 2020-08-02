@@ -15,7 +15,8 @@
                  VerticalScrollBarVisibility="Auto"
                  AcceptsReturn="True"
                  TextWrapping="Wrap"
-                 TextChanged="MyTextBox_TextChanged"/>
+                 TextChanged="MyTextBox_TextChanged"
+                 Tag="1"/>
         <Button x:Name="mySendButton"
                 Content="送信"
                 Width="75"
@@ -23,7 +24,8 @@
                 VerticalAlignment="Top"
                 Margin="600,60,0,0"
                 IsEnabled="False"
-                Click="MySendButton_Click"/>
+                Click="SendButton_Click"
+                CommandTarget="{Binding ElementName=myTextBox, Mode=OneWay}"/>
         <Button x:Name="iconButton"
                 Width="75"
                 Height="75"
@@ -59,14 +61,17 @@
                  VerticalScrollBarVisibility="Auto"
                  AcceptsReturn="True"
                  TextWrapping="Wrap"
-                 TextChanged="OtherTextBox_TextChanged"/>
-        <Button x:Name="otherSendButton" Content="送信"
+                 TextChanged="OtherTextBox_TextChanged"
+                 Tag="2"/>
+        <Button x:Name="otherSendButton"
+                Content="送信"
                 Width="75"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Top"
                 Margin="600,180,0,0"
                 IsEnabled="False"
-                Click="OtherSendButton_Click"/>
-
+                Click="SendButton_Click"
+                CommandTarget="{Binding ElementName=otherTextBox, Mode=OneWay}"/>
+        
     </Grid>
 </Window>

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -12,7 +13,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using System.Windows.Threading;
 
 namespace LineVideoGenerator
 {
@@ -59,6 +59,7 @@ namespace LineVideoGenerator
             CheckOtherSendButton();
         }
 
+        /*
         private void MySendButton_Click(object sender, RoutedEventArgs e)
         {
             SendText(myTextBox);
@@ -68,32 +69,66 @@ namespace LineVideoGenerator
         {
             SendText(otherTextBox);
         }
+        */
+
+        private void SendButton_Click(object sender, RoutedEventArgs e)
+        {
+            Button sendButton = sender as Button;
+            TextBox messageBox = sendButton.CommandTarget as TextBox;
+            int personID = Convert.ToInt32(messageBox.Tag);
+            Message message;
+
+            if (personID == 1)
+            {
+                message = new Message(personID, messageBox.Text);
+
+            }
+            else
+            {
+                ImageBrush imageBrush = (ImageBrush)iconButton.Template.FindName("imageBrush", iconButton);
+                message = new Message(personID, (BitmapImage)imageBrush.ImageSource, nameTextBox.Text, messageBox.Text);
+            }
+
+            MainWindow mainWindow = Owner as MainWindow;
+            mainWindow.data.messageList.Add(message);
+            mainWindow.SendMessage(message);
+            mainWindow.playButton.IsEnabled = true;
+            mainWindow.saveButton.IsEnabled = false;
+
+            messageBox.Text = string.Empty;
+        }
 
         private void CheckOtherSendButton()
         {
             otherSendButton.IsEnabled = isSetIcon && !string.IsNullOrWhiteSpace(nameTextBox.Text) && !string.IsNullOrWhiteSpace(otherTextBox.Text);
         }
 
+        /*
         private void SendText(TextBox textBox)
         {
             MainWindow mainWindow = Owner as MainWindow;
 
             if (textBox == myTextBox)
             {
-                mainWindow.SendMessage(null, null, textBox.Text);
-                mainWindow.messageList.Add((null, null, textBox.Text));
+                Message message = new Message(textBox.Text);
+                message.myMessage = true;
+                mainWindow.SendMessage(message);
+                mainWindow.data.messageList.Add(message);
             }
             else
             {
                 ImageBrush imageBrush = (ImageBrush)iconButton.Template.FindName("imageBrush", iconButton);
-                mainWindow.SendMessage((BitmapImage)imageBrush.ImageSource, nameTextBox.Text, textBox.Text);
-                mainWindow.messageList.Add(((BitmapImage)imageBrush.ImageSource, nameTextBox.Text, textBox.Text));
+                Message message = new Message((BitmapImage)imageBrush.ImageSource, nameTextBox.Text, textBox.Text);
+                message.myMessage = false;
+                mainWindow.SendMessage(message);
+                mainWindow.data.messageList.Add(message);
             }
 
             mainWindow.playButton.IsEnabled = true;
             mainWindow.saveButton.IsEnabled = false;
             textBox.Text = string.Empty;
         }
+        */
 
         private void Window_Closed(object sender, EventArgs e)
         {

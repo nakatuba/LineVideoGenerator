@@ -102,3 +102,4 @@ C:\Users\nakagawatsubasa\source\repos\LineVideoGenerator\LineVideoGenerator\bin\
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\obj\Debug\LineVideoGenerator.exe.manifest
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\obj\Debug\LineVideoGenerator.application
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\bin\Debug\send.mp3
+\\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\bin\Debug\background.png
