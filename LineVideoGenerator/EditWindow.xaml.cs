@@ -1,12 +1,15 @@
-﻿using Microsoft.Win32;
+﻿using InWit.WPF.MultiRangeSlider;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -21,6 +24,7 @@ namespace LineVideoGenerator
     /// </summary>
     public partial class EditWindow : Window
     {
+        private double messageTime;
         private bool isSetIcon = false;
 
         public EditWindow()
@@ -76,18 +80,28 @@ namespace LineVideoGenerator
             Button sendButton = sender as Button;
             TextBox messageBox = sendButton.CommandTarget as TextBox;
             int personID = Convert.ToInt32(messageBox.Tag);
-            Message message;
+            messageTime++;
+            // mySlider.Maximum = messageTime;
+            mySlider.Maximum = 60;
+            // otherSlider.Maximum = messageTime;
+            otherSlider.Maximum = 60;
+            WitMultiRangeSliderItem sliderItem = new WitMultiRangeSliderItem();
 
+            Message message;
             if (personID == 1)
             {
-                message = new Message(personID, messageBox.Text);
-
+                message = new Message(personID, messageBox.Text, messageTime);
+                mySlider.Items.Add(sliderItem);
             }
             else
             {
                 ImageBrush imageBrush = (ImageBrush)iconButton.Template.FindName("imageBrush", iconButton);
-                message = new Message(personID, (BitmapImage)imageBrush.ImageSource, nameTextBox.Text, messageBox.Text);
+                message = new Message(personID, (BitmapImage)imageBrush.ImageSource, nameTextBox.Text, messageBox.Text, messageTime);
+                otherSlider.Items.Add(sliderItem);
             }
+
+            Binding binding = new Binding("Time") { Source = message };
+            sliderItem.SetBinding(RangeBase.ValueProperty, binding);
 
             MainWindow mainWindow = Owner as MainWindow;
             mainWindow.data.messageList.Add(message);
@@ -129,6 +143,14 @@ namespace LineVideoGenerator
             textBox.Text = string.Empty;
         }
         */
+
+        private void Slider_DragCompleted(object sender, DragCompletedEventArgs e)
+        {
+            // メッセージを時間順にソート（https://yomon.hatenablog.com/entry/2014/01/14/C%23%E3%81%AEObservableCollection%E3%81%AB%E3%81%8A%E3%81%91%E3%82%8B%E8%A6%81%E7%B4%A0%E3%81%AE%E4%B8%A6%E3%81%B9%E6%9B%BF%E3%81%88%E6%96%B9%E6%B3%95）
+            MainWindow mainWindow = Owner as MainWindow;
+            mainWindow.data.messageList = new ObservableCollection<Message>(mainWindow.data.messageList.OrderBy(n => n.Time));
+            dataGrid.ItemsSource = mainWindow.data.messageList;
+        }
 
         private void Window_Closed(object sender, EventArgs e)
         {

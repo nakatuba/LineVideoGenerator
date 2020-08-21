@@ -75,7 +75,13 @@
       <HintPath>..\packages\Accord.Video.FFMPEG.3.8.0\lib\net462\Accord.Video.FFMPEG.dll</HintPath>
     </Reference>
     <Reference Include="AviFile">
-      <HintPath>\\Mac\Home\Downloads\avifilewrapper_src\bin\Debug\AviFile.dll</HintPath>
+      <HintPath>..\..\..\Downloads\avifilewrapperdemo_src\AviFile\bin\Debug\AviFile.dll</HintPath>
+    </Reference>
+    <Reference Include="InWit.Core">
+      <HintPath>..\..\..\Downloads\WitMultiRangeSlider\src\InWit\MultiRangeSliderTestApp.GUI\bin\Debug\InWit.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="InWit.WPF.MultiRangeSlider">
+      <HintPath>..\..\..\Downloads\WitMultiRangeSlider\src\InWit\MultiRangeSliderTestApp.GUI\bin\Debug\InWit.WPF.MultiRangeSlider.dll</HintPath>
     </Reference>
     <Reference Include="NAudio, Version=1.10.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\NAudio.1.10.0\lib\net35\NAudio.dll</HintPath>
@@ -102,6 +108,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="TimeConverter.cs" />
     <Page Include="BackgroundWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

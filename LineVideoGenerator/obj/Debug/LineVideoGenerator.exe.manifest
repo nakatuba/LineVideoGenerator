@@ -79,25 +79,49 @@
   </dependency>
   <dependency>
     <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="AviFile.dll" size="36864">
-      <assemblyIdentity name="AviFile" version="1.0.7500.27156" language="neutral" processorArchitecture="msil" />
+      <assemblyIdentity name="AviFile" version="1.0.7500.38390" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>/bgJ8nWpQ0nM8pnK6JeqmLW+LL2cIeNI34Lf308VkEE=</dsig:DigestValue>
+        <dsig:DigestValue>SLGv+s5VSaDaAfpMXdOJYT6hADxsHU/xdu/JVy+BJBg=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="LineVideoGenerator.exe" size="36824">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="InWit.Core.dll" size="11776">
+      <assemblyIdentity name="InWit.Core" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
+      <hash>
+        <dsig:Transforms>
+          <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+        </dsig:Transforms>
+        <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+        <dsig:DigestValue>1rEgmrb3n2oMCUXm+QtlJtL20yzRDEv2PFLDU8LlXi4=</dsig:DigestValue>
+      </hash>
+    </dependentAssembly>
+  </dependency>
+  <dependency>
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="InWit.WPF.MultiRangeSlider.dll" size="30720">
+      <assemblyIdentity name="InWit.WPF.MultiRangeSlider" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
+      <hash>
+        <dsig:Transforms>
+          <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+        </dsig:Transforms>
+        <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+        <dsig:DigestValue>t9XZ22ukqdz8ci1tQoM2yJXu51H+Xd+A/HOKU/IuTcA=</dsig:DigestValue>
+      </hash>
+    </dependentAssembly>
+  </dependency>
+  <dependency>
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="LineVideoGenerator.exe" size="41944">
       <assemblyIdentity name="LineVideoGenerator" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>are5sNrLw8G/C6CYtb4lkNxorUMb8ORnbDultwGF8V4=</dsig:DigestValue>
+        <dsig:DigestValue>ZCHT8WPZCs759PCDTpGz3njRD26d3IevTQLtiU7yyvc=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

@@ -47,23 +47,36 @@ namespace LineVideoGenerator
                 }
             }
         }
-        public string name;
-        public string text;
+        public string Name { get; set; }
+        public string Text { get; set; }
+        public double Time { get; set; }
+        /*
+        public string TimeString
+        {
+            get
+            {
+                TimeSpan timeSpan = TimeSpan.FromSeconds(Time);
+                return timeSpan.ToString();
+            }
+        }
+        */
 
         public Message() { }
 
-        public Message(int id, string text)
+        public Message(int personID, string text, double time)
         {
-            this.personID = id;
-            this.text = text;
+            this.personID = personID;
+            Text = text;
+            Time = time;
         }
 
-        public Message(int id, BitmapImage icon, string name, string text)
+        public Message(int personID, BitmapImage icon, string name, string text, double time)
         {
-            this.personID = id;
+            this.personID = personID;
             this.icon = icon;
-            this.name = name;
-            this.text = text;
+            Name = name;
+            Text = text;
+            Time = time;
         }
     }
 }
