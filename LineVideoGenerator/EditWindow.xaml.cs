@@ -3,6 +3,7 @@ using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -15,7 +16,6 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace LineVideoGenerator
 {
@@ -104,10 +104,11 @@ namespace LineVideoGenerator
             sliderItem.SetBinding(RangeBase.ValueProperty, binding);
 
             MainWindow mainWindow = Owner as MainWindow;
-            mainWindow.data.messageList.Add(message);
+            // メッセージの編集後に保存ボタンを無効化
+            message.PropertyChanged += (sender2, e2) => mainWindow.saveButton.IsEnabled = false;
+            mainWindow.data.messageCollection.Add(message);
             mainWindow.SendMessage(message);
             mainWindow.playButton.IsEnabled = true;
-            mainWindow.saveButton.IsEnabled = false;
 
             messageBox.Text = string.Empty;
         }
@@ -148,8 +149,53 @@ namespace LineVideoGenerator
         {
             // メッセージを時間順にソート（https://yomon.hatenablog.com/entry/2014/01/14/C%23%E3%81%AEObservableCollection%E3%81%AB%E3%81%8A%E3%81%91%E3%82%8B%E8%A6%81%E7%B4%A0%E3%81%AE%E4%B8%A6%E3%81%B9%E6%9B%BF%E3%81%88%E6%96%B9%E6%B3%95）
             MainWindow mainWindow = Owner as MainWindow;
-            mainWindow.data.messageList = new ObservableCollection<Message>(mainWindow.data.messageList.OrderBy(n => n.Time));
-            dataGrid.ItemsSource = mainWindow.data.messageList;
+            mainWindow.data.messageCollection = new ObservableCollection<Message>(mainWindow.data.messageCollection.OrderBy(n => n.Time));
+            dataGrid.ItemsSource = mainWindow.data.messageCollection;
+        }
+
+        private void EditButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void VoiceButton_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                try
+                {
+                    Message message = dataGrid.SelectedItem as Message;
+                    message.Voice = File.ReadAllBytes(openFileDialog.FileName);
+                    message.voicePathExt = Path.GetExtension(openFileDialog.FileName);
+                }
+                catch (NotSupportedException)
+                {
+                    MessageBox.Show("異なる形式を選択してください");
+                }
+            }
+        }
+
+        private void PlayButton_Click(object sender, RoutedEventArgs e)
+        {
+            Message message = dataGrid.SelectedItem as Message;
+            if (message.Voice != null)
+            {
+                Button playButton = sender as Button;
+                playButton.IsEnabled = false;
+                message.PlayVoice(() => playButton.IsEnabled = true);
+            }
+        }
+
+        private void DeleteButton_Click(object sender, RoutedEventArgs e)
+        {
+            MainWindow mainWindow = Owner as MainWindow;
+            mainWindow.data.messageCollection.Remove((Message)dataGrid.SelectedItem);
+            if (mainWindow.data.messageCollection.Count == 0)
+            {
+                mainWindow.playButton.IsEnabled = false;
+            }
         }
 
         private void Window_Closed(object sender, EventArgs e)

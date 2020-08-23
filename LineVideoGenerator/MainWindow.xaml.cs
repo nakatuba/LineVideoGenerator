@@ -36,18 +36,17 @@ namespace LineVideoGenerator
         private const double messageBlockDistance = 10; // メッセージ同士の距離間隔
         private double messageBlockTop = messageBlockDistance; // メッセージの上の余白
         private double messageBlockRight = 20; // メッセージの右の余白
-        private double messageBlockLeft = 100; // メッセージの右の余白
+        private double messageBlockLeft = 100; // メッセージの左の余白
         private double iconEllipseLeft = 10; // アイコンの左の余白
-        private List<Bitmap> messageBitmapList = new List<Bitmap>();
         public int gridOriginalHeight = 540; // gridの元の高さ
         public int frameRate; // フレームレート
         private int frameWidth = 1920; // フレームの幅
         private int frameHeight = 1080; // フレームの高さ
-        private List<string> messagePathList = new List<string>(); // メッセージの画像の保存先
+        private List<string> messagePathList = new List<string>(); // メッセージの画像のパス
+        private List<Bitmap> messageBitmapList = new List<Bitmap>();
         public string backgroundPath = "background.png"; // 背景
         public bool isAnimated = false;
-        private string soundEffectPath = "send.mp3"; // サウンドエフェクト
-        private string tempAudioPath = "temp.wav"; // 動画の音声の保存先
+        private string soundEffectPath = "send.mp3"; // サウンドエフェクトのパス
         public Data data = new Data();
 
         public MainWindow()
@@ -57,6 +56,9 @@ namespace LineVideoGenerator
             // 背景（デフォルト）
             BitmapImage bitmapImage = new BitmapImage(new Uri(backgroundPath, UriKind.Relative));
             backgroundImage.Source = bitmapImage;
+
+            // メッセージの追加・削除後に保存ボタンを無効化
+            data.messageCollection.CollectionChanged += (sender, e) => saveButton.IsEnabled = false;
         }
 
         private void LoadButton_Click(object sender, RoutedEventArgs e)
@@ -86,7 +88,7 @@ namespace LineVideoGenerator
         {
             EditWindow editWindow = new EditWindow();
             editWindow.Owner = this;
-            editWindow.dataGrid.ItemsSource = data.messageList;
+            editWindow.dataGrid.ItemsSource = data.messageCollection;
             editWindow.Show();
             editButton.IsEnabled = false;
         }
@@ -105,6 +107,7 @@ namespace LineVideoGenerator
             editButton.IsEnabled = false;
             playButton.IsEnabled = false;
             saveButton.IsEnabled = false;
+
             // gridからすべての要素を削除
             grid.Children.Clear();
             // gridの高さを初期化
@@ -113,13 +116,15 @@ namespace LineVideoGenerator
             grid.BeginAnimation(MarginProperty, null);
             // gridの余白を初期化
             grid.Margin = new Thickness(0);
+
+            messageBlockTop = messageBlockDistance;
+
+            messagePathList.Clear();
             foreach (var messageBitmap in messageBitmapList)
             {
                 messageBitmap.Dispose();
             }
             messageBitmapList.Clear();
-            messagePathList.Clear();
-            messageBlockTop = messageBlockDistance;
 
             // フレームレートを設定
             if (isAnimated)
@@ -134,46 +139,31 @@ namespace LineVideoGenerator
                 frameRate = 25;
             }
 
-            // メッセージを時間順にソート
-            // data.messageList = new ObservableCollection<Message>(data.messageList.OrderBy(n => n.Time));
-            List<ISampleProvider> sampleProviderList = new List<ISampleProvider>();
-            for (int i = 0; i < data.messageList.Count; i++)
+            for (int i = 0; i < data.messageCollection.Count; i++)
             {
-                /*
-                // 前のメッセージとの時間差
-                TimeSpan messageTimeSpan = TimeSpan.FromSeconds(data.messageList[i].time);
-                if (i > 0) messageTimeSpan -= TimeSpan.FromSeconds(data.messageList[i - 1].time);
-                */
-
                 // 次のメッセージとの時間差
                 TimeSpan messageTimeSpan;
-                if (i == data.messageList.Count - 1)
+                if (i == data.messageCollection.Count - 1)
                 {
                     messageTimeSpan = TimeSpan.FromSeconds(1); // videoTotalTime - data.messageList[i].time
                 }
                 else
                 {
-                    messageTimeSpan = TimeSpan.FromSeconds(data.messageList[i + 1].Time - data.messageList[i].Time);
+                    messageTimeSpan = TimeSpan.FromSeconds(data.messageCollection[i + 1].Time - data.messageCollection[i].Time);
                 }
 
-                // 音声
-                AudioFileReader audioFileReader = new AudioFileReader(soundEffectPath);
-                OffsetSampleProvider offsetSampleProvider = new OffsetSampleProvider(audioFileReader);
                 if (i == 0)
                 {
-                    TimeSpan firstMessageTimeSpan = TimeSpan.FromSeconds(data.messageList[i].Time);
+                    TimeSpan firstMessageTimeSpan = TimeSpan.FromSeconds(data.messageCollection[i].Time);
                     await Task.Delay(firstMessageTimeSpan);
-                    offsetSampleProvider.DelayBy = firstMessageTimeSpan;
                     Bitmap firstMessageBitmap = new Bitmap((int)grid.Width, (int)grid.Height);
                     for (int j = 0; j < firstMessageTimeSpan.TotalSeconds * frameRate; j++)
                     {
                         messageBitmapList.Add(firstMessageBitmap);
                     }
                 }
-                offsetSampleProvider.LeadOut = messageTimeSpan;
-                sampleProviderList.Add(offsetSampleProvider);
 
-                SendMessage(data.messageList[i]);
+                SendMessage(data.messageCollection[i]);
                 await Task.Delay(messageTimeSpan);
 
                 RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap((int)grid.Width, gridOriginalHeight, 96, 96, PixelFormats.Pbgra32);
@@ -182,20 +172,18 @@ namespace LineVideoGenerator
                 pngBitmapEncoder.Frames.Add(BitmapFrame.Create(renderTargetBitmap));
 
                 string messagePath = "message" + i + ".png";
+                messagePathList.Add(messagePath);
                 using (var fileStream = File.Create(messagePath))
                 {
                     pngBitmapEncoder.Save(fileStream);
-                    messagePathList.Add(messagePath);
                 }
 
                 Bitmap messageBitmap = new Bitmap(messagePath);
-                for (int j = 0; j < (audioFileReader.TotalTime + messageTimeSpan).TotalSeconds * frameRate; j++)
+                for (int j = 0; j < messageTimeSpan.TotalSeconds * frameRate; j++)
                 {
                     messageBitmapList.Add(messageBitmap);
                 }
             }
-            ConcatenatingSampleProvider concatenatingSampleProvider = new ConcatenatingSampleProvider(sampleProviderList);
-            WaveFileWriter.CreateWaveFile16(tempAudioPath, concatenatingSampleProvider);
 
             editButton.IsEnabled = true;
             playButton.IsEnabled = true;
@@ -224,8 +212,8 @@ namespace LineVideoGenerator
             }
             else
             {
-                int messageIndex = data.messageList.IndexOf(message);
-                if (messageIndex == 0 || data.messageList[messageIndex - 1].personID != message.personID)
+                int messageIndex = data.messageCollection.IndexOf(message);
+                if (messageIndex == 0 || data.messageCollection[messageIndex - 1].personID != message.personID)
                 {
                     ImageBrush iconBrush = new ImageBrush();
                     iconBrush.ImageSource = message.icon;
@@ -272,21 +260,6 @@ namespace LineVideoGenerator
                 double overHeight = messageBlockTop - grid.Height;
                 grid.Height += overHeight;
                 grid.Margin = new Thickness(grid.Margin.Left, grid.Margin.Top - overHeight, grid.Margin.Right, grid.Margin.Bottom);
-
-                /*
-                // アニメーションを作成
-                ThicknessAnimation thicknessAnimation = new ThicknessAnimation();
-                thicknessAnimation.From = grid.Margin;
-                thicknessAnimation.To = new Thickness(grid.Margin.Left, grid.Margin.Top - overHeight, grid.Margin.Right, grid.Margin.Bottom);
-                thicknessAnimation.Duration = new Duration(TimeSpan.FromSeconds(0.1));
-
-                // アニメーションを再生
-                Storyboard storyboard = new Storyboard();
-                storyboard.Children.Add(thicknessAnimation);
-                Storyboard.SetTarget(thicknessAnimation, grid);
-                Storyboard.SetTargetProperty(thicknessAnimation, new PropertyPath(MarginProperty));
-                storyboard.Begin();
-                */
             }
 
             // サウンドエフェクトを再生
@@ -294,6 +267,9 @@ namespace LineVideoGenerator
             WaveOut waveOut = new WaveOut();
             waveOut.Init(audioFileReader);
             waveOut.Play();
+
+            // 音声を再生
+            message.PlayVoice();
         }
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
@@ -308,6 +284,7 @@ namespace LineVideoGenerator
                     // 動画を保存
                     if (isAnimated) SaveAnimationBackground(saveFileDialog.FileName);
                     else SaveImageBackground(saveFileDialog.FileName);
+                    AddVideoAudio(saveFileDialog.FileName);
 
                     /*
                     // データを保存
@@ -346,10 +323,6 @@ namespace LineVideoGenerator
                 graphics.Dispose();
             }
             videoFileWriter.Close();
-
-            AviManager aviManager = new AviManager(fileName, true);
-            aviManager.AddAudioStream(tempAudioPath, 0);
-            aviManager.Close();
         }
 
         private void SaveAnimationBackground(string fileName)
@@ -380,10 +353,58 @@ namespace LineVideoGenerator
             }
             videoFileReader.Close();
             videoFileWriter.Close();
+        }
 
-            AviManager aviManager = new AviManager(fileName, true);
-            aviManager.AddAudioStream(tempAudioPath, 0);
-            aviManager.Close();
+        private void AddVideoAudio(string fileName)
+        {
+            List<string> wavePathList = new List<string>();
+            List<AudioFileReader> audioFileReaderList = new List<AudioFileReader>();
+            List<ISampleProvider> sampleProviderList = new List<ISampleProvider>();
+            for (int i = 0; i < data.messageCollection.Count; i++)
+            {
+                if (data.messageCollection[i].Voice != null)
+                {
+                    // 音声をWAV形式に変換
+                    string voicePath = "voice" + data.messageCollection[i].voicePathExt;
+                    File.WriteAllBytes(voicePath, data.messageCollection[i].Voice);
+                    MediaFoundationReader mediaFoundationReader = new MediaFoundationReader(voicePath);
+                    string wavePath = "voice" + i + ".wav";
+                    wavePathList.Add(wavePath);
+                    WaveFileWriter.CreateWaveFile(wavePath, new MediaFoundationResampler(mediaFoundationReader, new WaveFormat()));
+                    mediaFoundationReader.Dispose();
+                    File.Delete(voicePath);
+
+                    AudioFileReader audioFileReader = new AudioFileReader(wavePath);
+                    audioFileReaderList.Add(audioFileReader);
+                    OffsetSampleProvider offsetSampleProvider = new OffsetSampleProvider(audioFileReader);
+                    offsetSampleProvider.DelayBy = TimeSpan.FromSeconds(data.messageCollection[i].Time);
+                    sampleProviderList.Add(offsetSampleProvider);
+                }
+            }
+
+            if (sampleProviderList.Count > 0)
+            {
+                // 音声を合成
+                string videoAudioPath = "video.wav";
+                MixingSampleProvider mixingSampleProvider = new MixingSampleProvider(sampleProviderList);
+                WaveFileWriter.CreateWaveFile16(videoAudioPath, mixingSampleProvider);
+
+                foreach (var audioFileReader in audioFileReaderList)
+                {
+                    audioFileReader.Dispose();
+                }
+
+                foreach (var wavePath in wavePathList)
+                {
+                    File.Delete(wavePath);
+                }
+
+                //　動画に音声を挿入
+                AviManager aviManager = new AviManager(fileName, true);
+                aviManager.AddAudioStream(videoAudioPath, 0);
+                aviManager.Close();
+                File.Delete(videoAudioPath);
+            }
         }
 
         private void MediaElement_MediaEnded(object sender, RoutedEventArgs e)
@@ -397,11 +418,11 @@ namespace LineVideoGenerator
             {
                 messageBitmap.Dispose();
             }
+
             foreach (var messagePath in messagePathList)
             {
                 File.Delete(messagePath);
             }
-            File.Delete(tempAudioPath);
         }
     }
 }

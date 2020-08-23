@@ -114,14 +114,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="LineVideoGenerator.exe" size="41944">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="LineVideoGenerator.exe" size="46040">
       <assemblyIdentity name="LineVideoGenerator" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>ZCHT8WPZCs759PCDTpGz3njRD26d3IevTQLtiU7yyvc=</dsig:DigestValue>
+        <dsig:DigestValue>GjYljVEt0KtyHSWcK8/0BW2mnb2iHhvHGAOpaZaN8P0=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

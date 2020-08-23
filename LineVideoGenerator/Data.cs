@@ -9,7 +9,6 @@ namespace LineVideoGenerator
 {
     public class Data
     {
-        // public List<Message> messageList = new List<Message>();
-        public ObservableCollection<Message> messageList = new ObservableCollection<Message>();
+        public ObservableCollection<Message> messageCollection = new ObservableCollection<Message>();
     }
 }
