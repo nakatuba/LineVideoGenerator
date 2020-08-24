@@ -3,12 +3,17 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:src="clr-namespace:LineVideoGenerator"
+        xmlns:local="clr-namespace:LineVideoGenerator"
         xmlns:InWit="clr-namespace:InWit.WPF.MultiRangeSlider;assembly=InWit.WPF.MultiRangeSlider"
         mc:Ignorable="d"
         Title="編集" Height="600" Width="1200" Closed="Window_Closed">
     <Window.Resources>
-        <src:TimeConverter x:Key="timeConverter"/>
+        <Style TargetType="InWit:WitMultiRangeSlider">
+            <Setter Property="Height" Value="25"/>
+            <Setter Property="Margin" Value="20 0 20 0"/>
+            <EventSetter Event="Thumb.DragCompleted" Handler="Slider_DragCompleted"/>
+        </Style>
+        <local:TimeConverter x:Key="timeConverter"/>
     </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -23,76 +28,13 @@
                 <RowDefinition/>
                 <RowDefinition/>
             </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition Width="3*"/>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
-            <TextBox x:Name="myTextBox"
-                     Grid.Row="0"
-                     Grid.Column="1"
-                     Margin="20"
-                     VerticalScrollBarVisibility="Auto"
-                     AcceptsReturn="True"
-                     TextWrapping="Wrap"
-                     TextChanged="MyTextBox_TextChanged"
-                     Tag="1"/>
-            <Button x:Name="mySendButton"
-                    Grid.Row="0"
-                    Grid.Column="2"
-                    Width="80"
-                    Height="20"
-                    Content="送信"
-                    IsEnabled="False"
-                    Click="SendButton_Click"
-                    CommandTarget="{Binding ElementName=myTextBox, Mode=OneWay}"/>
-            <Button x:Name="iconButton"
-                    Grid.Row="1"
-                    Grid.Column="0"
-                    Width="60"
-                    Height="60"
-                    Margin="0,0,0,20"
-                    Click="IconButton_Click">
-                <Button.Template>
-                    <ControlTemplate TargetType="Button">
-                        <Grid>
-                            <Ellipse Stroke="Black">
-                                <Ellipse.Fill>
-                                    <ImageBrush x:Name="imageBrush" ImageSource="no image.png" Stretch="UniformToFill"/>
-                                </Ellipse.Fill>
-                            </Ellipse>
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Grid>
-                    </ControlTemplate>
-                </Button.Template>
-            </Button>
-            <TextBox x:Name="nameTextBox"
-                     Grid.Row="1"
-                     Grid.Column="0"
-                     Width="60"
-                     Height="20"
-                     Margin="0,60,0,0"
-                     TextChanged="OtherTextBox_TextChanged"/>
-            <TextBox x:Name="otherTextBox"
-                     Grid.Row="1"
-                     Grid.Column="1"
-                     Margin="20"
-                     VerticalScrollBarVisibility="Auto"
-                     AcceptsReturn="True"
-                     TextWrapping="Wrap"
-                     TextChanged="OtherTextBox_TextChanged"
-                     Tag="2"/>
-            <Button x:Name="otherSendButton"
-                    Grid.Row="1"
-                    Grid.Column="2"
-                    Content="送信"
-                    Width="80"
-                    Height="20"
-                    IsEnabled="False"
-                    Click="SendButton_Click"
-                    CommandTarget="{Binding ElementName=otherTextBox, Mode=OneWay}"/>
+            <local:SendMyMessageControl Grid.Row="0"/>
+            <local:SendOtherMessageControl Grid.Row="1"/>
+            <local:SendOtherMessageControl Grid.Row="2"/>
+            <local:SendOtherMessageControl Grid.Row="3"/>
+            <local:SendOtherMessageControl Grid.Row="4"/>
         </Grid>
-        <Grid Grid.Column="1">
+        <Grid x:Name="sliderGrid" Grid.Column="1">
             <Grid.RowDefinitions>
                 <RowDefinition/>
                 <RowDefinition/>
@@ -101,20 +43,13 @@
                 <RowDefinition/>
                 <RowDefinition Height="5*"/>
             </Grid.RowDefinitions>
-            <InWit:WitMultiRangeSlider x:Name="mySlider"
-                                       Grid.Row="0"
-                                       Height="25"
-                                       Margin="20 0 20 0"
-                                       Thumb.DragCompleted="Slider_DragCompleted">
-            </InWit:WitMultiRangeSlider>
-            <InWit:WitMultiRangeSlider x:Name="otherSlider"
-                                       Grid.Row="1"
-                                       Height="25"
-                                       Margin="20 0 20 0"
-                                       Thumb.DragCompleted="Slider_DragCompleted">
-            </InWit:WitMultiRangeSlider>
+            <InWit:WitMultiRangeSlider Grid.Row="0"/>
+            <InWit:WitMultiRangeSlider Grid.Row="1"/>
+            <InWit:WitMultiRangeSlider Grid.Row="2"/>
+            <InWit:WitMultiRangeSlider Grid.Row="3"/>
+            <InWit:WitMultiRangeSlider Grid.Row="4"/>
             <DataGrid x:Name="dataGrid"
-                      Grid.Row="6"
+                      Grid.Row="5"
                       Margin="20"
                       AutoGenerateColumns="False"
                       CanUserAddRows="False"
@@ -135,7 +70,7 @@
                                     </Grid.ColumnDefinitions>
                                     <Button Grid.Column="0" Content="編集" Height="20" Click="EditButton_Click"/>
                                     <Button Grid.Column="1" Content="音声" Height="20" Click="VoiceButton_Click"/>
-                                    <Button Grid.Column="2" Content="再生" Height="20" Click="PlayButton_Click"/>
+                                    <Button Grid.Column="2" Content="再生" Height="20" IsEnabled="{Binding IsSetVoice}" Click="PlayButton_Click"/>
                                     <Button Grid.Column="3" Content="削除" Height="20" Click="DeleteButton_Click"/>
                                 </Grid>
                             </DataTemplate>

@@ -204,7 +204,7 @@ namespace LineVideoGenerator
             messageBorder.VerticalAlignment = VerticalAlignment.Top;
             messageBorder.CornerRadius = new CornerRadius(20);
 
-            if (message.personID == 1)
+            if (message.personID == 0)
             {
                 messageBorder.HorizontalAlignment = HorizontalAlignment.Right;
                 messageBorder.Margin = new Thickness(0, messageBlockTop, messageBlockRight, 0);
@@ -362,7 +362,7 @@ namespace LineVideoGenerator
             List<ISampleProvider> sampleProviderList = new List<ISampleProvider>();
             for (int i = 0; i < data.messageCollection.Count; i++)
             {
-                if (data.messageCollection[i].Voice != null)
+                if (data.messageCollection[i].IsSetVoice)
                 {
                     // 音声をWAV形式に変換
                     string voicePath = "voice" + data.messageCollection[i].voicePathExt;
