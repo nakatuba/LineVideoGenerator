@@ -26,13 +26,6 @@
               HorizontalAlignment="Center"
               VerticalAlignment="Top"
               Margin="0"/>
-        <Button x:Name="loadButton"
-                Content="読み込み"
-                Width="75"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Top"
-                Margin="0,560,750,0"
-                Click="LoadButton_Click"/>
         <Button x:Name="editButton"
                 Content="編集"
                 Width="75"
@@ -63,6 +56,5 @@
                 Margin="450,560,0,0"
                 IsEnabled="False"
                 Click="SaveButton_Click"/>
-
     </Grid>
 </Window>

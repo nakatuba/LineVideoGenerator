@@ -44,7 +44,7 @@ namespace LineVideoGenerator
         private int frameHeight = 1080; // フレームの高さ
         private List<string> messagePathList = new List<string>(); // メッセージの画像のパス
         private List<Bitmap> messageBitmapList = new List<Bitmap>();
-        public string backgroundPath = "background.png"; // 背景
+        public string backgroundPath = "background.png"; // 背景のパス
         public bool isAnimated = false;
         private string soundEffectPath = "send.mp3"; // サウンドエフェクトのパス
         public Data data = new Data();
@@ -57,31 +57,12 @@ namespace LineVideoGenerator
             BitmapImage bitmapImage = new BitmapImage(new Uri(backgroundPath, UriKind.Relative));
             backgroundImage.Source = bitmapImage;
 
-            // メッセージの追加・削除後に保存ボタンを無効化
-            data.messageCollection.CollectionChanged += (sender, e) => saveButton.IsEnabled = false;
-        }
-
-        private void LoadButton_Click(object sender, RoutedEventArgs e)
-        {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "XML Files|*.xml";
-
-            if (openFileDialog.ShowDialog() == true)
+            // メッセージの追加・削除後に保存ボタンを無効化し、メッセージがあれば再生ボタンを有効化するよう設定
+            data.messageCollection.CollectionChanged += (sender, e) =>
             {
-                try
-                {
-                    XmlSerializer se = new XmlSerializer(typeof(Data));
-                    using (var fs = File.OpenRead(openFileDialog.FileName))
-                    {
-                        data = (Data)se.Deserialize(fs);
-                    }
-                    playButton.IsEnabled = true;
-                }
-                catch (NotSupportedException)
-                {
-                    MessageBox.Show("異なる形式を選択してください");
-                }
-            }
+                saveButton.IsEnabled = false;
+                playButton.IsEnabled = data.messageCollection.Count > 0;
+            };
         }
 
         private void EditButton_Click(object sender, RoutedEventArgs e)
@@ -171,7 +152,7 @@ namespace LineVideoGenerator
                 PngBitmapEncoder pngBitmapEncoder = new PngBitmapEncoder();
                 pngBitmapEncoder.Frames.Add(BitmapFrame.Create(renderTargetBitmap));
 
-                string messagePath = "message" + i + ".png";
+                string messagePath = Guid.NewGuid() + ".png";
                 messagePathList.Add(messagePath);
                 using (var fileStream = File.Create(messagePath))
                 {
@@ -286,15 +267,6 @@ namespace LineVideoGenerator
                     else SaveImageBackground(saveFileDialog.FileName);
                     AddVideoAudio(saveFileDialog.FileName);
 
-                    /*
-                    // データを保存
-                    XmlSerializer se = new XmlSerializer(typeof(Data));
-                    using (var fs = File.Create(saveFileDialog.FileName))
-                    {
-                        se.Serialize(fs, data);
-                    }
-                    */
-
                     MessageBox.Show("保存されました");
                 }
                 catch (Exception)
@@ -360,32 +332,29 @@ namespace LineVideoGenerator
             List<string> wavePathList = new List<string>();
             List<AudioFileReader> audioFileReaderList = new List<AudioFileReader>();
             List<ISampleProvider> sampleProviderList = new List<ISampleProvider>();
-            for (int i = 0; i < data.messageCollection.Count; i++)
+            foreach (var message in data.messageCollection.Where(m => m.IsSetVoice))
             {
-                if (data.messageCollection[i].IsSetVoice)
-                {
-                    // 音声をWAV形式に変換
-                    string voicePath = "voice" + data.messageCollection[i].voicePathExt;
-                    File.WriteAllBytes(voicePath, data.messageCollection[i].Voice);
-                    MediaFoundationReader mediaFoundationReader = new MediaFoundationReader(voicePath);
-                    string wavePath = "voice" + i + ".wav";
-                    wavePathList.Add(wavePath);
-                    WaveFileWriter.CreateWaveFile(wavePath, new MediaFoundationResampler(mediaFoundationReader, new WaveFormat()));
-                    mediaFoundationReader.Dispose();
-                    File.Delete(voicePath);
+                // 音声をWAV形式に変換
+                string voicePath = Guid.NewGuid() + message.voicePathExt;
+                File.WriteAllBytes(voicePath, message.Voice);
+                MediaFoundationReader mediaFoundationReader = new MediaFoundationReader(voicePath);
+                string wavePath = Guid.NewGuid() + ".wav";
+                wavePathList.Add(wavePath);
+                WaveFileWriter.CreateWaveFile(wavePath, new MediaFoundationResampler(mediaFoundationReader, new WaveFormat()));
+                mediaFoundationReader.Dispose();
+                File.Delete(voicePath);
 
-                    AudioFileReader audioFileReader = new AudioFileReader(wavePath);
-                    audioFileReaderList.Add(audioFileReader);
-                    OffsetSampleProvider offsetSampleProvider = new OffsetSampleProvider(audioFileReader);
-                    offsetSampleProvider.DelayBy = TimeSpan.FromSeconds(data.messageCollection[i].Time);
-                    sampleProviderList.Add(offsetSampleProvider);
-                }
+                AudioFileReader audioFileReader = new AudioFileReader(wavePath);
+                audioFileReaderList.Add(audioFileReader);
+                OffsetSampleProvider offsetSampleProvider = new OffsetSampleProvider(audioFileReader);
+                offsetSampleProvider.DelayBy = TimeSpan.FromSeconds(message.Time);
+                sampleProviderList.Add(offsetSampleProvider);
             }
 
             if (sampleProviderList.Count > 0)
             {
                 // 音声を合成
-                string videoAudioPath = "video.wav";
+                string videoAudioPath = Guid.NewGuid() + ".wav";
                 MixingSampleProvider mixingSampleProvider = new MixingSampleProvider(sampleProviderList);
                 WaveFileWriter.CreateWaveFile16(videoAudioPath, mixingSampleProvider);
 

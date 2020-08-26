@@ -12,7 +12,7 @@ namespace LineVideoGenerator
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return TimeSpan.FromSeconds((double)value).ToString();
+            return TimeSpan.FromSeconds((int)value).ToString();
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

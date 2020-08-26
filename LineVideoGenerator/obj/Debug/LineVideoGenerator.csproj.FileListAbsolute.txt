@@ -49,7 +49,5 @@
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\obj\Debug\LineVideoGenerator.exe
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\obj\Debug\LineVideoGenerator.pdb
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\obj\Debug\GeneratedInternalTypeHelper.g.cs
-\\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\obj\Debug\SendOtherMessageControl.baml
-\\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\obj\Debug\SendOtherMessageControl.g.cs
-\\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\obj\Debug\SendMyMessageControl.baml
-\\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\obj\Debug\SendMyMessageControl.g.cs
+\\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\obj\Debug\SendMessageControl.baml
+\\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\obj\Debug\SendMessageControl.g.cs

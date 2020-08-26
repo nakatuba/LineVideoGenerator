@@ -108,11 +108,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="SendMyMessageControl.xaml.cs">
-      <DependentUpon>SendMyMessageControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="SendOtherMessageControl.xaml.cs">
-      <DependentUpon>SendOtherMessageControl.xaml</DependentUpon>
+    <Compile Include="SendMessageControl.xaml.cs">
+      <DependentUpon>SendMessageControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="TimeConverter.cs" />
     <Page Include="BackgroundWindow.xaml">
@@ -142,11 +139,7 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="SendMyMessageControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="SendOtherMessageControl.xaml">
+    <Page Include="SendMessageControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

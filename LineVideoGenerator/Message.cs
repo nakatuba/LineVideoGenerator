@@ -17,16 +17,14 @@ namespace LineVideoGenerator
 {
     public class Message : INotifyPropertyChanged
     {
-        public int personID = 0;
+        public int personID;
         [XmlIgnore] public BitmapImage icon;
         private string text;
-        private double time;
+        private int time;
         private byte[] voice;
         public string voicePathExt;
-        public WitMultiRangeSlider slider;
-        public WitMultiRangeSliderItem sliderItem = new WitMultiRangeSliderItem();
+        [XmlIgnore] private WitMultiRangeSliderItem sliderItem = new WitMultiRangeSliderItem();
         public event PropertyChangedEventHandler PropertyChanged;
-
         public byte[] Icon
         {
             get
@@ -71,7 +69,7 @@ namespace LineVideoGenerator
                 OnPropertyChanged();
             }
         }
-        public double Time
+        public int Time
         {
             get { return time; }
             set
@@ -96,30 +94,28 @@ namespace LineVideoGenerator
 
         public Message() { }
 
-        public Message(string text, double time, WitMultiRangeSlider slider)
+        public Message(string text, int time, WitMultiRangeSlider slider)
         {
             this.text = text;
             this.time = time;
-            this.slider = slider;
-            slider.Items.Add(sliderItem);
+            AddSliderItem(slider);
         }
 
-        public Message(int personID, BitmapImage icon, string name, string text, double time, WitMultiRangeSlider slider)
+        public Message(int personID, BitmapImage icon, string name, string text, int time, WitMultiRangeSlider slider)
         {
             this.personID = personID;
             this.icon = icon;
             Name = name;
             this.text = text;
             this.time = time;
-            this.slider = slider;
-            slider.Items.Add(sliderItem);
+            AddSliderItem(slider);
         }
 
         public void PlayVoice(Action stoppedAction = null)
         {
             if (IsSetVoice)
             {
-                string voicePath = "voice" + voicePathExt;
+                string voicePath = Guid.NewGuid() + voicePathExt;
                 File.WriteAllBytes(voicePath, voice);
                 AudioFileReader audioFileReader = new AudioFileReader(voicePath);
                 WaveOut waveOut = new WaveOut();
@@ -132,6 +128,18 @@ namespace LineVideoGenerator
                     stoppedAction?.Invoke();
                 };
             }
+        }
+
+        public void AddSliderItem(WitMultiRangeSlider slider)
+        {
+            slider.Items.Add(sliderItem);
+            Binding binding = new Binding("Time") { Source = this };
+            sliderItem.SetBinding(RangeBase.ValueProperty, binding);
+        }
+
+        public void RemoveSliderItem(WitMultiRangeSlider slider)
+        {
+            slider.Items.Remove(sliderItem);
         }
 
         private void OnPropertyChanged([CallerMemberName] string name = null)
