@@ -8,8 +8,11 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Xml.Serialization;
 
@@ -17,49 +20,17 @@ namespace LineVideoGenerator
 {
     public class Message : INotifyPropertyChanged
     {
-        public int personID;
-        [XmlIgnore] public BitmapImage icon;
+        public Person person;
         private string text;
         private int time;
         private byte[] voice;
         public string voicePathExt;
         [XmlIgnore] private WitMultiRangeSliderItem sliderItem = new WitMultiRangeSliderItem();
         public event PropertyChangedEventHandler PropertyChanged;
-        public byte[] Icon
+        public string Name
         {
-            get
-            {
-                if (icon != null)
-                {
-                    // BitmapImageからbyte[]に変換（https://stackoverflow.com/questions/6597676/bitmapimage-to-byte）
-                    PngBitmapEncoder encoder = new PngBitmapEncoder();
-                    encoder.Frames.Add(BitmapFrame.Create(icon));
-                    using (var ms = new MemoryStream())
-                    {
-                        encoder.Save(ms);
-                        return ms.ToArray();
-                    }
-                }
-                else
-                {
-                    return null;
-                }
-            }
-
-            set
-            {
-                // byte[]からBitmapImageに変換（https://stackoverflow.com/questions/14337071/convert-array-of-bytes-to-bitmapimage）
-                using (var ms = new MemoryStream(value))
-                {
-                    icon = new BitmapImage();
-                    icon.BeginInit();
-                    icon.CacheOption = BitmapCacheOption.OnLoad;
-                    icon.StreamSource = ms;
-                    icon.EndInit();
-                }
-            }
+            get { return person.Name; }
         }
-        public string Name { get; set; }
         public string Text
         {
             get { return text; }
@@ -94,18 +65,9 @@ namespace LineVideoGenerator
 
         public Message() { }
 
-        public Message(string text, int time, WitMultiRangeSlider slider)
+        public Message(Person person, string text, int time, WitMultiRangeSlider slider)
         {
-            this.text = text;
-            this.time = time;
-            AddSliderItem(slider);
-        }
-
-        public Message(int personID, BitmapImage icon, string name, string text, int time, WitMultiRangeSlider slider)
-        {
-            this.personID = personID;
-            this.icon = icon;
-            Name = name;
+            this.person = person;
             this.text = text;
             this.time = time;
             AddSliderItem(slider);

@@ -27,6 +27,6 @@
         </Button>
         <TextBox x:Name="nameBox" Grid.Column="0" Width="60" Height="20" Margin="0,60,0,0" TextChanged="NameBox_TextChanged"/>
         <TextBox x:Name="messageBox" Grid.Column="1" Margin="20" VerticalScrollBarVisibility="Auto" AcceptsReturn="True" TextWrapping="Wrap" TextChanged="MessageBox_TextChanged"/>
-        <Button x:Name="sendButton" Grid.Column="2" Content="送信" Width="75" Height="20" Click="SendButton_Click"/>
+        <Button x:Name="sendButton" Grid.Column="2" Content="送信" Width="75" Height="20" IsEnabled="False" Click="SendButton_Click"/>
     </Grid>
 </UserControl>

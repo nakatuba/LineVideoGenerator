@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,6 +30,11 @@ namespace LineVideoGenerator
         public EditWindow()
         {
             InitializeComponent();
+            Loaded += (sender, e) =>
+            {
+                MainWindow mainWindow = Owner as MainWindow;
+                dataGrid.ItemsSource = mainWindow.data.messageCollection;
+            };
         }
 
         private void Slider_DragCompleted(object sender, DragCompletedEventArgs e)
@@ -77,7 +83,7 @@ namespace LineVideoGenerator
             MainWindow mainWindow = Owner as MainWindow;
             Message message = dataGrid.SelectedItem as Message;
             mainWindow.data.messageCollection.Remove(message);
-            WitMultiRangeSlider slider = sliderGrid.Children.Cast<UIElement>().First(e2 => Grid.GetRow(e2) == message.personID) as WitMultiRangeSlider;
+            WitMultiRangeSlider slider = sliderGrid.Children.Cast<UIElement>().First(e2 => Grid.GetRow(e2) == message.person.id) as WitMultiRangeSlider;
             message.RemoveSliderItem(slider);
         }
 
@@ -118,19 +124,29 @@ namespace LineVideoGenerator
                         };
                     }
 
+                    // 人物の編集後に保存ボタンを無効化し、データグリッドを更新するよう設定
+                    foreach (var person in mainWindow.data.personList)
+                    {
+                        person.PropertyChanged += (sender2, e2) =>
+                        {
+                            mainWindow.saveButton.IsEnabled = false;
+                            dataGrid.Items.Refresh();
+                        };
+                    }
+
                     // アイコンと名前をセット
-                    foreach (var group in mainWindow.data.messageCollection.GroupBy(m => m.personID))
+                    foreach (var group in mainWindow.data.messageCollection.GroupBy(m => m.person.id))
                     {
                         SendMessageControl control = sendGrid.Children.Cast<SendMessageControl>().First(c => Grid.GetRow(c) == group.Key);
                         ImageBrush imageBrush = control.iconButton.Template.FindName("imageBrush", control.iconButton) as ImageBrush;
-                        imageBrush.ImageSource = group.First().icon;
-                        control.nameBox.Text = group.First().Name;
+                        imageBrush.ImageSource = group.First().person.Icon;
+                        control.nameBox.Text = group.First().person.Name;
                     }
 
                     // タイムスライダーをセット
                     foreach (var message in mainWindow.data.messageCollection)
                     {
-                        WitMultiRangeSlider slider = sliderGrid.Children.Cast<WitMultiRangeSlider>().First(s => Grid.GetRow(s) == message.personID);
+                        WitMultiRangeSlider slider = sliderGrid.Children.Cast<WitMultiRangeSlider>().First(s => Grid.GetRow(s) == message.person.id);
                         message.AddSliderItem(slider);
                     }
                     

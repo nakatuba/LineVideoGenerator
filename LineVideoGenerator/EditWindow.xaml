@@ -53,12 +53,7 @@
                 <InWit:WitMultiRangeSlider Grid.Row="2"/>
                 <InWit:WitMultiRangeSlider Grid.Row="3"/>
                 <InWit:WitMultiRangeSlider Grid.Row="4"/>
-                <DataGrid x:Name="dataGrid"
-                      Grid.Row="5"
-                      Margin="20"
-                      AutoGenerateColumns="False"
-                      CanUserAddRows="False"
-                      IsReadOnly="True">
+                <DataGrid x:Name="dataGrid" Grid.Row="5" Margin="20" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="名前" Binding="{Binding Name}" Width="*"/>
                         <DataGridTextColumn Header="メッセージ" Binding="{Binding Text}" Width="3*"/>

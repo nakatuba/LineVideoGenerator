@@ -60,9 +60,18 @@ namespace LineVideoGenerator
                 try
                 {
                     ImageBrush imageBrush = iconButton.Template.FindName("imageBrush", iconButton) as ImageBrush;
-                    BitmapImage bitmapImage = new BitmapImage(new Uri(openFileDialog.FileName));
-                    imageBrush.ImageSource = bitmapImage;
+                    BitmapImage icon = new BitmapImage(new Uri(openFileDialog.FileName));
+                    imageBrush.ImageSource = icon;
                     isSetIcon = true;
+
+                    // 同じidの人物のアイコンを変更
+                    EditWindow editWindow = Window.GetWindow(this) as EditWindow;
+                    MainWindow mainWindow = editWindow.Owner as MainWindow;
+                    foreach (var person in mainWindow.data.personList.Where(p => p.id == Grid.GetRow(this)))
+                    {
+                        person.Icon = icon;
+                    }
+
                     sendButton.IsEnabled = CanSendMessage;
                 }
                 catch (NotSupportedException)
@@ -74,6 +83,14 @@ namespace LineVideoGenerator
 
         private void NameBox_TextChanged(object sender, TextChangedEventArgs e)
         {
+            // 同じidの人物の名前を変更
+            EditWindow editWindow = Window.GetWindow(this) as EditWindow;
+            MainWindow mainWindow = editWindow.Owner as MainWindow;
+            foreach (var person in mainWindow.data.personList.Where(p => p.id == Grid.GetRow(this)))
+            {
+                person.Name = nameBox.Text;
+            }
+
             sendButton.IsEnabled = CanSendMessage;
         }
 
@@ -84,11 +101,25 @@ namespace LineVideoGenerator
 
         private void SendButton_Click(object sender, RoutedEventArgs e)
         {
-            ImageBrush imageBrush = iconButton.Template.FindName("imageBrush", iconButton) as ImageBrush;
-            BitmapImage icon = imageBrush.ImageSource as BitmapImage;
-
             EditWindow editWindow = Window.GetWindow(this) as EditWindow;
             MainWindow mainWindow = editWindow.Owner as MainWindow;
+
+            // 同じidの人物がいなければ人物を追加
+            ImageBrush imageBrush = iconButton.Template.FindName("imageBrush", iconButton) as ImageBrush;
+            BitmapImage icon = imageBrush.ImageSource as BitmapImage;
+            if (!mainWindow.data.personList.Any(p => p.id == Grid.GetRow(this)))
+            {
+                mainWindow.data.personList.Add(new Person(Grid.GetRow(this), nameBox.Text, icon));
+            }
+
+            Person person = mainWindow.data.personList.First(p => p.id == Grid.GetRow(this));
+
+            // 人物の編集後に保存ボタンを無効化し、データグリッドを更新するよう設定
+            person.PropertyChanged += (sender2, e2) =>
+            {
+                mainWindow.saveButton.IsEnabled = false;
+                editWindow.dataGrid.Items.Refresh();
+            };
 
             int time = 1;
             if (mainWindow.data.messageCollection.Count > 0)
@@ -98,7 +129,7 @@ namespace LineVideoGenerator
 
             WitMultiRangeSlider slider = editWindow.sliderGrid.Children.Cast<WitMultiRangeSlider>().First(s => Grid.GetRow(s) == Grid.GetRow(this));
 
-            Message message = (Grid.GetRow(this) == 0) ? new Message(messageBox.Text, time, slider) : new Message(Grid.GetRow(this), icon, nameBox.Text, messageBox.Text, time, slider);
+            Message message = new Message(person, messageBox.Text, time, slider);
 
             // メッセージの編集後に保存ボタンを無効化し、データグリッドを更新するよう設定
             message.PropertyChanged += (sender2, e2) =>

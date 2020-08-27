@@ -24,6 +24,8 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using System.Xml.Serialization;
 using Brushes = System.Windows.Media.Brushes;
+using Color = System.Windows.Media.Color;
+using Image = System.Windows.Controls.Image;
 using Size = System.Windows.Size;
 
 namespace LineVideoGenerator
@@ -42,11 +44,11 @@ namespace LineVideoGenerator
         public int frameRate; // フレームレート
         private int frameWidth = 1920; // フレームの幅
         private int frameHeight = 1080; // フレームの高さ
-        private List<string> messagePathList = new List<string>(); // メッセージの画像のパス
+        private List<string> messagePathList = new List<string>();
         private List<Bitmap> messageBitmapList = new List<Bitmap>();
-        public string backgroundPath = "background.png"; // 背景のパス
+        public string backgroundPath = "background.png";
         public bool isAnimated = false;
-        private string soundEffectPath = "send.mp3"; // サウンドエフェクトのパス
+        private string soundEffectPath = "send.mp3";
         public Data data = new Data();
 
         public MainWindow()
@@ -58,7 +60,7 @@ namespace LineVideoGenerator
             backgroundImage.Source = bitmapImage;
 
             // メッセージの追加・削除後に保存ボタンを無効化し、メッセージがあれば再生ボタンを有効化するよう設定
-            data.messageCollection.CollectionChanged += (sender, e) =>
+            data.messageCollection.CollectionChanged += (sender2, e2) =>
             {
                 saveButton.IsEnabled = false;
                 playButton.IsEnabled = data.messageCollection.Count > 0;
@@ -69,7 +71,6 @@ namespace LineVideoGenerator
         {
             EditWindow editWindow = new EditWindow();
             editWindow.Owner = this;
-            editWindow.dataGrid.ItemsSource = data.messageCollection;
             editWindow.Show();
             editButton.IsEnabled = false;
         }
@@ -185,19 +186,29 @@ namespace LineVideoGenerator
             messageBorder.VerticalAlignment = VerticalAlignment.Top;
             messageBorder.CornerRadius = new CornerRadius(20);
 
-            if (message.personID == 0)
+            // 吹き出し
+            Image bubble = new Image();
+            bubble.VerticalAlignment = VerticalAlignment.Top;
+            bubble.Width = 20;
+
+            if (message.person.id == 0)
             {
                 messageBorder.HorizontalAlignment = HorizontalAlignment.Right;
                 messageBorder.Margin = new Thickness(0, messageBlockTop, messageBlockRight, 0);
-                messageBorder.Background = Brushes.YellowGreen;
+                messageBorder.Background = new SolidColorBrush(Color.FromArgb(255, 112, 222, 82));
+
+                bubble.Source = new BitmapImage(new Uri("green bubble.png", UriKind.Relative));
+                bubble.HorizontalAlignment = HorizontalAlignment.Right;
+                bubble.Margin = new Thickness(0, messageBlockTop, messageBlockRight - bubble.Width / 2, 0);
+                grid.Children.Add(bubble);
             }
             else
             {
                 int messageIndex = data.messageCollection.IndexOf(message);
-                if (messageIndex == 0 || data.messageCollection[messageIndex - 1].personID != message.personID)
+                if (messageIndex == 0 || data.messageCollection[messageIndex - 1].person.id != message.person.id)
                 {
                     ImageBrush iconBrush = new ImageBrush();
-                    iconBrush.ImageSource = message.icon;
+                    iconBrush.ImageSource = message.person.Icon;
                     iconBrush.Stretch = Stretch.UniformToFill;
 
                     Ellipse iconEllipse = new Ellipse();
@@ -210,7 +221,7 @@ namespace LineVideoGenerator
                     grid.Children.Add(iconEllipse);
 
                     TextBlock nameBlock = new TextBlock();
-                    nameBlock.Text = message.Name;
+                    nameBlock.Text = message.person.Name;
                     nameBlock.FontSize = 20;
                     nameBlock.Foreground = Brushes.White;
                     nameBlock.HorizontalAlignment = HorizontalAlignment.Left;
@@ -222,6 +233,11 @@ namespace LineVideoGenerator
                     nameBlock.Measure(new Size(Double.PositiveInfinity, Double.PositiveInfinity));
                     nameBlock.Arrange(new Rect(nameBlock.DesiredSize));
                     messageBlockTop += nameBlock.ActualHeight + messageBlockDistance;
+
+                    bubble.Source = new BitmapImage(new Uri("white bubble.png", UriKind.Relative));
+                    bubble.HorizontalAlignment = HorizontalAlignment.Left;
+                    bubble.Margin = new Thickness(messageBlockLeft - bubble.Width / 2, messageBlockTop, 0, 0);
+                    grid.Children.Add(bubble);
                 }
 
                 messageBorder.HorizontalAlignment = HorizontalAlignment.Left;
