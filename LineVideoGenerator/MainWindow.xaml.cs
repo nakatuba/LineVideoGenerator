@@ -59,8 +59,15 @@ namespace LineVideoGenerator
             BitmapImage bitmapImage = new BitmapImage(new Uri(backgroundPath, UriKind.Relative));
             backgroundImage.Source = bitmapImage;
 
-            // メッセージの追加・削除後に保存ボタンを無効化し、メッセージがあれば再生ボタンを有効化するよう設定
-            data.messageCollection.CollectionChanged += (sender2, e2) =>
+            SetMessageCollectionChanged();
+        }
+
+        /// <summary>
+        /// メッセージの追加・削除後に保存ボタンを無効化し、メッセージがあれば再生ボタンを有効化するよう設定
+        /// </summary>
+        public void SetMessageCollectionChanged()
+        {
+            data.messageCollection.CollectionChanged += (sender, e) =>
             {
                 saveButton.IsEnabled = false;
                 playButton.IsEnabled = data.messageCollection.Count > 0;
@@ -86,6 +93,9 @@ namespace LineVideoGenerator
 
         private async void PlayButton_Click(object sender, RoutedEventArgs e)
         {
+            // 編集画面を閉じる
+            Application.Current.Windows.Cast<Window>().FirstOrDefault(w => w.GetType() == typeof(EditWindow))?.Close();
+
             editButton.IsEnabled = false;
             playButton.IsEnabled = false;
             saveButton.IsEnabled = false;

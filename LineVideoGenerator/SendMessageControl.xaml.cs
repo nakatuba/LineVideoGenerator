@@ -113,13 +113,7 @@ namespace LineVideoGenerator
             }
 
             Person person = mainWindow.data.personList.First(p => p.id == Grid.GetRow(this));
-
-            // 人物の編集後に保存ボタンを無効化し、データグリッドを更新するよう設定
-            person.PropertyChanged += (sender2, e2) =>
-            {
-                mainWindow.saveButton.IsEnabled = false;
-                editWindow.dataGrid.Items.Refresh();
-            };
+            editWindow.SetPersonPropertyChanged(person);
 
             int time = 1;
             if (mainWindow.data.messageCollection.Count > 0)
@@ -130,16 +124,9 @@ namespace LineVideoGenerator
             WitMultiRangeSlider slider = editWindow.sliderGrid.Children.Cast<WitMultiRangeSlider>().First(s => Grid.GetRow(s) == Grid.GetRow(this));
 
             Message message = new Message(person, messageBox.Text, time, slider);
-
-            // メッセージの編集後に保存ボタンを無効化し、データグリッドを更新するよう設定
-            message.PropertyChanged += (sender2, e2) =>
-            {
-                mainWindow.saveButton.IsEnabled = false;
-                editWindow.dataGrid.Items.Refresh();
-            };
+            editWindow.SetMessagePropertyChanged(message);
 
             mainWindow.data.messageCollection.Add(message);
-            // mainWindow.SendMessage(message);
 
             messageBox.Text = string.Empty;
         }

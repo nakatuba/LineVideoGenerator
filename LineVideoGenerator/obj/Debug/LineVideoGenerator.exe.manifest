@@ -102,26 +102,26 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="InWit.WPF.MultiRangeSlider.dll" size="29696">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="InWit.WPF.MultiRangeSlider.dll" size="31744">
       <assemblyIdentity name="InWit.WPF.MultiRangeSlider" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>RXgJ2VHzNiQKMYw1K2sgELGfB2n45muex+XU4IxYOmU=</dsig:DigestValue>
+        <dsig:DigestValue>PJo4xZP1VjxxZoZUsAWTXrZVr3HTpJo6c1R7CPZ6GxY=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="LineVideoGenerator.exe" size="56280">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="LineVideoGenerator.exe" size="54744">
       <assemblyIdentity name="LineVideoGenerator" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>lrJn1tWv7GXC69hQYeNPG0Rtz6yBa53KmgLt7Nn0a0U=</dsig:DigestValue>
+        <dsig:DigestValue>FkwQc4NF/NA+PcaV6VHAE7tDmRg6UC2zlhZDdx+0zO0=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -162,6 +162,15 @@
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
       <dsig:DigestValue>R+Wg8QGvQVHX8T0ta/qbhH1bXkqY0fRnS3wBV3J0bN8=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="no image.png" size="6046">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>4adD3wwVUjfSZ3pQkZ6DJ5qAAv+T8kcnWC5S/7I0fdE=</dsig:DigestValue>
     </hash>
   </file>
   <file name="send.mp3" size="12572">

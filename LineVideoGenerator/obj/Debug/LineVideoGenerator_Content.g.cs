@@ -9,6 +9,7 @@
 //------------------------------------------------------------------------------
 
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("background.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("no%20image.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("send.mp3")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("accord.dll.config")]
 

@@ -11,7 +11,7 @@
         <Style TargetType="InWit:WitMultiRangeSlider">
             <Setter Property="Height" Value="25"/>
             <Setter Property="Margin" Value="20 0 20 0"/>
-            <EventSetter Event="Thumb.DragCompleted" Handler="Slider_DragCompleted"/>
+            <EventSetter Event="Thumb.DragDelta" Handler="Slider_DragDelta"/>
         </Style>
         <local:TimeConverter x:Key="timeConverter"/>
     </Window.Resources>
@@ -39,21 +39,26 @@
                 <local:SendMessageControl Grid.Row="3"/>
                 <local:SendMessageControl Grid.Row="4"/>
             </Grid>
-            <Grid x:Name="sliderGrid" Grid.Column="1">
+            <Grid Grid.Column="1">
                 <Grid.RowDefinitions>
                     <RowDefinition/>
                     <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition Height="5*"/>
                 </Grid.RowDefinitions>
-                <InWit:WitMultiRangeSlider Grid.Row="0"/>
-                <InWit:WitMultiRangeSlider Grid.Row="1"/>
-                <InWit:WitMultiRangeSlider Grid.Row="2"/>
-                <InWit:WitMultiRangeSlider Grid.Row="3"/>
-                <InWit:WitMultiRangeSlider Grid.Row="4"/>
-                <DataGrid x:Name="dataGrid" Grid.Row="5" Margin="20" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True">
+                <Grid x:Name="sliderGrid" Grid.Row="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <InWit:WitMultiRangeSlider Grid.Row="0"/>
+                    <InWit:WitMultiRangeSlider Grid.Row="1"/>
+                    <InWit:WitMultiRangeSlider Grid.Row="2"/>
+                    <InWit:WitMultiRangeSlider Grid.Row="3"/>
+                    <InWit:WitMultiRangeSlider Grid.Row="4"/>
+                </Grid>
+                <DataGrid x:Name="dataGrid" Grid.Row="1" Margin="20" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" VerticalScrollBarVisibility="Visible">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="名前" Binding="{Binding Name}" Width="*"/>
                         <DataGridTextColumn Header="メッセージ" Binding="{Binding Text}" Width="3*"/>
@@ -81,8 +86,9 @@
             </Grid>
         </Grid>
         <Grid Grid.Row="1">
-            <Button Content="読み込み" Width="75" Height="20" Margin="0 0 200 0" Click="LoadButton_Click"/>
-            <Button Content="保存" Width="75" Height="20" Margin="200 0 0 0" Click="SaveButton_Click"/>
+            <Button Content="読み込み" Width="75" Height="20" Margin="0 0 250 0" Click="LoadButton_Click"/>
+            <Button Content="保存" Width="75" Height="20" Click="SaveButton_Click"/>
+            <Button Content="リセット" Width="75" Height="20" Margin="250 0 0 0" Click="ResetButton_Click"/>
         </Grid>
     </Grid>
 </Window>

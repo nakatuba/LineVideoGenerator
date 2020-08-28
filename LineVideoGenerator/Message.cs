@@ -94,9 +94,9 @@ namespace LineVideoGenerator
 
         public void AddSliderItem(WitMultiRangeSlider slider)
         {
-            slider.Items.Add(sliderItem);
             Binding binding = new Binding("Time") { Source = this };
             sliderItem.SetBinding(RangeBase.ValueProperty, binding);
+            slider.Items.Add(sliderItem);
         }
 
         public void RemoveSliderItem(WitMultiRangeSlider slider)

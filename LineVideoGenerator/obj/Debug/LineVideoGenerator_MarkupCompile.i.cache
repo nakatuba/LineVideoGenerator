@@ -10,11 +10,11 @@ none
 false
 DEBUG;TRACE
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\App.xaml
-4-113335564
-31641313528
-13122301636
+5-1195440178
+41660574134
+14167857824
 22-1951388466
-BackgroundWindow.xaml;EditWindow.xaml;MainWindow.xaml;SendMessageControl.xaml;
+BackgroundWindow.xaml;EditMessageWindow.xaml;EditWindow.xaml;MainWindow.xaml;SendMessageControl.xaml;
 
-False
+True
 

@@ -41,7 +41,6 @@ namespace LineVideoGenerator
                     mainWindow.backgroundImage.Source = bitmapImage;
                     mainWindow.mediaElement.Source = null;
 
-                    mainWindow.saveButton.IsEnabled = false;
                     resetButton.IsEnabled = true;
                 }
                 catch (NotSupportedException)
@@ -66,7 +65,6 @@ namespace LineVideoGenerator
                     mainWindow.mediaElement.Source = new Uri(openFileDialog.FileName);
                     mainWindow.backgroundImage.Source = null;
 
-                    mainWindow.saveButton.IsEnabled = false;
                     resetButton.IsEnabled = true;
                 }
                 catch (NotSupportedException)
@@ -86,7 +84,6 @@ namespace LineVideoGenerator
             mainWindow.backgroundImage.Source = bitmapImage;
             mainWindow.mediaElement.Source = null;
 
-            mainWindow.saveButton.IsEnabled = false;
             resetButton.IsEnabled = false;
         }
 

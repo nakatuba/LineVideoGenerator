@@ -51,3 +51,6 @@
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\obj\Debug\GeneratedInternalTypeHelper.g.cs
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\obj\Debug\SendMessageControl.baml
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\obj\Debug\SendMessageControl.g.cs
+\\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\obj\Debug\EditMessageWindow.baml
+\\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\obj\Debug\EditMessageWindow.g.cs
+\\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\bin\Debug\no image.png
