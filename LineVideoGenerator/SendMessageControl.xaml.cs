@@ -22,7 +22,7 @@ namespace LineVideoGenerator
     /// </summary>
     public partial class SendMessageControl : UserControl
     {
-        private bool isSetIcon = false;
+        public bool isSetIcon = false;
         private bool CanSendMessage
         {
             get

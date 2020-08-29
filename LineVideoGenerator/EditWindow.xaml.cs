@@ -1,15 +1,11 @@
-﻿using Accord;
-using InWit.WPF.MultiRangeSlider;
+﻿using InWit.WPF.MultiRangeSlider;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -44,11 +40,7 @@ namespace LineVideoGenerator
             foreach (var message in mainWindow.data.messageCollection)
             {
                 SetMessagePropertyChanged(message);
-            }
-
-            foreach (var person in mainWindow.data.personList)
-            {
-                SetPersonPropertyChanged(person);
+                SetPersonPropertyChanged(message.person);
             }
 
             // アイコンと名前をセット
@@ -57,6 +49,7 @@ namespace LineVideoGenerator
                 SendMessageControl control = sendGrid.Children.Cast<SendMessageControl>().First(c => Grid.GetRow(c) == group.Key);
                 ImageBrush imageBrush = control.iconButton.Template.FindName("imageBrush", control.iconButton) as ImageBrush;
                 imageBrush.ImageSource = group.First().person.Icon;
+                control.isSetIcon = true;
                 control.nameBox.Text = group.First().person.Name;
             }
 
@@ -110,6 +103,12 @@ namespace LineVideoGenerator
             MainWindow mainWindow = Owner as MainWindow;
             mainWindow.data.messageCollection = new ObservableCollection<Message>(mainWindow.data.messageCollection.OrderBy(m => m.Time));
             dataGrid.ItemsSource = mainWindow.data.messageCollection;
+
+            // 選択項目が表示されるようデータグリッドをスクロール
+            if (dataGrid.SelectedItem != null)
+            {
+                dataGrid.ScrollIntoView(dataGrid.SelectedItem);
+            }
         }
 
         private void EditButton_Click(object sender, RoutedEventArgs e)
@@ -179,6 +178,12 @@ namespace LineVideoGenerator
                     using (var fs = File.OpenRead(openFileDialog.FileName))
                     {
                         mainWindow.data = se.Deserialize(fs) as Data;
+                    }
+
+                    // メッセージと人物の対応付け
+                    foreach (var message in mainWindow.data.messageCollection)
+                    {
+                        message.person = mainWindow.data.personList.First(p => p.id == message.person.id);
                     }
 
                     // メッセージがあれば再生ボタンを有効化

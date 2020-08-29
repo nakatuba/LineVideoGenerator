@@ -8,8 +8,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Media;
-using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -18,11 +16,8 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using System.Windows.Threading;
-using System.Xml.Serialization;
 using Brushes = System.Windows.Media.Brushes;
 using Color = System.Windows.Media.Color;
 using Image = System.Windows.Controls.Image;
@@ -39,9 +34,9 @@ namespace LineVideoGenerator
         private double messageBlockTop = messageBlockDistance; // メッセージの上の余白
         private double messageBlockRight = 20; // メッセージの右の余白
         private double messageBlockLeft = 100; // メッセージの左の余白
-        private double iconEllipseLeft = 10; // アイコンの左の余白
-        public int gridOriginalHeight = 540; // gridの元の高さ
-        public int frameRate; // フレームレート
+        private double iconEllipseSide = 10; // アイコンの横の余白
+        private int gridOriginalHeight = 540; // gridの元の高さ
+        private int frameRate; // フレームレート
         private int frameWidth = 1920; // フレームの幅
         private int frameHeight = 1080; // フレームの高さ
         private List<string> messagePathList = new List<string>();
@@ -93,11 +88,16 @@ namespace LineVideoGenerator
 
         private async void PlayButton_Click(object sender, RoutedEventArgs e)
         {
+            bool stop = false;
+            void StopButton_Click(object sender2, RoutedEventArgs e2) => stop = true;
+
             // 編集画面を閉じる
             Application.Current.Windows.Cast<Window>().FirstOrDefault(w => w.GetType() == typeof(EditWindow))?.Close();
 
             editButton.IsEnabled = false;
-            playButton.IsEnabled = false;
+            playButton.Content = "停止";
+            playButton.Click -= PlayButton_Click;
+            playButton.Click += StopButton_Click;
             saveButton.IsEnabled = false;
 
             // gridからすべての要素を削除
@@ -175,11 +175,15 @@ namespace LineVideoGenerator
                 {
                     messageBitmapList.Add(messageBitmap);
                 }
+
+                if (stop) break;
             }
 
             editButton.IsEnabled = true;
-            playButton.IsEnabled = true;
-            saveButton.IsEnabled = true;
+            playButton.Content = "再生";
+            playButton.Click -= StopButton_Click;
+            playButton.Click += PlayButton_Click;
+            if (!stop) saveButton.IsEnabled = true;
         }
 
         public void SendMessage(Message message)
@@ -223,11 +227,11 @@ namespace LineVideoGenerator
 
                     Ellipse iconEllipse = new Ellipse();
                     iconEllipse.Fill = iconBrush;
-                    iconEllipse.Width = messageBlockLeft - messageBlockRight - iconEllipseLeft;
+                    iconEllipse.Width = messageBlockLeft - iconEllipseSide * 2 - bubble.Width / 2;
                     iconEllipse.Height = iconEllipse.Width;
                     iconEllipse.HorizontalAlignment = HorizontalAlignment.Left;
                     iconEllipse.VerticalAlignment = VerticalAlignment.Top;
-                    iconEllipse.Margin = new Thickness(iconEllipseLeft, messageBlockTop, 0, 0);
+                    iconEllipse.Margin = new Thickness(iconEllipseSide, messageBlockTop, 0, 0);
                     grid.Children.Add(iconEllipse);
 
                     TextBlock nameBlock = new TextBlock();
