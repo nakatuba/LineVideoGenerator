@@ -81,7 +81,7 @@ namespace LineVideoGenerator
             }
         }
 
-        private void NameBox_TextChanged(object sender, TextChangedEventArgs e)
+        public void NameBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             // 同じidの人物の名前を変更
             EditWindow editWindow = Window.GetWindow(this) as EditWindow;

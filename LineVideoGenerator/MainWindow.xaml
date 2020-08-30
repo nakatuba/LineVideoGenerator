@@ -17,7 +17,7 @@
             <RowDefinition Height="540"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <Image x:Name="backgroundImage" Grid.Row="0" Width="960" Stretch="UniformToFill"/>
+        <Image x:Name="backgroundImage" Source="background.png" Grid.Row="0" Width="960" Stretch="UniformToFill"/>
         <MediaElement x:Name="mediaElement" Grid.Row="0" Width="960" MediaEnded="MediaElement_MediaEnded"/>
         <Grid x:Name="grid" Grid.Row="0" Width="960"/>
         <Button x:Name="editButton" Content="編集" Margin="0,0,450,0" Click="EditButton_Click"/>

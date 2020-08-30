@@ -40,7 +40,11 @@ namespace LineVideoGenerator
             foreach (var message in mainWindow.data.messageCollection)
             {
                 SetMessagePropertyChanged(message);
-                SetPersonPropertyChanged(message.person);
+            }
+
+            foreach (var person in mainWindow.data.personList)
+            {
+                SetPersonPropertyChanged(person);
             }
 
             // アイコンと名前をセット
@@ -50,7 +54,9 @@ namespace LineVideoGenerator
                 ImageBrush imageBrush = control.iconButton.Template.FindName("imageBrush", control.iconButton) as ImageBrush;
                 imageBrush.ImageSource = group.First().person.Icon;
                 control.isSetIcon = true;
+                control.nameBox.TextChanged -= control.NameBox_TextChanged;
                 control.nameBox.Text = group.First().person.Name;
+                control.nameBox.TextChanged += control.NameBox_TextChanged;
             }
 
             // タイムスライダーをセット
@@ -180,14 +186,14 @@ namespace LineVideoGenerator
                         mainWindow.data = se.Deserialize(fs) as Data;
                     }
 
+                    // メッセージがあれば再生ボタンを有効化
+                    mainWindow.playButton.IsEnabled = mainWindow.data.messageCollection.Count > 0;
+
                     // メッセージと人物の対応付け
                     foreach (var message in mainWindow.data.messageCollection)
                     {
                         message.person = mainWindow.data.personList.First(p => p.id == message.person.id);
                     }
-
-                    // メッセージがあれば再生ボタンを有効化
-                    mainWindow.playButton.IsEnabled = mainWindow.data.messageCollection.Count > 0;
 
                     mainWindow.SetMessageCollectionChanged();
 
