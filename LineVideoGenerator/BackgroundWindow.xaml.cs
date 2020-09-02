@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32;
+using NAudio.Wave;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,13 +36,13 @@ namespace LineVideoGenerator
                 {
                     MainWindow mainWindow = Owner as MainWindow;
                     mainWindow.backgroundPath = openFileDialog.FileName;
-                    mainWindow.isAnimated = false;
+                    mainWindow.backgroundType = BackgroundType.Image;
 
                     BitmapImage bitmapImage = new BitmapImage(new Uri(openFileDialog.FileName));
                     mainWindow.backgroundImage.Source = bitmapImage;
                     mainWindow.mediaElement.Source = null;
 
-                    resetButton.IsEnabled = true;
+                    resetBackgroundButton.IsEnabled = true;
                 }
                 catch (NotSupportedException)
                 {
@@ -60,12 +61,12 @@ namespace LineVideoGenerator
                 {
                     MainWindow mainWindow = Owner as MainWindow;
                     mainWindow.backgroundPath = openFileDialog.FileName;
-                    mainWindow.isAnimated = true;
+                    mainWindow.backgroundType = BackgroundType.Animation;
 
-                    mainWindow.mediaElement.Source = new Uri(openFileDialog.FileName);
                     mainWindow.backgroundImage.Source = null;
+                    mainWindow.mediaElement.Source = new Uri(openFileDialog.FileName);
 
-                    resetButton.IsEnabled = true;
+                    resetBackgroundButton.IsEnabled = true;
                 }
                 catch (NotSupportedException)
                 {
@@ -74,17 +75,45 @@ namespace LineVideoGenerator
             }
         }
 
-        private void ResetButton_Click(object sender, RoutedEventArgs e)
+        private void ResetBackgroundButton_Click(object sender, RoutedEventArgs e)
         {
             MainWindow mainWindow = Owner as MainWindow;
             mainWindow.backgroundPath = "background.png";
-            mainWindow.isAnimated = false;
+            mainWindow.backgroundType = BackgroundType.Default;
 
-            BitmapImage bitmapImage = new BitmapImage(new Uri(mainWindow.backgroundPath, UriKind.Relative));
+            BitmapImage bitmapImage = new BitmapImage(new Uri("background.png", UriKind.Relative));
             mainWindow.backgroundImage.Source = bitmapImage;
             mainWindow.mediaElement.Source = null;
 
-            resetButton.IsEnabled = false;
+            resetBackgroundButton.IsEnabled = false;
+        }
+
+        private void BGMButton_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                try
+                {
+                    MainWindow mainWindow = Owner as MainWindow;
+                    mainWindow.bgm = new AudioFileReader(openFileDialog.FileName);
+
+                    resetBGMButton.IsEnabled = true;
+                }
+                catch (NotSupportedException)
+                {
+                    MessageBox.Show("異なる形式を選択してください");
+                }
+            }
+        }
+
+        private void ResetBGMButton_Click(object sender, RoutedEventArgs e)
+        {
+            MainWindow mainWindow = Owner as MainWindow;
+            mainWindow.bgm = null;
+
+            resetBGMButton.IsEnabled = false;
         }
 
         private void Window_Closed(object sender, EventArgs e)

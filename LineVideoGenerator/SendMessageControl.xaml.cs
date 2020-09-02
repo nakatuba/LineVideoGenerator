@@ -81,17 +81,20 @@ namespace LineVideoGenerator
             }
         }
 
-        public void NameBox_TextChanged(object sender, TextChangedEventArgs e)
+        private void NameBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            // 同じidの人物の名前を変更
-            EditWindow editWindow = Window.GetWindow(this) as EditWindow;
-            MainWindow mainWindow = editWindow.Owner as MainWindow;
-            foreach (var person in mainWindow.data.personList.Where(p => p.id == Grid.GetRow(this)))
+            if (nameBox.IsFocused)
             {
-                person.Name = nameBox.Text;
-            }
+                // 同じidの人物の名前を変更
+                EditWindow editWindow = Window.GetWindow(this) as EditWindow;
+                MainWindow mainWindow = editWindow.Owner as MainWindow;
+                foreach (var person in mainWindow.data.personList.Where(p => p.id == Grid.GetRow(this)))
+                {
+                    person.Name = nameBox.Text;
+                }
 
-            sendButton.IsEnabled = CanSendMessage;
+                sendButton.IsEnabled = CanSendMessage;
+            }
         }
 
         private void MessageBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -120,6 +123,7 @@ namespace LineVideoGenerator
             {
                 time += mainWindow.data.messageCollection.Last().Time;
             }
+            editWindow.dateTimePicker.MinDate = DateTime.Today.Add(TimeSpan.FromSeconds(time));
 
             WitMultiRangeSlider slider = editWindow.sliderGrid.Children.Cast<WitMultiRangeSlider>().First(s => Grid.GetRow(s) == Grid.GetRow(this));
 

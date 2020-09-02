@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LineVideoGenerator"
+        xmlns:forms="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
         xmlns:InWit="clr-namespace:InWit.WPF.MultiRangeSlider;assembly=InWit.WPF.MultiRangeSlider"
         mc:Ignorable="d"
         Title="編集" Height="600" Width="1200" Closed="Window_Closed">
@@ -43,8 +44,12 @@
                 <Grid.RowDefinitions>
                     <RowDefinition/>
                     <RowDefinition/>
+                    <RowDefinition/>
                 </Grid.RowDefinitions>
-                <Grid x:Name="sliderGrid" Grid.Row="0">
+                <WindowsFormsHost Grid.Row="0" Width="100" FontSize="16">
+                    <forms:DateTimePicker x:Name="dateTimePicker" Format="Custom" CustomFormat="mm分ss秒" ShowUpDown="True" ValueChanged="DateTimePicker_ValueChanged"/>
+                </WindowsFormsHost>
+                <Grid x:Name="sliderGrid" Grid.Row="1">
                     <Grid.RowDefinitions>
                         <RowDefinition/>
                         <RowDefinition/>
@@ -58,7 +63,7 @@
                     <InWit:WitMultiRangeSlider Grid.Row="3"/>
                     <InWit:WitMultiRangeSlider Grid.Row="4"/>
                 </Grid>
-                <DataGrid x:Name="dataGrid" Grid.Row="1" Margin="20" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" VerticalScrollBarVisibility="Visible">
+                <DataGrid x:Name="dataGrid" Grid.Row="2" Margin="20" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" VerticalScrollBarVisibility="Visible">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="名前" Binding="{Binding Name}" Width="*"/>
                         <DataGridTextColumn Header="メッセージ" Binding="{Binding Text}" Width="3*"/>

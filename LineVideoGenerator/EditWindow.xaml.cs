@@ -37,6 +37,8 @@ namespace LineVideoGenerator
         {
             MainWindow mainWindow = Owner as MainWindow;
 
+            mainWindow.SetMessageCollectionChanged();
+
             foreach (var message in mainWindow.data.messageCollection)
             {
                 SetMessagePropertyChanged(message);
@@ -54,9 +56,14 @@ namespace LineVideoGenerator
                 ImageBrush imageBrush = control.iconButton.Template.FindName("imageBrush", control.iconButton) as ImageBrush;
                 imageBrush.ImageSource = group.First().person.Icon;
                 control.isSetIcon = true;
-                control.nameBox.TextChanged -= control.NameBox_TextChanged;
                 control.nameBox.Text = group.First().person.Name;
-                control.nameBox.TextChanged += control.NameBox_TextChanged;
+            }
+
+            // タイムピッカーをセット
+            dateTimePicker.Value = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.videoTotalTime));
+            if (mainWindow.data.messageCollection.Count > 0)
+            {
+                dateTimePicker.MinDate = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.messageCollection.Last().Time));
             }
 
             // タイムスライダーをセット
@@ -84,6 +91,7 @@ namespace LineVideoGenerator
                 dataGrid.Items.Refresh();
                 if (e.PropertyName == "Time")
                 {
+                    dateTimePicker.MinDate = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.messageCollection.Last().Time));
                     dataGrid.SelectedItem = message;
                 }
             };
@@ -101,6 +109,17 @@ namespace LineVideoGenerator
                 mainWindow.saveButton.IsEnabled = false;
                 dataGrid.Items.Refresh();
             };
+        }
+
+        private void DateTimePicker_ValueChanged(object sender, EventArgs e)
+        {
+            MainWindow mainWindow = Owner as MainWindow;
+            mainWindow.data.videoTotalTime = (int)dateTimePicker.Value.TimeOfDay.TotalSeconds;
+
+            foreach (var slider in sliderGrid.Children.Cast<WitMultiRangeSlider>())
+            {
+                slider.Maximum = dateTimePicker.Value.TimeOfDay.TotalSeconds;
+            }
         }
 
         private void Slider_DragDelta(object sender, DragDeltaEventArgs e)
@@ -177,6 +196,7 @@ namespace LineVideoGenerator
                 {
                     ResetSendGrid();
                     ResetSliderGrid();
+                    ResetTimePicker();
 
                     // データを読み込み
                     MainWindow mainWindow = Owner as MainWindow;
@@ -194,8 +214,6 @@ namespace LineVideoGenerator
                     {
                         message.person = mainWindow.data.personList.First(p => p.id == message.person.id);
                     }
-
-                    mainWindow.SetMessageCollectionChanged();
 
                     SetEditWindow();
                 }
@@ -236,7 +254,12 @@ namespace LineVideoGenerator
         {
             ResetSendGrid();
             ResetSliderGrid();
-            ResetDataGrid();
+            ResetTimePicker();
+
+            MainWindow mainWindow = Owner as MainWindow;
+            mainWindow.data = new Data();
+            mainWindow.SetMessageCollectionChanged();
+            dataGrid.ItemsSource = mainWindow.data.messageCollection;
         }
 
         private void ResetSendGrid()
@@ -260,12 +283,10 @@ namespace LineVideoGenerator
             }
         }
 
-        private void ResetDataGrid()
+        private void ResetTimePicker()
         {
-            MainWindow mainWindow = Owner as MainWindow;
-            mainWindow.data = new Data();
-            mainWindow.SetMessageCollectionChanged();
-            dataGrid.ItemsSource = mainWindow.data.messageCollection;
+            dateTimePicker.MinDate = DateTime.Today;
+            dateTimePicker.Value = DateTime.Today;
         }
 
         private void Window_Closed(object sender, EventArgs e)

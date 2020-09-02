@@ -4,28 +4,22 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="背景" Height="200" Width="200" Closed="Window_Closed" ResizeMode="NoResize">
+        Title="設定" Height="200" Width="300" Closed="Window_Closed" ResizeMode="NoResize">
+    <Window.Resources>
+        <Style TargetType="Button">
+            <Setter Property="Width" Value="75"/>
+            <Setter Property="Height" Value="20"/>
+        </Style>
+    </Window.Resources>
     <Grid>
-        <Button Content="画像"
-                Width="75"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                Margin="0, 0, 0, 100"
-                Click="ImageButton_Click"/>
-        <Button Content="動画"
-                Width="75"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                Margin="0"
-                Click="AnimationButton_Click"/>
-        <Button x:Name="resetButton"
-                Content="リセット"
-                Width="75"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                Margin="0, 100, 0, 0"
-                Click="ResetButton_Click"
-                IsEnabled="False"/>
-
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Button Grid.Column="0" Content="画像" Margin="0, 0, 0, 100" Click="ImageButton_Click"/>
+        <Button Grid.Column="0" Content="動画" Click="AnimationButton_Click"/>
+        <Button x:Name="resetBackgroundButton" Grid.Column="0" Content="リセット" Margin="0, 100, 0, 0" Click="ResetBackgroundButton_Click" IsEnabled="False"/>
+        <Button Grid.Column="1" Content="BGM" Margin="0, 0, 0, 50" Click="BGMButton_Click"/>
+        <Button x:Name="resetBGMButton" Grid.Column="1" Content="リセット" Margin="0, 50, 0, 0" Click="ResetBGMButton_Click" IsEnabled="False"/>
     </Grid>
 </Window>

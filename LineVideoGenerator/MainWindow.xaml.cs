@@ -26,6 +26,13 @@ using Size = System.Windows.Size;
 
 namespace LineVideoGenerator
 {
+    public enum BackgroundType
+    {
+        Image,
+        Animation,
+        Default
+    }
+
     /// <summary>
     /// MainWindow.xaml の相互作用ロジック
     /// </summary>
@@ -40,17 +47,16 @@ namespace LineVideoGenerator
         private int frameRate; // フレームレート
         private int frameWidth = 1920; // フレームの幅
         private int frameHeight = 1080; // フレームの高さ
-        public Data data = new Data();
         private List<Bitmap> messageBitmapList = new List<Bitmap>();
         private string tempPath = "temp";
         public string backgroundPath = "background.png";
-        public bool isAnimated = false;
-        private string soundEffectPath = "send.mp3";
+        public BackgroundType backgroundType = BackgroundType.Default;
+        public AudioFileReader bgm;
+        public Data data = new Data();
 
         public MainWindow()
         {
             InitializeComponent();
-            SetMessageCollectionChanged();
             Directory.CreateDirectory(tempPath);
         }
 
@@ -78,8 +84,11 @@ namespace LineVideoGenerator
         {
             BackgroundWindow backgroundWindow = new BackgroundWindow();
             backgroundWindow.Owner = this;
+
+            if (backgroundType != BackgroundType.Default) backgroundWindow.resetBackgroundButton.IsEnabled = true;
+            if (bgm != null) backgroundWindow.resetBGMButton.IsEnabled = true;
+
             backgroundWindow.Show();
-            if (backgroundPath != "background.png") backgroundWindow.resetButton.IsEnabled = true;
             backgroundButton.IsEnabled = false;
         }
 
@@ -88,10 +97,12 @@ namespace LineVideoGenerator
             bool clickStopButton = false;
             void StopButton_Click(object sender2, RoutedEventArgs e2) => clickStopButton = true;
 
-            // 編集画面を閉じる
+            // 編集画面と設定画面を閉じる
             Application.Current.Windows.Cast<Window>().FirstOrDefault(w => w.GetType() == typeof(EditWindow))?.Close();
+            Application.Current.Windows.Cast<Window>().FirstOrDefault(w => w.GetType() == typeof(BackgroundWindow))?.Close();
 
             editButton.IsEnabled = false;
+            backgroundButton.IsEnabled = false;
             playButton.Content = "停止";
             playButton.Click -= PlayButton_Click;
             playButton.Click += StopButton_Click;
@@ -101,11 +112,9 @@ namespace LineVideoGenerator
             grid.Children.Clear();
             // gridの高さを初期化
             grid.Height = gridOriginalHeight;
-            // gridからアニメーションを削除（https://docs.microsoft.com/ja-jp/dotnet/framework/wpf/graphics-multimedia/how-to-set-a-property-after-animating-it-with-a-storyboard）
-            grid.BeginAnimation(MarginProperty, null);
             // gridの余白を初期化
             grid.Margin = new Thickness(0);
-
+            // メッセージの上の余白を初期化
             messageBlockTop = messageBlockDistance;
 
             foreach (var messageBitmap in messageBitmapList)
@@ -114,8 +123,22 @@ namespace LineVideoGenerator
             }
             messageBitmapList.Clear();
 
+            // BGMを再生
+            WaveOut waveOut = new WaveOut();
+            bool loop = true;
+            if (bgm != null)
+            {
+                waveOut.Init(bgm);
+                waveOut.Play();
+                waveOut.PlaybackStopped += (sender2, e2) =>
+                {
+                    bgm.Position = 0;
+                    if(loop) waveOut.Play();
+                };
+            }
+
             // フレームレートを設定
-            if (isAnimated)
+            if (backgroundType == BackgroundType.Animation)
             {
                 VideoFileReader videoFileReader = new VideoFileReader();
                 videoFileReader.Open(backgroundPath);
@@ -133,7 +156,7 @@ namespace LineVideoGenerator
                 TimeSpan messageTimeSpan;
                 if (i == data.messageCollection.Count - 1)
                 {
-                    messageTimeSpan = TimeSpan.FromSeconds(1); // videoTotalTime - data.messageList[i].time
+                    messageTimeSpan = TimeSpan.FromSeconds(data.videoTotalTime - data.messageCollection[i].Time);
                 }
                 else
                 {
@@ -160,7 +183,6 @@ namespace LineVideoGenerator
                 pngBitmapEncoder.Frames.Add(BitmapFrame.Create(renderTargetBitmap));
 
                 string messagePath = Path.Combine(tempPath, Guid.NewGuid() + ".png");
-                // messagePathList.Add(messagePath);
                 using (var fileStream = File.Create(messagePath))
                 {
                     pngBitmapEncoder.Save(fileStream);
@@ -176,7 +198,15 @@ namespace LineVideoGenerator
                 if (clickStopButton) break;
             }
 
+            // BGMを停止
+            if (bgm != null)
+            {
+                loop = false;
+                waveOut.Stop();
+            }
+
             editButton.IsEnabled = true;
+            backgroundButton.IsEnabled = true;
             playButton.Content = "再生";
             playButton.Click -= StopButton_Click;
             playButton.Click += PlayButton_Click;
@@ -271,7 +301,7 @@ namespace LineVideoGenerator
             }
 
             // サウンドエフェクトを再生
-            AudioFileReader audioFileReader = new AudioFileReader(soundEffectPath);
+            AudioFileReader audioFileReader = new AudioFileReader("send.mp3");
             WaveOut waveOut = new WaveOut();
             waveOut.Init(audioFileReader);
             waveOut.Play();
@@ -290,7 +320,7 @@ namespace LineVideoGenerator
                 try
                 {
                     // 動画を保存
-                    if (isAnimated) SaveAnimationBackground(saveFileDialog.FileName);
+                    if (backgroundType == BackgroundType.Animation) SaveAnimationBackground(saveFileDialog.FileName);
                     else SaveImageBackground(saveFileDialog.FileName);
                     AddVideoAudio(saveFileDialog.FileName);
 
@@ -356,8 +386,10 @@ namespace LineVideoGenerator
 
         private void AddVideoAudio(string fileName)
         {
-            List<AudioFileReader> audioFileReaderList = new List<AudioFileReader>();
+            List<AudioFileReader> tempAudioList = new List<AudioFileReader>();
             List<ISampleProvider> sampleProviderList = new List<ISampleProvider>();
+
+            // 音声
             foreach (var message in data.messageCollection.Where(m => m.IsSetVoice))
             {
                 // 音声をWAV形式に変換
@@ -369,10 +401,33 @@ namespace LineVideoGenerator
                 mediaFoundationReader.Dispose();
 
                 AudioFileReader audioFileReader = new AudioFileReader(wavePath);
-                audioFileReaderList.Add(audioFileReader);
+                tempAudioList.Add(audioFileReader);
                 OffsetSampleProvider offsetSampleProvider = new OffsetSampleProvider(audioFileReader);
                 offsetSampleProvider.DelayBy = TimeSpan.FromSeconds(message.Time);
                 sampleProviderList.Add(offsetSampleProvider);
+            }
+
+            // BGM
+            if (bgm != null)
+            {
+                List<ISampleProvider> BGMList = new List<ISampleProvider>();
+
+                for (int i = 0; i < (int)(data.videoTotalTime / bgm.TotalTime.TotalSeconds); i++)
+                {
+                    string BGMPath = Path.Combine(tempPath, Guid.NewGuid() + ".wav");
+                    WaveFileWriter.CreateWaveFile(BGMPath, bgm);
+                    AudioFileReader audioFileReader = new AudioFileReader(BGMPath);
+                    tempAudioList.Add(audioFileReader);
+                    BGMList.Add(audioFileReader);
+                    bgm.Position = 0;
+                }
+
+                OffsetSampleProvider offsetSampleProvider = new OffsetSampleProvider(bgm);
+                offsetSampleProvider.Take = TimeSpan.FromSeconds(data.videoTotalTime % bgm.TotalTime.TotalSeconds);
+                BGMList.Add(offsetSampleProvider);
+
+                ConcatenatingSampleProvider concatenatingSampleProvider = new ConcatenatingSampleProvider(BGMList);
+                sampleProviderList.Add(concatenatingSampleProvider);
             }
 
             if (sampleProviderList.Count > 0)
@@ -382,9 +437,9 @@ namespace LineVideoGenerator
                 MixingSampleProvider mixingSampleProvider = new MixingSampleProvider(sampleProviderList);
                 WaveFileWriter.CreateWaveFile16(videoAudioPath, mixingSampleProvider);
 
-                foreach (var audioFileReader in audioFileReaderList)
+                foreach (var tempAudio in tempAudioList)
                 {
-                    audioFileReader.Dispose();
+                    tempAudio.Dispose();
                 }
 
                 //　動画に音声を挿入

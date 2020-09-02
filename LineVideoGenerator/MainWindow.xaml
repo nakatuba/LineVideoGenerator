@@ -21,7 +21,7 @@
         <MediaElement x:Name="mediaElement" Grid.Row="0" Width="960" MediaEnded="MediaElement_MediaEnded"/>
         <Grid x:Name="grid" Grid.Row="0" Width="960"/>
         <Button x:Name="editButton" Content="編集" Margin="0,0,450,0" Click="EditButton_Click"/>
-        <Button x:Name="backgroundButton" Content="背景" Margin="0,0,150,0" Click="BackgroundButton_Click"/>
+        <Button x:Name="backgroundButton" Content="設定" Margin="0,0,150,0" Click="BackgroundButton_Click"/>
         <Button x:Name="playButton" Content="再生" Margin="150,0,0,0" IsEnabled="False" Click="PlayButton_Click"/>
         <Button x:Name="saveButton" Content="保存" Margin="450,0,0,0" IsEnabled="False" Click="SaveButton_Click"/>
     </Grid>
