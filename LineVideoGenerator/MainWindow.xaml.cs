@@ -38,12 +38,11 @@ namespace LineVideoGenerator
     /// </summary>
     public partial class MainWindow : Window
     {
-        private const double messageBlockDistance = 10; // メッセージ同士の距離間隔
-        private double messageBlockTop = messageBlockDistance; // メッセージの上の余白
+        private double messageBlockDistance = 10; // メッセージ同士の距離間隔
+        private double messageBlockTop; // メッセージの上の余白
         private double messageBlockRight = 20; // メッセージの右の余白
         private double messageBlockLeft = 100; // メッセージの左の余白
         private double iconEllipseSide = 10; // アイコンの横の余白
-        private int gridOriginalHeight = 540; // gridの元の高さ
         private int frameRate; // フレームレート
         private int frameWidth = 1920; // フレームの幅
         private int frameHeight = 1080; // フレームの高さ
@@ -109,13 +108,11 @@ namespace LineVideoGenerator
             saveButton.IsEnabled = false;
 
             // gridからすべての要素を削除
-            grid.Children.Clear();
-            // gridの高さを初期化
-            grid.Height = gridOriginalHeight;
+            messageGrid.Children.Clear();
             // gridの余白を初期化
-            grid.Margin = new Thickness(0);
+            messageGrid.Margin = new Thickness(0);
             // メッセージの上の余白を初期化
-            messageBlockTop = messageBlockDistance;
+            messageBlockTop = groupBar.ActualHeight + messageBlockDistance;
 
             foreach (var messageBitmap in messageBitmapList)
             {
@@ -167,32 +164,12 @@ namespace LineVideoGenerator
                 {
                     TimeSpan firstMessageTimeSpan = TimeSpan.FromSeconds(data.messageCollection[i].Time);
                     await Task.Delay(firstMessageTimeSpan);
-                    Bitmap firstMessageBitmap = new Bitmap((int)grid.Width, (int)grid.Height);
-                    for (int j = 0; j < firstMessageTimeSpan.TotalSeconds * frameRate; j++)
-                    {
-                        messageBitmapList.Add(firstMessageBitmap);
-                    }
+                    AddMessageBitmap(firstMessageTimeSpan);
                 }
 
                 SendMessage(data.messageCollection[i]);
                 await Task.Delay(messageTimeSpan);
-
-                RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap((int)grid.Width, gridOriginalHeight, 96, 96, PixelFormats.Pbgra32);
-                renderTargetBitmap.Render(grid);
-                PngBitmapEncoder pngBitmapEncoder = new PngBitmapEncoder();
-                pngBitmapEncoder.Frames.Add(BitmapFrame.Create(renderTargetBitmap));
-
-                string messagePath = Path.Combine(tempPath, Guid.NewGuid() + ".png");
-                using (var fileStream = File.Create(messagePath))
-                {
-                    pngBitmapEncoder.Save(fileStream);
-                }
-
-                Bitmap messageBitmap = new Bitmap(messagePath);
-                for (int j = 0; j < messageTimeSpan.TotalSeconds * frameRate; j++)
-                {
-                    messageBitmapList.Add(messageBitmap);
-                }
+                AddMessageBitmap(messageTimeSpan);
 
                 // 停止
                 if (clickStopButton) break;
@@ -213,13 +190,13 @@ namespace LineVideoGenerator
             if (!clickStopButton) saveButton.IsEnabled = true;
         }
 
-        public void SendMessage(Message message)
+        private void SendMessage(Message message)
         {
             TextBlock messageBlock = new TextBlock();
             messageBlock.Text = message.Text;
             messageBlock.FontSize = 30;
             messageBlock.TextWrapping = TextWrapping.Wrap;
-            messageBlock.MaxWidth = grid.Width / 2;
+            messageBlock.MaxWidth = messageGrid.ActualWidth / 2;
             messageBlock.Margin = new Thickness(20, 10, 20, 10);
 
             Border messageBorder = new Border();
@@ -227,7 +204,6 @@ namespace LineVideoGenerator
             messageBorder.VerticalAlignment = VerticalAlignment.Top;
             messageBorder.CornerRadius = new CornerRadius(20);
 
-            // 吹き出し
             Image bubble = new Image();
             bubble.VerticalAlignment = VerticalAlignment.Top;
             bubble.Width = 20;
@@ -241,7 +217,7 @@ namespace LineVideoGenerator
                 bubble.Source = new BitmapImage(new Uri("green bubble.png", UriKind.Relative));
                 bubble.HorizontalAlignment = HorizontalAlignment.Right;
                 bubble.Margin = new Thickness(0, messageBlockTop, messageBlockRight - bubble.Width / 2, 0);
-                grid.Children.Add(bubble);
+                messageGrid.Children.Add(bubble);
             }
             else
             {
@@ -259,7 +235,7 @@ namespace LineVideoGenerator
                     iconEllipse.HorizontalAlignment = HorizontalAlignment.Left;
                     iconEllipse.VerticalAlignment = VerticalAlignment.Top;
                     iconEllipse.Margin = new Thickness(iconEllipseSide, messageBlockTop, 0, 0);
-                    grid.Children.Add(iconEllipse);
+                    messageGrid.Children.Add(iconEllipse);
 
                     TextBlock nameBlock = new TextBlock();
                     nameBlock.Text = message.person.Name;
@@ -268,17 +244,17 @@ namespace LineVideoGenerator
                     nameBlock.HorizontalAlignment = HorizontalAlignment.Left;
                     nameBlock.VerticalAlignment = VerticalAlignment.Top;
                     nameBlock.Margin = new Thickness(messageBlockLeft, messageBlockTop, 0, 0);
-                    grid.Children.Add(nameBlock);
+                    messageGrid.Children.Add(nameBlock);
 
                     // nameBlockの高さを取得（https://stackoverflow.com/questions/9264398/how-to-calculate-wpf-textblock-width-for-its-known-font-size-and-characters）
-                    nameBlock.Measure(new Size(Double.PositiveInfinity, Double.PositiveInfinity));
+                    nameBlock.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
                     nameBlock.Arrange(new Rect(nameBlock.DesiredSize));
                     messageBlockTop += nameBlock.ActualHeight + messageBlockDistance;
 
                     bubble.Source = new BitmapImage(new Uri("white bubble.png", UriKind.Relative));
                     bubble.HorizontalAlignment = HorizontalAlignment.Left;
                     bubble.Margin = new Thickness(messageBlockLeft - bubble.Width / 2, messageBlockTop, 0, 0);
-                    grid.Children.Add(bubble);
+                    messageGrid.Children.Add(bubble);
                 }
 
                 messageBorder.HorizontalAlignment = HorizontalAlignment.Left;
@@ -286,18 +262,18 @@ namespace LineVideoGenerator
                 messageBorder.Background = Brushes.White;
             }
 
-            grid.Children.Add(messageBorder);
+            messageGrid.Children.Add(messageBorder);
 
             // borderの高さを取得（https://stackoverflow.com/questions/9264398/how-to-calculate-wpf-textblock-width-for-its-known-font-size-and-characters）
             messageBorder.Measure(new Size(Double.PositiveInfinity, Double.PositiveInfinity));
             messageBorder.Arrange(new Rect(messageBorder.DesiredSize));
             messageBlockTop += messageBorder.ActualHeight + messageBlockDistance;
 
-            if (grid.Height < messageBlockTop)
+            double inputBarTop = messageGrid.ActualHeight - inputBar.ActualHeight;
+            if (inputBarTop < messageBlockTop)
             {
-                double overHeight = messageBlockTop - grid.Height;
-                grid.Height += overHeight;
-                grid.Margin = new Thickness(grid.Margin.Left, grid.Margin.Top - overHeight, grid.Margin.Right, grid.Margin.Bottom);
+                double overHeight = messageBlockTop - inputBarTop;
+                messageGrid.Margin = new Thickness(messageGrid.Margin.Left, messageGrid.Margin.Top - overHeight, messageGrid.Margin.Right, messageGrid.Margin.Bottom);
             }
 
             // サウンドエフェクトを再生
@@ -308,6 +284,26 @@ namespace LineVideoGenerator
 
             // 音声を再生
             message.PlayVoice();
+        }
+
+        private void AddMessageBitmap(TimeSpan messageTimeSpan)
+        {
+            RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap((int)screenGrid.ActualWidth, (int)screenGrid.ActualHeight, 96, 96, PixelFormats.Pbgra32);
+            renderTargetBitmap.Render(screenGrid);
+            PngBitmapEncoder pngBitmapEncoder = new PngBitmapEncoder();
+            pngBitmapEncoder.Frames.Add(BitmapFrame.Create(renderTargetBitmap));
+
+            string messagePath = Path.Combine(tempPath, Guid.NewGuid() + ".png");
+            using (var fileStream = File.Create(messagePath))
+            {
+                pngBitmapEncoder.Save(fileStream);
+            }
+
+            Bitmap messageBitmap = new Bitmap(messagePath);
+            for (int j = 0; j < messageTimeSpan.TotalSeconds * frameRate; j++)
+            {
+                messageBitmapList.Add(messageBitmap);
+            }
         }
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)

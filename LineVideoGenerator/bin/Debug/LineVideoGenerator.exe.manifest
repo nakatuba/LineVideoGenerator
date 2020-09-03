@@ -109,19 +109,19 @@
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>PJo4xZP1VjxxZoZUsAWTXrZVr3HTpJo6c1R7CPZ6GxY=</dsig:DigestValue>
+        <dsig:DigestValue>blu/aNmR7Xg1YLvyZb6O1GyUVvRKVtlZtAJv96W44H0=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="LineVideoGenerator.exe" size="59352">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="LineVideoGenerator.exe" size="81880">
       <assemblyIdentity name="LineVideoGenerator" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>63eLCnGAifXnMrjTQj0gwq2z5wZyyHMb9OZH0/YGKig=</dsig:DigestValue>
+        <dsig:DigestValue>/a4qldG2ZxaYbbP1n+ZlkSfM9k9P/IO46TL/02WU0Uc=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

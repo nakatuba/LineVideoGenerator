@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="LINE動画ジェネレータ" Width="1000" Height="640" Closed="Window_Closed">
+        Title="LINE動画ジェネレータ" Width="960" Height="640" Closed="Window_Closed">
     <Window.Resources>
         <Style TargetType="Button">
             <Setter Property="Grid.Row" Value="1"/>
@@ -17,9 +17,13 @@
             <RowDefinition Height="540"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <Image x:Name="backgroundImage" Source="background.png" Grid.Row="0" Width="960" Stretch="UniformToFill"/>
-        <MediaElement x:Name="mediaElement" Grid.Row="0" Width="960" MediaEnded="MediaElement_MediaEnded"/>
-        <Grid x:Name="grid" Grid.Row="0" Width="960"/>
+        <Image x:Name="backgroundImage" Source="background.png" Grid.Row="0" Stretch="UniformToFill"/>
+        <MediaElement x:Name="mediaElement" Grid.Row="0" MediaEnded="MediaElement_MediaEnded"/>
+        <Grid x:Name="screenGrid" Grid.Row="0">
+            <Grid x:Name="messageGrid"/>
+            <Image x:Name="groupBar" Source="group bar.png" VerticalAlignment="Top"/>
+            <Image x:Name="inputBar" Source="input bar.png" VerticalAlignment="Bottom"/>
+        </Grid>
         <Button x:Name="editButton" Content="編集" Margin="0,0,450,0" Click="EditButton_Click"/>
         <Button x:Name="backgroundButton" Content="設定" Margin="0,0,150,0" Click="BackgroundButton_Click"/>
         <Button x:Name="playButton" Content="再生" Margin="150,0,0,0" IsEnabled="False" Click="PlayButton_Click"/>

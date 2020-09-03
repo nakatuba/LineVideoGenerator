@@ -200,6 +200,8 @@
     </Content>
     <Resource Include="white bubble.png" />
     <Resource Include="green bubble.png" />
+    <Resource Include="group bar.png" />
+    <Resource Include="input bar.png" />
     <Content Include="no image.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
