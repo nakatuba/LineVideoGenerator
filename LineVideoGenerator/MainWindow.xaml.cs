@@ -390,7 +390,7 @@ namespace LineVideoGenerator
             {
                 // 音声をWAV形式に変換
                 string voicePath = Path.Combine(tempPath, Guid.NewGuid() + message.voicePathExt);
-                File.WriteAllBytes(voicePath, message.Voice);
+                File.WriteAllBytes(voicePath, message.voice);
                 MediaFoundationReader mediaFoundationReader = new MediaFoundationReader(voicePath);
                 string wavePath = Path.Combine(tempPath, Guid.NewGuid() + ".wav");
                 WaveFileWriter.CreateWaveFile(wavePath, new MediaFoundationResampler(mediaFoundationReader, new WaveFormat()));

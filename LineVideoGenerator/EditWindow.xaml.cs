@@ -1,5 +1,4 @@
-﻿using InWit.WPF.MultiRangeSlider;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -27,13 +26,13 @@ namespace LineVideoGenerator
         public EditWindow()
         {
             InitializeComponent();
-            ContentRendered += (sender, e) =>
+            Loaded += (sender, e) =>
             {
                 SetEditWindow();
             };
         }
 
-        private async void SetEditWindow()
+        private void SetEditWindow()
         {
             MainWindow mainWindow = Owner as MainWindow;
 
@@ -63,15 +62,14 @@ namespace LineVideoGenerator
             dateTimePicker.Value = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.videoTotalTime));
             if (mainWindow.data.messageCollection.Count > 0)
             {
-                dateTimePicker.MinDate = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.messageCollection.Last().Time));
+                dateTimePicker.MinDate = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.messageCollection.Last().NextMessageMinTime));
             }
 
             // タイムスライダーをセット
             foreach (var message in mainWindow.data.messageCollection)
             {
-                WitMultiRangeSlider slider = sliderGrid.Children.Cast<WitMultiRangeSlider>().First(s => Grid.GetRow(s) == message.person.id);
-                message.AddSliderItem(slider);
-                await Task.Delay(1);
+                Canvas canvas = canvasGrid.Children.Cast<Canvas>().First(c => Grid.GetRow(c) == message.person.id);
+                message.AddThumb(canvas);
             }
 
             // データグリッドをセット
@@ -88,10 +86,10 @@ namespace LineVideoGenerator
             message.PropertyChanged += (sender, e) =>
             {
                 mainWindow.saveButton.IsEnabled = false;
+                dateTimePicker.MinDate = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.messageCollection.Last().NextMessageMinTime));
                 dataGrid.Items.Refresh();
-                if (e.PropertyName == "Time")
+                if (e.PropertyName == nameof(message.Time))
                 {
-                    dateTimePicker.MinDate = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.messageCollection.Last().Time));
                     dataGrid.SelectedItem = message;
                 }
             };
@@ -116,14 +114,22 @@ namespace LineVideoGenerator
             MainWindow mainWindow = Owner as MainWindow;
             mainWindow.data.videoTotalTime = (int)dateTimePicker.Value.TimeOfDay.TotalSeconds;
 
-            foreach (var slider in sliderGrid.Children.Cast<WitMultiRangeSlider>())
+            foreach (var canvas in canvasGrid.Children.Cast<Canvas>())
             {
-                slider.Maximum = dateTimePicker.Value.TimeOfDay.TotalSeconds;
+                canvas.Width = mainWindow.data.videoTotalTime * ThumbConverter.per;
             }
         }
 
-        private void Slider_DragDelta(object sender, DragDeltaEventArgs e)
+        private void Thumb_DragDelta(object sender, DragDeltaEventArgs e)
         {
+            Thumb thumb = sender as Thumb;
+            Canvas canvas = thumb.Parent as Canvas;
+
+            double x = Canvas.GetLeft(thumb) + e.HorizontalChange;
+            x = Math.Max(x, 0);
+            x = Math.Min(x, canvas.ActualWidth - thumb.ActualWidth);
+            Canvas.SetLeft(thumb, x);
+
             // メッセージを時間順にソート（https://yomon.hatenablog.com/entry/2014/01/14/C%23%E3%81%AEObservableCollection%E3%81%AB%E3%81%8A%E3%81%91%E3%82%8B%E8%A6%81%E7%B4%A0%E3%81%AE%E4%B8%A6%E3%81%B9%E6%9B%BF%E3%81%88%E6%96%B9%E6%B3%95）
             MainWindow mainWindow = Owner as MainWindow;
             mainWindow.data.messageCollection = new ObservableCollection<Message>(mainWindow.data.messageCollection.OrderBy(m => m.Time));
@@ -157,8 +163,7 @@ namespace LineVideoGenerator
                 try
                 {
                     Message message = dataGrid.SelectedItem as Message;
-                    message.Voice = File.ReadAllBytes(openFileDialog.FileName);
-                    message.voicePathExt = Path.GetExtension(openFileDialog.FileName);
+                    message.SetVoice(openFileDialog.FileName);
                 }
                 catch (NotSupportedException)
                 {
@@ -181,8 +186,7 @@ namespace LineVideoGenerator
             MainWindow mainWindow = Owner as MainWindow;
             Message message = dataGrid.SelectedItem as Message;
             mainWindow.data.messageCollection.Remove(message);
-            WitMultiRangeSlider slider = sliderGrid.Children.Cast<WitMultiRangeSlider>().First(s => Grid.GetRow(s) == message.person.id);
-            message.RemoveSliderItem(slider);
+            message.RemoveThumb();
         }
 
         private void LoadButton_Click(object sender, RoutedEventArgs e)
@@ -278,8 +282,7 @@ namespace LineVideoGenerator
             MainWindow mainWindow = Owner as MainWindow;
             foreach (var message in mainWindow.data.messageCollection)
             {
-                WitMultiRangeSlider slider = sliderGrid.Children.Cast<WitMultiRangeSlider>().First(s => Grid.GetRow(s) == message.person.id);
-                message.RemoveSliderItem(slider);
+                message.RemoveThumb();
             }
         }
 

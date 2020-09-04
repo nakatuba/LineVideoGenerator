@@ -1,5 +1,4 @@
-﻿using InWit.WPF.MultiRangeSlider;
-using NAudio.Wave;
+﻿using NAudio.Wave;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -23,9 +22,10 @@ namespace LineVideoGenerator
         public Person person;
         private string text;
         private int time;
-        private byte[] voice;
+        public byte[] voice;
         public string voicePathExt;
-        [XmlIgnore] private WitMultiRangeSliderItem sliderItem = new WitMultiRangeSliderItem();
+        public double voiceTime;
+        [XmlIgnore] public Thumb thumb = new Thumb();
         public event PropertyChangedEventHandler PropertyChanged;
         public string Name
         {
@@ -49,14 +49,9 @@ namespace LineVideoGenerator
                 OnPropertyChanged();
             }
         }
-        public byte[] Voice
+        public int NextMessageMinTime
         {
-            get { return voice; }
-            set
-            {
-                voice = value;
-                OnPropertyChanged();
-            }
+            get { return time + (int)voiceTime + 1; }
         }
         public bool IsSetVoice
         {
@@ -65,12 +60,24 @@ namespace LineVideoGenerator
 
         public Message() { }
 
-        public Message(Person person, string text, int time, WitMultiRangeSlider slider)
+        public Message(Person person, string text, int time, Canvas canvas)
         {
             this.person = person;
             this.text = text;
             this.time = time;
-            AddSliderItem(slider);
+            AddThumb(canvas);
+        }
+
+        public void SetVoice(string fileName)
+        {
+            voice = File.ReadAllBytes(fileName);
+            voicePathExt = Path.GetExtension(fileName);
+
+            AudioFileReader audioFileReader = new AudioFileReader(fileName);
+            voiceTime = audioFileReader.TotalTime.TotalSeconds;
+            thumb.Width = voiceTime * ThumbConverter.per;
+
+            OnPropertyChanged();
         }
 
         public void PlayVoice(Action stoppedAction = null)
@@ -92,16 +99,24 @@ namespace LineVideoGenerator
             }
         }
 
-        public void AddSliderItem(WitMultiRangeSlider slider)
+        public void AddThumb(Canvas canvas)
         {
-            Binding binding = new Binding("Time") { Source = this };
-            sliderItem.SetBinding(RangeBase.ValueProperty, binding);
-            slider.Items.Add(sliderItem);
+            thumb.Width = ThumbConverter.per;
+            thumb.Height = canvas.ActualHeight;
+            Binding binding = new Binding(nameof(Time))
+            {
+                Source = this,
+                Mode = BindingMode.TwoWay,
+                Converter = new ThumbConverter()
+            };
+            thumb.SetBinding(Canvas.LeftProperty, binding);
+            canvas.Children.Add(thumb);
         }
 
-        public void RemoveSliderItem(WitMultiRangeSlider slider)
+        public void RemoveThumb()
         {
-            slider.Items.Remove(sliderItem);
+            Canvas canvas = thumb.Parent as Canvas;
+            canvas.Children.Remove(thumb);
         }
 
         private void OnPropertyChanged([CallerMemberName] string name = null)

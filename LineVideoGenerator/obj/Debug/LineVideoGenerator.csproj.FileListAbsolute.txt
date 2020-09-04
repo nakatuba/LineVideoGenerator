@@ -18,15 +18,11 @@
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\bin\Debug\Accord.Video.dll
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\bin\Debug\Accord.Video.FFMPEG.dll
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\bin\Debug\AviFile.dll
-\\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\bin\Debug\InWit.Core.dll
-\\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\bin\Debug\InWit.WPF.MultiRangeSlider.dll
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\bin\Debug\NAudio.dll
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\bin\Debug\Accord.xml
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\bin\Debug\Accord.Video.xml
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\bin\Debug\Accord.Video.FFMPEG.xml
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\bin\Debug\AviFile.pdb
-\\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\bin\Debug\InWit.Core.pdb
-\\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\bin\Debug\InWit.WPF.MultiRangeSlider.pdb
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\bin\Debug\NAudio.xml
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\obj\Debug\LineVideoGenerator.csprojAssemblyReference.cache
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\obj\Debug\BackgroundWindow.baml

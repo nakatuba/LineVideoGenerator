@@ -5,14 +5,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LineVideoGenerator"
         xmlns:forms="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
-        xmlns:InWit="clr-namespace:InWit.WPF.MultiRangeSlider;assembly=InWit.WPF.MultiRangeSlider"
         mc:Ignorable="d"
         Title="編集" Height="600" Width="1200" Closed="Window_Closed">
     <Window.Resources>
-        <Style TargetType="InWit:WitMultiRangeSlider">
-            <Setter Property="Height" Value="25"/>
-            <Setter Property="Margin" Value="20 0 20 0"/>
-            <EventSetter Event="Thumb.DragDelta" Handler="Slider_DragDelta"/>
+        <Style TargetType="Canvas">
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="Background" Value="LightGray"/>
+        </Style>
+        <Style TargetType="Thumb">
+            <EventSetter Event="DragDelta" Handler="Thumb_DragDelta"/>
         </Style>
         <local:TimeConverter x:Key="timeConverter"/>
     </Window.Resources>
@@ -43,26 +44,28 @@
             <Grid Grid.Column="1">
                 <Grid.RowDefinitions>
                     <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
+                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="3*"/>
                 </Grid.RowDefinitions>
                 <WindowsFormsHost Grid.Row="0" Width="100" FontSize="16">
                     <forms:DateTimePicker x:Name="dateTimePicker" Format="Custom" CustomFormat="mm分ss秒" ShowUpDown="True" ValueChanged="DateTimePicker_ValueChanged"/>
                 </WindowsFormsHost>
-                <Grid x:Name="sliderGrid" Grid.Row="1">
-                    <Grid.RowDefinitions>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                    </Grid.RowDefinitions>
-                    <InWit:WitMultiRangeSlider Grid.Row="0"/>
-                    <InWit:WitMultiRangeSlider Grid.Row="1"/>
-                    <InWit:WitMultiRangeSlider Grid.Row="2"/>
-                    <InWit:WitMultiRangeSlider Grid.Row="3"/>
-                    <InWit:WitMultiRangeSlider Grid.Row="4"/>
-                </Grid>
+                <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Hidden" Margin="20 0 20 0">
+                    <Grid x:Name="canvasGrid">
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <Canvas Grid.Row="0"/>
+                        <Canvas Grid.Row="1"/>
+                        <Canvas Grid.Row="2"/>
+                        <Canvas Grid.Row="3"/>
+                        <Canvas Grid.Row="4"/>
+                    </Grid>
+                </ScrollViewer>
                 <DataGrid x:Name="dataGrid" Grid.Row="2" Margin="20" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" VerticalScrollBarVisibility="Visible">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="名前" Binding="{Binding Name}" Width="*"/>

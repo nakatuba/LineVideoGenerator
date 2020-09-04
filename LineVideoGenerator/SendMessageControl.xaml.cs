@@ -1,5 +1,4 @@
-﻿using InWit.WPF.MultiRangeSlider;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -121,14 +120,14 @@ namespace LineVideoGenerator
             int time = 1;
             if (mainWindow.data.messageCollection.Count > 0)
             {
-                time += mainWindow.data.messageCollection.Last().Time;
+                time = mainWindow.data.messageCollection.Last().NextMessageMinTime;
             }
-            editWindow.dateTimePicker.MinDate = DateTime.Today.Add(TimeSpan.FromSeconds(time));
 
-            WitMultiRangeSlider slider = editWindow.sliderGrid.Children.Cast<WitMultiRangeSlider>().First(s => Grid.GetRow(s) == Grid.GetRow(this));
+            Canvas canvas = editWindow.canvasGrid.Children.Cast<Canvas>().First(c => Grid.GetRow(c) == Grid.GetRow(this));
 
-            Message message = new Message(person, messageBox.Text, time, slider);
+            Message message = new Message(person, messageBox.Text, time, canvas);
             editWindow.SetMessagePropertyChanged(message);
+            editWindow.dateTimePicker.MinDate = DateTime.Today.Add(TimeSpan.FromSeconds(message.NextMessageMinTime));
 
             mainWindow.data.messageCollection.Add(message);
 

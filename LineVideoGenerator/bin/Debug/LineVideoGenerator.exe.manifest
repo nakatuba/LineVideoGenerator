@@ -90,38 +90,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="InWit.Core.dll" size="11776">
-      <assemblyIdentity name="InWit.Core" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
-      <hash>
-        <dsig:Transforms>
-          <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
-        </dsig:Transforms>
-        <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>1rEgmrb3n2oMCUXm+QtlJtL20yzRDEv2PFLDU8LlXi4=</dsig:DigestValue>
-      </hash>
-    </dependentAssembly>
-  </dependency>
-  <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="InWit.WPF.MultiRangeSlider.dll" size="31744">
-      <assemblyIdentity name="InWit.WPF.MultiRangeSlider" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
-      <hash>
-        <dsig:Transforms>
-          <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
-        </dsig:Transforms>
-        <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>blu/aNmR7Xg1YLvyZb6O1GyUVvRKVtlZtAJv96W44H0=</dsig:DigestValue>
-      </hash>
-    </dependentAssembly>
-  </dependency>
-  <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="LineVideoGenerator.exe" size="81880">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="LineVideoGenerator.exe" size="80344">
       <assemblyIdentity name="LineVideoGenerator" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>/a4qldG2ZxaYbbP1n+ZlkSfM9k9P/IO46TL/02WU0Uc=</dsig:DigestValue>
+        <dsig:DigestValue>A5WZEn/uGoFfOriWt3SdB7Av5stzk1gdoce+JYKkiqw=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

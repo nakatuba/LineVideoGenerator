@@ -77,12 +77,6 @@
     <Reference Include="AviFile">
       <HintPath>..\..\..\Downloads\avifilewrapperdemo_src\AviFile\bin\Debug\AviFile.dll</HintPath>
     </Reference>
-    <Reference Include="InWit.Core">
-      <HintPath>..\..\..\Downloads\WitMultiRangeSlider\src\InWit\MultiRangeSliderTestApp.GUI\bin\Debug\InWit.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="InWit.WPF.MultiRangeSlider">
-      <HintPath>..\..\..\Downloads\WitMultiRangeSlider\src\InWit\MultiRangeSliderTestApp.GUI\bin\Debug\InWit.WPF.MultiRangeSlider.dll</HintPath>
-    </Reference>
     <Reference Include="NAudio, Version=1.10.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\NAudio.1.10.0\lib\net35\NAudio.dll</HintPath>
     </Reference>
@@ -116,6 +110,7 @@
     <Compile Include="SendMessageControl.xaml.cs">
       <DependentUpon>SendMessageControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ThumbConverter.cs" />
     <Compile Include="TimeConverter.cs" />
     <Page Include="BackgroundWindow.xaml">
       <SubType>Designer</SubType>
