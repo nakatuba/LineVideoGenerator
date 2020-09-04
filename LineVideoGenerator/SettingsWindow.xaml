@@ -1,0 +1,52 @@
+﻿<Window x:Class="LineVideoGenerator.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="設定" Height="200" Width="300" Closed="Window_Closed" ResizeMode="NoResize">
+    <Window.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="Grid.Row" Value="0"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="Width" Value="75"/>
+            <Setter Property="Height" Value="20"/>
+        </Style>
+        <Style BasedOn="{StaticResource {x:Type Button}}" TargetType="Button" x:Key="ResetButton">
+            <Setter Property="Content" Value="リセット"/>
+            <Setter Property="IsEnabled" Value="False"/>
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition Height="2*"/>
+                <RowDefinition Height="2*"/>
+                <RowDefinition Height="2*"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <TextBlock Text="背景"/>
+            <Button Content="画像" Grid.Row="1" Click="ImageButton_Click"/>
+            <Button Content="動画" Grid.Row="2" Click="AnimationButton_Click"/>
+            <Button x:Name="resetBackgroundButton" Grid.Row="3" Style="{StaticResource ResetButton}" Click="ResetBackgroundButton_Click"/>
+        </Grid>
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition Height="2*"/>
+                <RowDefinition Height="2*"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <TextBlock Text="BGM"/>
+            <Button Content="BGM" Grid.Row="1" Click="BGMButton_Click"/>
+            <Button x:Name="resetBGMButton" Grid.Row="2" Style="{StaticResource ResetButton}" Click="ResetBGMButton_Click"/>
+        </Grid>
+    </Grid>
+</Window>

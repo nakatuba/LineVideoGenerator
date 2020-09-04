@@ -127,7 +127,7 @@ namespace LineVideoGenerator
 
             Message message = new Message(person, messageBox.Text, time, canvas);
             editWindow.SetMessagePropertyChanged(message);
-            editWindow.dateTimePicker.MinDate = DateTime.Today.Add(TimeSpan.FromSeconds(message.NextMessageMinTime));
+            editWindow.totalTimePicker.MinDate = DateTime.Today.Add(TimeSpan.FromSeconds(message.NextMessageMinTime));
 
             mainWindow.data.messageCollection.Add(message);
 

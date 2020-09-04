@@ -112,7 +112,7 @@
     </Compile>
     <Compile Include="ThumbConverter.cs" />
     <Compile Include="TimeConverter.cs" />
-    <Page Include="BackgroundWindow.xaml">
+    <Page Include="SettingsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -132,8 +132,8 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="BackgroundWindow.xaml.cs">
-      <DependentUpon>BackgroundWindow.xaml</DependentUpon>
+    <Compile Include="SettingsWindow.xaml.cs">
+      <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Data.cs" />
     <Compile Include="EditWindow.xaml.cs">

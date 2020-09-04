@@ -59,10 +59,11 @@ namespace LineVideoGenerator
             }
 
             // タイムピッカーをセット
-            dateTimePicker.Value = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.videoTotalTime));
+            totalTimePicker.Value = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.videoTotalTime));
+            startTimePicker.Value = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.messageStartTime));
             if (mainWindow.data.messageCollection.Count > 0)
             {
-                dateTimePicker.MinDate = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.messageCollection.Last().NextMessageMinTime));
+                totalTimePicker.MinDate = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.messageCollection.Last().NextMessageMinTime));
             }
 
             // タイムスライダーをセット
@@ -86,7 +87,7 @@ namespace LineVideoGenerator
             message.PropertyChanged += (sender, e) =>
             {
                 mainWindow.saveButton.IsEnabled = false;
-                dateTimePicker.MinDate = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.messageCollection.Last().NextMessageMinTime));
+                totalTimePicker.MinDate = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.messageCollection.Last().NextMessageMinTime));
                 dataGrid.Items.Refresh();
                 if (e.PropertyName == nameof(message.Time))
                 {
@@ -109,15 +110,28 @@ namespace LineVideoGenerator
             };
         }
 
-        private void DateTimePicker_ValueChanged(object sender, EventArgs e)
+        private void TotaTimePicker_ValueChanged(object sender, EventArgs e)
         {
             MainWindow mainWindow = Owner as MainWindow;
-            mainWindow.data.videoTotalTime = (int)dateTimePicker.Value.TimeOfDay.TotalSeconds;
+            mainWindow.data.videoTotalTime = (int)totalTimePicker.Value.TimeOfDay.TotalSeconds;
 
             foreach (var canvas in canvasGrid.Children.Cast<Canvas>())
             {
                 canvas.Width = mainWindow.data.videoTotalTime * ThumbConverter.per;
             }
+        }
+
+        private void StartTimePicker_ValueChanged(object sender, EventArgs e)
+        {
+            MainWindow mainWindow = Owner as MainWindow;
+            mainWindow.data.messageStartTime = (int)startTimePicker.Value.TimeOfDay.TotalSeconds;
+        }
+
+        private void ScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
+        {
+            ScrollViewer scrollViewer = sender as ScrollViewer;
+            leftTimeBlock.Text = TimeSpan.FromSeconds(scrollViewer.HorizontalOffset / ThumbConverter.per).ToString(@"mm\:ss");
+            rightTimeBlock.Text = TimeSpan.FromSeconds((scrollViewer.HorizontalOffset + scrollViewer.ActualWidth) / ThumbConverter.per).ToString(@"mm\:ss");
         }
 
         private void Thumb_DragDelta(object sender, DragDeltaEventArgs e)
@@ -288,8 +302,9 @@ namespace LineVideoGenerator
 
         private void ResetTimePicker()
         {
-            dateTimePicker.MinDate = DateTime.Today;
-            dateTimePicker.Value = DateTime.Today;
+            totalTimePicker.MinDate = DateTime.Today;
+            totalTimePicker.Value = DateTime.Today;
+            startTimePicker.Value = DateTime.Now;
         }
 
         private void Window_Closed(object sender, EventArgs e)

@@ -19,9 +19,9 @@ namespace LineVideoGenerator
     /// <summary>
     /// BackgroundWindow.xaml の相互作用ロジック
     /// </summary>
-    public partial class BackgroundWindow : Window
+    public partial class SettingsWindow : Window
     {
-        public BackgroundWindow()
+        public SettingsWindow()
         {
             InitializeComponent();
         }

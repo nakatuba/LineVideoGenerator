@@ -103,12 +103,10 @@ namespace LineVideoGenerator
         {
             thumb.Width = ThumbConverter.per;
             thumb.Height = canvas.ActualHeight;
-            Binding binding = new Binding(nameof(Time))
-            {
-                Source = this,
-                Mode = BindingMode.TwoWay,
-                Converter = new ThumbConverter()
-            };
+            Binding binding = new Binding(nameof(Time));
+            binding.Source = this;
+            binding.Mode = BindingMode.TwoWay;
+            binding.Converter = new ThumbConverter();
             thumb.SetBinding(Canvas.LeftProperty, binding);
             canvas.Children.Add(thumb);
         }

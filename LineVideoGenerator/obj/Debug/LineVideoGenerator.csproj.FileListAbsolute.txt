@@ -25,9 +25,7 @@
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\bin\Debug\AviFile.pdb
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\bin\Debug\NAudio.xml
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\obj\Debug\LineVideoGenerator.csprojAssemblyReference.cache
-\\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\obj\Debug\BackgroundWindow.baml
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\obj\Debug\MainWindow.baml
-\\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\obj\Debug\BackgroundWindow.g.cs
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\obj\Debug\EditWindow.g.cs
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\obj\Debug\MainWindow.g.cs
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\obj\Debug\App.g.cs
@@ -50,3 +48,5 @@
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\obj\Debug\EditMessageWindow.baml
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\obj\Debug\EditMessageWindow.g.cs
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\bin\Debug\no image.png
+\\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\obj\Debug\SettingsWindow.baml
+\\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\obj\Debug\SettingsWindow.g.cs
