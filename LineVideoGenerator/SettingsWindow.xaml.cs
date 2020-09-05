@@ -116,6 +116,34 @@ namespace LineVideoGenerator
             resetBGMButton.IsEnabled = false;
         }
 
+        private void SEButton_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                try
+                {
+                    MainWindow mainWindow = Owner as MainWindow;
+                    mainWindow.soundEffect = new AudioFileReader(openFileDialog.FileName);
+
+                    resetSEButton.IsEnabled = true;
+                }
+                catch (NotSupportedException)
+                {
+                    MessageBox.Show("異なる形式を選択してください");
+                }
+            }
+        }
+
+        private void ResetSEButton_Click(object sender, RoutedEventArgs e)
+        {
+            MainWindow mainWindow = Owner as MainWindow;
+            mainWindow.soundEffect = null;
+
+            resetSEButton.IsEnabled = false;
+        }
+
         private void Window_Closed(object sender, EventArgs e)
         {
             MainWindow mainWindow = Owner as MainWindow;

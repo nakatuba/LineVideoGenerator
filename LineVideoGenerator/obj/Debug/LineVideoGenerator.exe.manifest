@@ -90,14 +90,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="LineVideoGenerator.exe" size="83416">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="LineVideoGenerator.exe" size="84440">
       <assemblyIdentity name="LineVideoGenerator" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>n891ip7CWd2j8+GPpX42oKmhiEmYKgXyI7kBYhMazUo=</dsig:DigestValue>
+        <dsig:DigestValue>txGeUKulYXQsJaiikf36Knrop30o7fhEnAqHOCuSR6s=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -147,15 +147,6 @@
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
       <dsig:DigestValue>4adD3wwVUjfSZ3pQkZ6DJ5qAAv+T8kcnWC5S/7I0fdE=</dsig:DigestValue>
-    </hash>
-  </file>
-  <file name="send.mp3" size="12572">
-    <hash>
-      <dsig:Transforms>
-        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
-      </dsig:Transforms>
-      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>CUOfhEdaqR5py4pXWxeuEHDFj/WpyxOvwPiAXWjnseo=</dsig:DigestValue>
     </hash>
   </file>
 </asmv1:assembly>

@@ -53,6 +53,7 @@ namespace LineVideoGenerator
         public string backgroundPath = "background.png";
         public BackgroundType backgroundType = BackgroundType.Default;
         public AudioFileReader bgm;
+        public AudioFileReader soundEffect;
         public Data data = new Data();
 
         public MainWindow()
@@ -292,11 +293,14 @@ namespace LineVideoGenerator
                 messageGrid.Margin = new Thickness(messageGrid.Margin.Left, messageGrid.Margin.Top - overHeight, messageGrid.Margin.Right, messageGrid.Margin.Bottom);
             }
 
-            // サウンドエフェクトを再生
-            AudioFileReader audioFileReader = new AudioFileReader("send.mp3");
-            WaveOut waveOut = new WaveOut();
-            waveOut.Init(audioFileReader);
-            waveOut.Play();
+            // 効果音を再生
+            if (soundEffect != null)
+            {
+                WaveOut waveOut = new WaveOut();
+                waveOut.Init(soundEffect);
+                waveOut.Play();
+                waveOut.PlaybackStopped += (sender, e) => { soundEffect.Position = 0; };
+            }
 
             // 音声を再生
             message.PlayVoice();
@@ -419,6 +423,45 @@ namespace LineVideoGenerator
             List<AudioFileReader> tempAudioList = new List<AudioFileReader>();
             List<ISampleProvider> sampleProviderList = new List<ISampleProvider>();
 
+            // BGM
+            if (bgm != null)
+            {
+                List<ISampleProvider> bgmList = new List<ISampleProvider>();
+
+                for (int i = 0; i < (int)(data.videoTotalTime / bgm.TotalTime.TotalSeconds); i++)
+                {
+                    string bgmPath = Path.Combine(tempPath, Guid.NewGuid() + ".wav");
+                    WaveFileWriter.CreateWaveFile(bgmPath, bgm);
+                    AudioFileReader bgmAudio = new AudioFileReader(bgmPath);
+                    tempAudioList.Add(bgmAudio);
+                    bgmList.Add(bgmAudio);
+                    bgm.Position = 0;
+                }
+
+                OffsetSampleProvider offsetSampleProvider = new OffsetSampleProvider(bgm);
+                offsetSampleProvider.Take = TimeSpan.FromSeconds(data.videoTotalTime % bgm.TotalTime.TotalSeconds);
+                bgmList.Add(offsetSampleProvider);
+
+                ConcatenatingSampleProvider concatenatingSampleProvider = new ConcatenatingSampleProvider(bgmList);
+                sampleProviderList.Add(concatenatingSampleProvider);
+            }
+
+            // 効果音
+            if (soundEffect != null)
+            {
+                foreach (var message in data.messageCollection)
+                {
+                    string soundEffectPath = Path.Combine(tempPath, Guid.NewGuid() + ".wav");
+                    WaveFileWriter.CreateWaveFile(soundEffectPath, soundEffect);
+                    AudioFileReader soundEffectAudio = new AudioFileReader(soundEffectPath);
+                    tempAudioList.Add(soundEffectAudio);
+                    OffsetSampleProvider offsetSampleProvider = new OffsetSampleProvider(soundEffectAudio);
+                    offsetSampleProvider.DelayBy = TimeSpan.FromSeconds(message.Time);
+                    sampleProviderList.Add(offsetSampleProvider);
+                    soundEffect.Position = 0;
+                }
+            }
+
             // 音声
             foreach (var message in data.messageCollection.Where(m => m.IsSetVoice))
             {
@@ -430,39 +473,16 @@ namespace LineVideoGenerator
                 WaveFileWriter.CreateWaveFile(wavePath, new MediaFoundationResampler(mediaFoundationReader, new WaveFormat()));
                 mediaFoundationReader.Dispose();
 
-                AudioFileReader audioFileReader = new AudioFileReader(wavePath);
-                tempAudioList.Add(audioFileReader);
-                OffsetSampleProvider offsetSampleProvider = new OffsetSampleProvider(audioFileReader);
+                AudioFileReader voiceAudio = new AudioFileReader(wavePath);
+                tempAudioList.Add(voiceAudio);
+                OffsetSampleProvider offsetSampleProvider = new OffsetSampleProvider(voiceAudio);
                 offsetSampleProvider.DelayBy = TimeSpan.FromSeconds(message.Time);
                 sampleProviderList.Add(offsetSampleProvider);
             }
 
-            // BGM
-            if (bgm != null)
-            {
-                List<ISampleProvider> BGMList = new List<ISampleProvider>();
-
-                for (int i = 0; i < (int)(data.videoTotalTime / bgm.TotalTime.TotalSeconds); i++)
-                {
-                    string BGMPath = Path.Combine(tempPath, Guid.NewGuid() + ".wav");
-                    WaveFileWriter.CreateWaveFile(BGMPath, bgm);
-                    AudioFileReader audioFileReader = new AudioFileReader(BGMPath);
-                    tempAudioList.Add(audioFileReader);
-                    BGMList.Add(audioFileReader);
-                    bgm.Position = 0;
-                }
-
-                OffsetSampleProvider offsetSampleProvider = new OffsetSampleProvider(bgm);
-                offsetSampleProvider.Take = TimeSpan.FromSeconds(data.videoTotalTime % bgm.TotalTime.TotalSeconds);
-                BGMList.Add(offsetSampleProvider);
-
-                ConcatenatingSampleProvider concatenatingSampleProvider = new ConcatenatingSampleProvider(BGMList);
-                sampleProviderList.Add(concatenatingSampleProvider);
-            }
-
             if (sampleProviderList.Count > 0)
             {
-                // 音声を合成
+                // BGM・効果音・音声を合成
                 string videoAudioPath = Path.Combine(tempPath, Guid.NewGuid() + ".wav");
                 MixingSampleProvider mixingSampleProvider = new MixingSampleProvider(sampleProviderList);
                 WaveFileWriter.CreateWaveFile16(videoAudioPath, mixingSampleProvider);
@@ -472,7 +492,7 @@ namespace LineVideoGenerator
                     tempAudio.Dispose();
                 }
 
-                //　動画に音声を挿入
+                //　動画にBGM・効果音・音声を挿入
                 AviManager aviManager = new AviManager(fileName, true);
                 aviManager.AddAudioStream(videoAudioPath, 0);
                 aviManager.Close();

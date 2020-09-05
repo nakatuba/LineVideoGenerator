@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="設定" Height="200" Width="300" Closed="Window_Closed" ResizeMode="NoResize">
+        Title="設定" Height="200" Width="400" Closed="Window_Closed" ResizeMode="NoResize">
     <Window.Resources>
         <Style TargetType="TextBlock">
             <Setter Property="Grid.Row" Value="0"/>
@@ -21,6 +21,7 @@
     </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
             <ColumnDefinition/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
@@ -47,6 +48,17 @@
             <TextBlock Text="BGM"/>
             <Button Content="BGM" Grid.Row="1" Click="BGMButton_Click"/>
             <Button x:Name="resetBGMButton" Grid.Row="2" Style="{StaticResource ResetButton}" Click="ResetBGMButton_Click"/>
+        </Grid>
+        <Grid Grid.Column="2">
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition Height="2*"/>
+                <RowDefinition Height="2*"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <TextBlock Text="効果音"/>
+            <Button Content="効果音" Grid.Row="1" Click="SEButton_Click"/>
+            <Button x:Name="resetSEButton" Grid.Row="2" Style="{StaticResource ResetButton}" Click="ResetSEButton_Click"/>
         </Grid>
     </Grid>
 </Window>
