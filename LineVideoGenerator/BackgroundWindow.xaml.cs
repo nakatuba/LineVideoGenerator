@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32;
+﻿using Accord.Video.FFMPEG;
+using Microsoft.Win32;
 using NAudio.Wave;
 using System;
 using System.Collections.Generic;
@@ -19,9 +20,9 @@ namespace LineVideoGenerator
     /// <summary>
     /// BackgroundWindow.xaml の相互作用ロジック
     /// </summary>
-    public partial class SettingsWindow : Window
+    public partial class BackgroundWindow : Window
     {
-        public SettingsWindow()
+        public BackgroundWindow()
         {
             InitializeComponent();
         }
@@ -42,7 +43,7 @@ namespace LineVideoGenerator
                     mainWindow.backgroundImage.Source = bitmapImage;
                     mainWindow.mediaElement.Source = null;
 
-                    resetBackgroundButton.IsEnabled = true;
+                    resetButton.IsEnabled = true;
                 }
                 catch (NotSupportedException)
                 {
@@ -66,7 +67,7 @@ namespace LineVideoGenerator
                     mainWindow.backgroundImage.Source = null;
                     mainWindow.mediaElement.Source = new Uri(openFileDialog.FileName);
 
-                    resetBackgroundButton.IsEnabled = true;
+                    resetButton.IsEnabled = true;
                 }
                 catch (NotSupportedException)
                 {
@@ -75,7 +76,7 @@ namespace LineVideoGenerator
             }
         }
 
-        private void ResetBackgroundButton_Click(object sender, RoutedEventArgs e)
+        private void ResetButton_Click(object sender, RoutedEventArgs e)
         {
             MainWindow mainWindow = Owner as MainWindow;
             mainWindow.backgroundPath = "background.png";
@@ -85,63 +86,7 @@ namespace LineVideoGenerator
             mainWindow.backgroundImage.Source = bitmapImage;
             mainWindow.mediaElement.Source = null;
 
-            resetBackgroundButton.IsEnabled = false;
-        }
-
-        private void BGMButton_Click(object sender, RoutedEventArgs e)
-        {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-
-            if (openFileDialog.ShowDialog() == true)
-            {
-                try
-                {
-                    MainWindow mainWindow = Owner as MainWindow;
-                    mainWindow.bgm = new AudioFileReader(openFileDialog.FileName);
-
-                    resetBGMButton.IsEnabled = true;
-                }
-                catch (NotSupportedException)
-                {
-                    MessageBox.Show("異なる形式を選択してください");
-                }
-            }
-        }
-
-        private void ResetBGMButton_Click(object sender, RoutedEventArgs e)
-        {
-            MainWindow mainWindow = Owner as MainWindow;
-            mainWindow.bgm = null;
-
-            resetBGMButton.IsEnabled = false;
-        }
-
-        private void SEButton_Click(object sender, RoutedEventArgs e)
-        {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-
-            if (openFileDialog.ShowDialog() == true)
-            {
-                try
-                {
-                    MainWindow mainWindow = Owner as MainWindow;
-                    mainWindow.soundEffect = new AudioFileReader(openFileDialog.FileName);
-
-                    resetSEButton.IsEnabled = true;
-                }
-                catch (NotSupportedException)
-                {
-                    MessageBox.Show("異なる形式を選択してください");
-                }
-            }
-        }
-
-        private void ResetSEButton_Click(object sender, RoutedEventArgs e)
-        {
-            MainWindow mainWindow = Owner as MainWindow;
-            mainWindow.soundEffect = null;
-
-            resetSEButton.IsEnabled = false;
+            resetButton.IsEnabled = false;
         }
 
         private void Window_Closed(object sender, EventArgs e)

@@ -23,7 +23,6 @@ namespace LineVideoGenerator
         private string text;
         private int time;
         public byte[] voice;
-        public string voicePathExt;
         public double voiceTime;
         [XmlIgnore] public Thumb thumb = new Thumb();
         public event PropertyChangedEventHandler PropertyChanged;
@@ -70,33 +69,18 @@ namespace LineVideoGenerator
 
         public void SetVoice(string fileName)
         {
-            voice = File.ReadAllBytes(fileName);
-            voicePathExt = Path.GetExtension(fileName);
-
+            voice = Global.GetByteArray(fileName);
             AudioFileReader audioFileReader = new AudioFileReader(fileName);
             voiceTime = audioFileReader.TotalTime.TotalSeconds;
             thumb.Width = voiceTime * ThumbConverter.per;
-
             OnPropertyChanged();
         }
 
-        public void PlayVoice(Action stoppedAction = null)
+        public void ResetVoice()
         {
-            if (IsSetVoice)
-            {
-                string voicePath = Guid.NewGuid() + voicePathExt;
-                File.WriteAllBytes(voicePath, voice);
-                AudioFileReader audioFileReader = new AudioFileReader(voicePath);
-                WaveOut waveOut = new WaveOut();
-                waveOut.Init(audioFileReader);
-                waveOut.Play();
-                waveOut.PlaybackStopped += (sender, e) =>
-                {
-                    audioFileReader.Dispose();
-                    File.Delete(voicePath);
-                    stoppedAction?.Invoke();
-                };
-            }
+            voice = null;
+            thumb.Width = ThumbConverter.per;
+            OnPropertyChanged();
         }
 
         public void AddThumb(Canvas canvas)

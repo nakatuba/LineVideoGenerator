@@ -8,6 +8,9 @@
         mc:Ignorable="d"
         Title="編集" Height="600" Width="1200" Closed="Window_Closed">
     <Window.Resources>
+        <Style TargetType="Button">
+            <Setter Property="Height" Value="20"/>
+        </Style>
         <Style TargetType="TextBlock" x:Key="TimePickerTextBlock">
             <Setter Property="FontSize" Value="16"/>
             <Setter Property="HorizontalAlignment" Value="Right"/>
@@ -18,7 +21,7 @@
             <Setter Property="HorizontalAlignment" Value="Center"/>
         </Style>
         <Style TargetType="TextBlock" x:Key="ScrollViewerTextBlock">
-            <Setter Property="Grid.Row" Value="1"/>
+            <Setter Property="Grid.Row" Value="2"/>
             <Setter Property="VerticalAlignment" Value="Bottom"/>
         </Style>
         <Style TargetType="Canvas">
@@ -57,30 +60,48 @@
             <Grid Grid.Column="1">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="2*"/>
+                    <RowDefinition Height="2*"/>
                     <RowDefinition/>
-                    <RowDefinition Height="6*"/>
+                    <RowDefinition Height="8*"/>
                     <RowDefinition Height="12*"/>
                 </Grid.RowDefinitions>
                 <Grid Grid.Row="0">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="2*"/>
-                        <ColumnDefinition Width="2*"/>
-                        <ColumnDefinition Width="2*"/>
-                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition/>
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Text="総再生時間" Grid.Column="0" Style="{StaticResource TimePickerTextBlock}"/>
-                    <WindowsFormsHost Grid.Column="1">
-                        <forms:DateTimePicker x:Name="totalTimePicker" Format="Custom" CustomFormat="mm分ss秒" ShowUpDown="True" ValueChanged="TotaTimePicker_ValueChanged"/>
-                    </WindowsFormsHost>
-                    <TextBlock Text="開始時刻" Grid.Column="2" Style="{StaticResource TimePickerTextBlock}"/>
-                    <WindowsFormsHost Grid.Column="3">
-                        <forms:DateTimePicker x:Name="startTimePicker" Format="Custom" CustomFormat="H時mm分" ShowUpDown="True" ValueChanged="StartTimePicker_ValueChanged"/>
-                    </WindowsFormsHost>
+                    <local:AudioButtonControl x:Name="bgmButtonControl" Grid.Column="0" AudioType="BGM"/>
+                    <local:AudioButtonControl x:Name="soundEffectButtonControl" Grid.Column="1" AudioType="SoundEffect"/>
+                </Grid>
+                <Grid Grid.Row="1" Margin="0 0 40 0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid Grid.Column="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="総再生時間" Grid.Column="0" Style="{StaticResource TimePickerTextBlock}"/>
+                        <WindowsFormsHost Grid.Column="1">
+                            <forms:DateTimePicker x:Name="totalTimePicker" Format="Custom" CustomFormat="mm分ss秒" ShowUpDown="True" ValueChanged="TotaTimePicker_ValueChanged"/>
+                        </WindowsFormsHost>
+                    </Grid>
+                    <Grid Grid.Column="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="開始時刻" Grid.Column="0" Style="{StaticResource TimePickerTextBlock}"/>
+                        <WindowsFormsHost Grid.Column="1">
+                            <forms:DateTimePicker x:Name="startTimePicker" Format="Custom" CustomFormat="H時mm分" ShowUpDown="True" ValueChanged="StartTimePicker_ValueChanged"/>
+                        </WindowsFormsHost>
+                    </Grid>
                 </Grid>
                 <TextBlock x:Name="leftTimeBlock" Style="{StaticResource ScrollViewerTextBlock}" HorizontalAlignment="Left" Margin="15 0 0 0"/>
                 <TextBlock x:Name="rightTimeBlock" Style="{StaticResource ScrollViewerTextBlock}" HorizontalAlignment="Right" Margin="0 0 15 0"/>
-                <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Hidden" Margin="30 0 30 0" ScrollChanged="ScrollViewer_ScrollChanged">
+                <ScrollViewer Grid.Row="3" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Hidden" Margin="30 0 30 0" ScrollChanged="ScrollViewer_ScrollChanged">
                     <Grid x:Name="canvasGrid" Background="Gray">
                         <Grid.RowDefinitions>
                             <RowDefinition/>
@@ -96,12 +117,12 @@
                         <Canvas Grid.Row="4"/>
                     </Grid>
                 </ScrollViewer>
-                <DataGrid x:Name="dataGrid" Grid.Row="3" Margin="20" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" VerticalScrollBarVisibility="Visible">
+                <DataGrid x:Name="dataGrid" Grid.Row="4" Margin="20" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" VerticalScrollBarVisibility="Visible">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="名前" Binding="{Binding Name}" Width="*"/>
-                        <DataGridTextColumn Header="メッセージ" Binding="{Binding Text}" Width="3*"/>
+                        <DataGridTextColumn Header="メッセージ" Binding="{Binding Text}" Width="4*"/>
                         <DataGridTextColumn Header="時間" Binding="{Binding Time, Converter={StaticResource TimeConverter}}" Width="*"/>
-                        <DataGridTemplateColumn Width="2*">
+                        <DataGridTemplateColumn Width="4*">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <Grid>
@@ -110,11 +131,13 @@
                                             <ColumnDefinition/>
                                             <ColumnDefinition/>
                                             <ColumnDefinition/>
+                                            <ColumnDefinition/>
                                         </Grid.ColumnDefinitions>
-                                        <Button Grid.Column="0" Content="編集" Height="20" Click="EditButton_Click"/>
-                                        <Button Grid.Column="1" Content="音声" Height="20" Click="VoiceButton_Click"/>
-                                        <Button Grid.Column="2" Content="再生" Height="20" IsEnabled="{Binding IsSetVoice}" Click="PlayButton_Click"/>
-                                        <Button Grid.Column="3" Content="削除" Height="20" Click="DeleteButton_Click"/>
+                                        <Button Grid.Column="0" Content="編集" Click="EditMessageButton_Click"/>
+                                        <Button Grid.Column="1" Content="音声" Click="VoiceButton_Click"/>
+                                        <Button Grid.Column="2" Content="再生" IsEnabled="{Binding IsSetVoice}" Click="PlayVoiceButton_Click"/>
+                                        <Button Grid.Column="3" Content="リセット" IsEnabled="{Binding IsSetVoice}" Click="ResetVoiceButton_Click"/>
+                                        <Button Grid.Column="4" Content="削除" Click="DeleteMessageButton_Click"/>
                                     </Grid>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
@@ -123,10 +146,15 @@
                 </DataGrid>
             </Grid>
         </Grid>
-        <Grid Grid.Row="1">
-            <Button Content="読み込み" Width="75" Height="20" Margin="0 0 250 0" Click="LoadButton_Click"/>
-            <Button Content="保存" Width="75" Height="20" Click="SaveButton_Click"/>
-            <Button Content="リセット" Width="75" Height="20" Margin="250 0 0 0" Click="ResetButton_Click"/>
+        <Grid Grid.Row="1" Margin="400 0 400 0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Button Content="読み込み" Grid.Column="0" Width="75" Click="LoadButton_Click"/>
+            <Button Content="保存" Grid.Column="1" Width="75" Click="SaveButton_Click"/>
+            <Button Content="リセット" Grid.Column="2" Width="75" Click="ResetButton_Click"/>
         </Grid>
     </Grid>
 </Window>

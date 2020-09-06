@@ -1,9 +1,13 @@
-﻿using Microsoft.Win32;
+﻿using Accord.Video.FFMPEG;
+using Microsoft.Win32;
+using NAudio.Wave;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -48,6 +52,8 @@ namespace LineVideoGenerator
                 SetPersonPropertyChanged(person);
             }
 
+            SetButtonControl();
+
             // アイコンと名前をセット
             foreach (var group in mainWindow.data.messageCollection.GroupBy(m => m.person.id))
             {
@@ -78,7 +84,7 @@ namespace LineVideoGenerator
         }
 
         /// <summary>
-        /// メッセージの編集後に保存ボタンを無効化し、データグリッドを更新するよう設定
+        /// メッセージの編集後にデータグリッドを更新するよう設定
         /// </summary>
         public void SetMessagePropertyChanged(Message message)
         {
@@ -86,7 +92,7 @@ namespace LineVideoGenerator
 
             message.PropertyChanged += (sender, e) =>
             {
-                mainWindow.saveButton.IsEnabled = false;
+                // mainWindow.saveButton.IsEnabled = false;
                 totalTimePicker.MinDate = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.messageCollection.Last().NextMessageMinTime));
                 dataGrid.Items.Refresh();
                 if (e.PropertyName == nameof(message.Time))
@@ -97,17 +103,26 @@ namespace LineVideoGenerator
         }
 
         /// <summary>
-        /// 人物の編集後に保存ボタンを無効化し、データグリッドを更新するよう設定
+        /// 人物の編集後にデータグリッドを更新するよう設定
         /// </summary>
         public void SetPersonPropertyChanged(Person person)
         {
-            MainWindow mainWindow = Owner as MainWindow;
-
             person.PropertyChanged += (sender, e) =>
             {
-                mainWindow.saveButton.IsEnabled = false;
+                // mainWindow.saveButton.IsEnabled = false;
                 dataGrid.Items.Refresh();
             };
+        }
+
+        private void SetButtonControl()
+        {
+            MainWindow mainWindow = Owner as MainWindow;
+
+            bgmButtonControl.playButton.IsEnabled = mainWindow.data.bgm != null;
+            bgmButtonControl.resetButton.IsEnabled = mainWindow.data.bgm != null;
+
+            soundEffectButtonControl.playButton.IsEnabled = mainWindow.data.soundEffect != null;
+            soundEffectButtonControl.resetButton.IsEnabled = mainWindow.data.soundEffect != null;
         }
 
         private void TotaTimePicker_ValueChanged(object sender, EventArgs e)
@@ -141,7 +156,6 @@ namespace LineVideoGenerator
 
             double x = Canvas.GetLeft(thumb) + e.HorizontalChange;
             x = Math.Max(x, 0);
-            x = Math.Min(x, canvas.ActualWidth - thumb.ActualWidth);
             Canvas.SetLeft(thumb, x);
 
             // メッセージを時間順にソート（https://yomon.hatenablog.com/entry/2014/01/14/C%23%E3%81%AEObservableCollection%E3%81%AB%E3%81%8A%E3%81%91%E3%82%8B%E8%A6%81%E7%B4%A0%E3%81%AE%E4%B8%A6%E3%81%B9%E6%9B%BF%E3%81%88%E6%96%B9%E6%B3%95）
@@ -156,7 +170,7 @@ namespace LineVideoGenerator
             }
         }
 
-        private void EditButton_Click(object sender, RoutedEventArgs e)
+        private void EditMessageButton_Click(object sender, RoutedEventArgs e)
         {
             Button editButton = sender as Button;
             editButton.IsEnabled = false;
@@ -186,16 +200,20 @@ namespace LineVideoGenerator
             }
         }
 
-        private void PlayButton_Click(object sender, RoutedEventArgs e)
+        private void PlayVoiceButton_Click(object sender, RoutedEventArgs e)
         {
-            Button playButton = sender as Button;
-            playButton.IsEnabled = false;
-
             Message message = dataGrid.SelectedItem as Message;
-            message.PlayVoice(() => playButton.IsEnabled = true);
+            Button playVoiceButton = sender as Button;
+            Global.PlayButton_Click(message.voice, playVoiceButton, PlayVoiceButton_Click);
         }
 
-        private void DeleteButton_Click(object sender, RoutedEventArgs e)
+        private void ResetVoiceButton_Click(object sender, RoutedEventArgs e)
+        {
+            Message message = dataGrid.SelectedItem as Message;
+            message.ResetVoice();
+        }
+
+        private void DeleteMessageButton_Click(object sender, RoutedEventArgs e)
         {
             MainWindow mainWindow = Owner as MainWindow;
             Message message = dataGrid.SelectedItem as Message;
@@ -213,7 +231,7 @@ namespace LineVideoGenerator
                 try
                 {
                     ResetSendGrid();
-                    ResetSliderGrid();
+                    ResetCanvasGrid();
                     ResetTimePicker();
 
                     // データを読み込み
@@ -224,8 +242,9 @@ namespace LineVideoGenerator
                         mainWindow.data = se.Deserialize(fs) as Data;
                     }
 
-                    // メッセージがあれば再生ボタンを有効化
+                    // メッセージがあれば再生ボタンと保存ボタンを有効化し、メッセージがなければ無効化
                     mainWindow.playButton.IsEnabled = mainWindow.data.messageCollection.Count > 0;
+                    mainWindow.saveButton.IsEnabled = mainWindow.data.messageCollection.Count > 0;
 
                     // メッセージと人物の対応付け
                     foreach (var message in mainWindow.data.messageCollection)
@@ -271,12 +290,13 @@ namespace LineVideoGenerator
         private void ResetButton_Click(object sender, RoutedEventArgs e)
         {
             ResetSendGrid();
-            ResetSliderGrid();
+            ResetCanvasGrid();
             ResetTimePicker();
 
             MainWindow mainWindow = Owner as MainWindow;
             mainWindow.data = new Data();
             mainWindow.SetMessageCollectionChanged();
+            SetButtonControl();
             dataGrid.ItemsSource = mainWindow.data.messageCollection;
         }
 
@@ -291,7 +311,7 @@ namespace LineVideoGenerator
             }
         }
 
-        private void ResetSliderGrid()
+        private void ResetCanvasGrid()
         {
             MainWindow mainWindow = Owner as MainWindow;
             foreach (var message in mainWindow.data.messageCollection)
@@ -311,7 +331,7 @@ namespace LineVideoGenerator
         {
             MainWindow mainWindow = Owner as MainWindow;
             mainWindow.editButton.IsEnabled = true;
-            ResetSliderGrid();
+            ResetCanvasGrid();
         }
     }
 }

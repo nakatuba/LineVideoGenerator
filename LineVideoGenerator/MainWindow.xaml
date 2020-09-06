@@ -7,7 +7,6 @@
         Title="LINE動画ジェネレータ" Width="960" Height="640" Closed="Window_Closed">
     <Window.Resources>
         <Style TargetType="Button">
-            <Setter Property="Grid.Row" Value="1"/>
             <Setter Property="Width" Value="75"/>
             <Setter Property="Height" Value="20"/>
         </Style>
@@ -24,9 +23,17 @@
             <Image x:Name="groupBar" Source="group bar.png" VerticalAlignment="Top"/>
             <Image x:Name="inputBar" Source="input bar.png" VerticalAlignment="Bottom"/>
         </Grid>
-        <Button x:Name="editButton" Content="編集" Margin="0,0,450,0" Click="EditButton_Click"/>
-        <Button x:Name="backgroundButton" Content="設定" Margin="0,0,150,0" Click="BackgroundButton_Click"/>
-        <Button x:Name="playButton" Content="再生" Margin="150,0,0,0" IsEnabled="False" Click="PlayButton_Click"/>
-        <Button x:Name="saveButton" Content="保存" Margin="450,0,0,0" IsEnabled="False" Click="SaveButton_Click"/>
+        <Grid Grid.Row="1" Margin="200 0 200 0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="editButton" Content="編集" Grid.Column="0" Click="EditButton_Click"/>
+            <Button x:Name="backgroundButton" Content="背景" Grid.Column="1" Click="BackgroundButton_Click"/>
+            <Button x:Name="playButton" Content="再生" Grid.Column="2" IsEnabled="False" Click="PlayButton_Click"/>
+            <Button x:Name="saveButton" Content="保存" Grid.Column="3" IsEnabled="False" Click="SaveButton_Click"/>
+        </Grid>
     </Grid>
 </Window>

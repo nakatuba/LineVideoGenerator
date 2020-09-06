@@ -106,13 +106,21 @@
     <Compile Include="EditMessageWindow.xaml.cs">
       <DependentUpon>EditMessageWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Global.cs" />
     <Compile Include="Person.cs" />
     <Compile Include="SendMessageControl.xaml.cs">
       <DependentUpon>SendMessageControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="AudioButtonControl.xaml.cs">
+      <DependentUpon>AudioButtonControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ThumbConverter.cs" />
     <Compile Include="TimeConverter.cs" />
-    <Page Include="SettingsWindow.xaml">
+    <Page Include="AudioButtonControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="BackgroundWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -132,8 +140,8 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="SettingsWindow.xaml.cs">
-      <DependentUpon>SettingsWindow.xaml</DependentUpon>
+    <Compile Include="BackgroundWindow.xaml.cs">
+      <DependentUpon>BackgroundWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Data.cs" />
     <Compile Include="EditWindow.xaml.cs">
