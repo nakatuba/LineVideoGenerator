@@ -77,7 +77,7 @@ namespace LineVideoGenerator
         }
 
         /// <summary>
-        /// 再生ボタンを停止ボタンに変更し、その他のボタンを無効化
+        /// 再生ボタンを停止ボタンに変更し、再生ボタン以外のボタンを無効化
         /// </summary>
         /// <param name="bytes">再生する音声のbyte[]</param>
         /// <param name="playButton">再生ボタン</param>

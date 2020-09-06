@@ -351,11 +351,17 @@ namespace LineVideoGenerator
                         AddMessageBitmap(messageTimeSpan);
                     }
 
-                    // 動画を保存
-                    if (backgroundType == BackgroundType.Animation) SaveAnimationBackground(saveFileDialog.FileName);
-                    else SaveImageBackground(saveFileDialog.FileName);
-                    AddVideoAudio(saveFileDialog.FileName);
+                    progressRing.IsActive = true;
 
+                    // 動画を保存
+                    await Task.Run(() =>
+                    {
+                        if (backgroundType == BackgroundType.Animation) SaveAnimationBackground(saveFileDialog.FileName);
+                        else SaveImageBackground(saveFileDialog.FileName);
+                        AddVideoAudio(saveFileDialog.FileName);
+                    });
+
+                    progressRing.IsActive = false;
                     MessageBox.Show("保存されました");
 
                     foreach (var messageBitmap in messageBitmapList)

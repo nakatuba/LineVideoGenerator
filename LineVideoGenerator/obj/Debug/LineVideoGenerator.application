@@ -7,14 +7,14 @@
     <framework targetVersion="4.7.2" profile="Full" supportedRuntime="4.0.30319" />
   </compatibleFrameworks>
   <dependency>
-    <dependentAssembly dependencyType="install" codebase="LineVideoGenerator.exe.manifest" size="8077">
+    <dependentAssembly dependencyType="install" codebase="LineVideoGenerator.exe.manifest" size="10131">
       <assemblyIdentity name="LineVideoGenerator.exe" version="1.0.0.0" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="msil" type="win32" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>03RKQAr9E4R3TUqKVhqE/mFk8tJNpRFtR7FTu7ZoB8w=</dsig:DigestValue>
+        <dsig:DigestValue>Jh6QBBofK0ElISo0XlSPOCrTRbgeuzQTGoB7NH7fzRo=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

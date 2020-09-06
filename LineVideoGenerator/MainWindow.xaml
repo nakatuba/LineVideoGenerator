@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         mc:Ignorable="d"
         Title="LINE動画ジェネレータ" Width="960" Height="640" Closed="Window_Closed">
     <Window.Resources>
@@ -23,6 +24,7 @@
             <Image x:Name="groupBar" Source="group bar.png" VerticalAlignment="Top"/>
             <Image x:Name="inputBar" Source="input bar.png" VerticalAlignment="Bottom"/>
         </Grid>
+        <mah:ProgressRing x:Name="progressRing" Grid.Row="0" Foreground="White" IsActive="False"/>
         <Grid Grid.Row="1" Margin="200 0 200 0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>

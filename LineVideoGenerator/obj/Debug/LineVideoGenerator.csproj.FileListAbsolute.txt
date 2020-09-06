@@ -51,3 +51,12 @@
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\obj\Debug\LineVideoGenerator.csproj.CopyComplete
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\obj\Debug\LineVideoGenerator.exe
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\obj\Debug\LineVideoGenerator.pdb
+\\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\bin\Debug\ControlzEx.dll
+\\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\bin\Debug\MahApps.Metro.dll
+\\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\bin\Debug\Microsoft.Xaml.Behaviors.dll
+\\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\bin\Debug\ControlzEx.pdb
+\\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\bin\Debug\ControlzEx.xml
+\\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\bin\Debug\MahApps.Metro.pdb
+\\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\bin\Debug\MahApps.Metro.xml
+\\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\bin\Debug\Microsoft.Xaml.Behaviors.pdb
+\\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\bin\Debug\Microsoft.Xaml.Behaviors.xml
