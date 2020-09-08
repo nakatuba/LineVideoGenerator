@@ -1,21 +1,12 @@
-﻿using Accord.Video.FFMPEG;
-using Microsoft.Win32;
-using NAudio.Wave;
+﻿using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Xml.Serialization;
@@ -53,6 +44,7 @@ namespace LineVideoGenerator
             }
 
             SetButtonControl();
+            SetTimePicker();
 
             // アイコンと名前をセット
             foreach (var group in mainWindow.data.messageCollection.GroupBy(m => m.person.id))
@@ -62,14 +54,6 @@ namespace LineVideoGenerator
                 imageBrush.ImageSource = group.First().person.Icon;
                 control.isSetIcon = true;
                 control.nameBox.Text = group.First().person.Name;
-            }
-
-            // タイムピッカーをセット
-            totalTimePicker.Value = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.videoTotalTime));
-            startTimePicker.Value = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.messageStartTime));
-            if (mainWindow.data.messageCollection.Count > 0)
-            {
-                totalTimePicker.MinDate = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.messageCollection.Last().NextMessageMinTime));
             }
 
             // タイムスライダーをセット
@@ -92,13 +76,8 @@ namespace LineVideoGenerator
 
             message.PropertyChanged += (sender, e) =>
             {
-                // mainWindow.saveButton.IsEnabled = false;
                 totalTimePicker.MinDate = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.messageCollection.Last().NextMessageMinTime));
                 dataGrid.Items.Refresh();
-                if (e.PropertyName == nameof(message.Time))
-                {
-                    dataGrid.SelectedItem = message;
-                }
             };
         }
 
@@ -109,7 +88,6 @@ namespace LineVideoGenerator
         {
             person.PropertyChanged += (sender, e) =>
             {
-                // mainWindow.saveButton.IsEnabled = false;
                 dataGrid.Items.Refresh();
             };
         }
@@ -123,6 +101,18 @@ namespace LineVideoGenerator
 
             soundEffectButtonControl.playButton.IsEnabled = mainWindow.data.soundEffect != null;
             soundEffectButtonControl.resetButton.IsEnabled = mainWindow.data.soundEffect != null;
+        }
+
+        private void SetTimePicker()
+        {
+            MainWindow mainWindow = Owner as MainWindow;
+
+            totalTimePicker.Value = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.videoTotalTime));
+            startTimePicker.Value = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.messageStartTime));
+            if (mainWindow.data.messageCollection.Count > 0)
+            {
+                totalTimePicker.MinDate = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.messageCollection.Last().NextMessageMinTime));
+            }
         }
 
         private void TotaTimePicker_ValueChanged(object sender, EventArgs e)
@@ -144,9 +134,21 @@ namespace LineVideoGenerator
 
         private void ScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
-            ScrollViewer scrollViewer = sender as ScrollViewer;
             leftTimeBlock.Text = TimeSpan.FromSeconds(scrollViewer.HorizontalOffset / ThumbConverter.per).ToString(@"mm\:ss");
             rightTimeBlock.Text = TimeSpan.FromSeconds((scrollViewer.HorizontalOffset + scrollViewer.ActualWidth) / ThumbConverter.per).ToString(@"mm\:ss");
+        }
+
+        private void Thumb_DragStarted(object sender, DragStartedEventArgs e)
+        {
+            MainWindow mainWindow = Owner as MainWindow;
+            Thumb thumb = sender as Thumb;
+            dataGrid.SelectedItem = mainWindow.data.messageCollection.First(m => m.thumb == thumb);
+
+            // 選択項目が表示されるようデータグリッドをスクロール
+            if (dataGrid.SelectedItem != null)
+            {
+                dataGrid.ScrollIntoView(dataGrid.SelectedItem);
+            }
         }
 
         private void Thumb_DragDelta(object sender, DragDeltaEventArgs e)
@@ -157,6 +159,15 @@ namespace LineVideoGenerator
             double x = Canvas.GetLeft(thumb) + e.HorizontalChange;
             x = Math.Max(x, 0);
             Canvas.SetLeft(thumb, x);
+
+            if (Canvas.GetLeft(thumb) < scrollViewer.HorizontalOffset)
+            {
+                scrollViewer.ScrollToHorizontalOffset(Canvas.GetLeft(thumb));
+            }
+            else if (scrollViewer.HorizontalOffset + scrollViewer.ActualWidth < Canvas.GetLeft(thumb) + thumb.ActualWidth)
+            {
+                scrollViewer.ScrollToHorizontalOffset(Canvas.GetLeft(thumb) + thumb.ActualWidth - scrollViewer.ActualWidth);
+            }
 
             // メッセージを時間順にソート（https://yomon.hatenablog.com/entry/2014/01/14/C%23%E3%81%AEObservableCollection%E3%81%AB%E3%81%8A%E3%81%91%E3%82%8B%E8%A6%81%E7%B4%A0%E3%81%AE%E4%B8%A6%E3%81%B9%E6%9B%BF%E3%81%88%E6%96%B9%E6%B3%95）
             MainWindow mainWindow = Owner as MainWindow;
@@ -179,7 +190,7 @@ namespace LineVideoGenerator
             EditMessageWindow editMessageWindow = new EditMessageWindow(message);
             editMessageWindow.Owner = this;
             editMessageWindow.Closed += (sender2, e2) => { editButton.IsEnabled = true; };
-            editMessageWindow.Show();
+            editMessageWindow.ShowDialog();
         }
 
         private void VoiceButton_Click(object sender, RoutedEventArgs e)
@@ -219,12 +230,13 @@ namespace LineVideoGenerator
             Message message = dataGrid.SelectedItem as Message;
             mainWindow.data.messageCollection.Remove(message);
             message.RemoveThumb();
+            totalTimePicker.MinDate = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.messageCollection.Last().NextMessageMinTime));
         }
 
         private void LoadButton_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "XML Files|*.xml";
+            openFileDialog.Filter = "xml|*.xml";
 
             if (openFileDialog.ShowDialog() == true)
             {
@@ -234,8 +246,9 @@ namespace LineVideoGenerator
                     ResetCanvasGrid();
                     ResetTimePicker();
 
-                    // データを読み込み
                     MainWindow mainWindow = Owner as MainWindow;
+
+                    // データを読み込み
                     XmlSerializer se = new XmlSerializer(typeof(Data));
                     using (var fs = File.OpenRead(openFileDialog.FileName))
                     {
@@ -261,23 +274,29 @@ namespace LineVideoGenerator
             }
         }
 
-        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        private async void SaveButton_Click(object sender, RoutedEventArgs e)
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.DefaultExt = ".xml";
+            saveFileDialog.Filter = "xml|*.xml";
 
             if (saveFileDialog.ShowDialog() == true)
             {
                 try
                 {
-                    // データを保存
                     MainWindow mainWindow = Owner as MainWindow;
-                    XmlSerializer se = new XmlSerializer(typeof(Data));
-                    using (var fs = File.Create(saveFileDialog.FileName))
-                    {
-                        se.Serialize(fs, mainWindow.data);
-                    }
+                    progressRing.IsActive = true;
 
+                    await Task.Run(() =>
+                    {
+                        // データを保存
+                        XmlSerializer se = new XmlSerializer(typeof(Data));
+                        using (var fs = File.Create(saveFileDialog.FileName))
+                        {
+                            se.Serialize(fs, mainWindow.data);
+                        }
+                    });
+
+                    progressRing.IsActive = false;
                     MessageBox.Show("保存されました");
                 }
                 catch (Exception)
@@ -289,15 +308,21 @@ namespace LineVideoGenerator
 
         private void ResetButton_Click(object sender, RoutedEventArgs e)
         {
-            ResetSendGrid();
-            ResetCanvasGrid();
-            ResetTimePicker();
+            MessageBoxResult result = MessageBox.Show("現在編集中のデータは失われます", "リセット", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
 
-            MainWindow mainWindow = Owner as MainWindow;
-            mainWindow.data = new Data();
-            mainWindow.SetMessageCollectionChanged();
-            SetButtonControl();
-            dataGrid.ItemsSource = mainWindow.data.messageCollection;
+            if (result == MessageBoxResult.OK)
+            {
+                ResetSendGrid();
+                ResetCanvasGrid();
+                ResetTimePicker();
+
+                MainWindow mainWindow = Owner as MainWindow;
+                mainWindow.data = new Data();
+                mainWindow.SetMessageCollectionChanged();
+                SetButtonControl();
+                SetTimePicker();
+                dataGrid.ItemsSource = mainWindow.data.messageCollection;
+            }
         }
 
         private void ResetSendGrid()
@@ -323,8 +348,6 @@ namespace LineVideoGenerator
         private void ResetTimePicker()
         {
             totalTimePicker.MinDate = DateTime.Today;
-            totalTimePicker.Value = DateTime.Today;
-            startTimePicker.Value = DateTime.Now;
         }
 
         private void Window_Closed(object sender, EventArgs e)

@@ -74,9 +74,6 @@
     <Reference Include="Accord.Video.FFMPEG, Version=3.8.0.0, Culture=neutral, PublicKeyToken=fa1a88e29555ccf7, processorArchitecture=x86">
       <HintPath>..\packages\Accord.Video.FFMPEG.3.8.0\lib\net462\Accord.Video.FFMPEG.dll</HintPath>
     </Reference>
-    <Reference Include="AviFile">
-      <HintPath>..\..\..\Downloads\avifilewrapperdemo_src\AviFile\bin\Debug\AviFile.dll</HintPath>
-    </Reference>
     <Reference Include="ControlzEx, Version=4.0.0.0, Culture=neutral, PublicKeyToken=69f1c32f803d307e, processorArchitecture=MSIL">
       <HintPath>..\packages\ControlzEx.4.3.2\lib\net462\ControlzEx.dll</HintPath>
     </Reference>
@@ -218,6 +215,9 @@
     <Resource Include="green bubble.png" />
     <Resource Include="group bar.png" />
     <Resource Include="input bar.png" />
+    <Content Include="ffmpeg.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="no image.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

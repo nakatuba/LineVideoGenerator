@@ -4,14 +4,14 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d" 
-             d:DesignHeight="20" d:DesignWidth="300">
+             d:DesignHeight="20" d:DesignWidth="240">
     <UserControl.Resources>
         <Style TargetType="Button">
             <Setter Property="Width" Value="60"/>
             <Setter Property="Height" Value="20"/>
         </Style>
     </UserControl.Resources>
-    <Grid Margin="30 0 30 0">
+    <Grid Width="240">
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
             <ColumnDefinition/>

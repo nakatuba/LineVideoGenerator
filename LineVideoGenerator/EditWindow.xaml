@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LineVideoGenerator"
         xmlns:forms="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
+        xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         mc:Ignorable="d"
         Title="編集" Height="600" Width="1200" Closed="Window_Closed">
     <Window.Resources>
@@ -29,6 +30,7 @@
             <Setter Property="Background" Value="LightGray"/>
         </Style>
         <Style TargetType="Thumb">
+            <EventSetter Event="DragStarted" Handler="Thumb_DragStarted"/>
             <EventSetter Event="DragDelta" Handler="Thumb_DragDelta"/>
         </Style>
         <local:TimeConverter x:Key="TimeConverter"/>
@@ -101,7 +103,7 @@
                 </Grid>
                 <TextBlock x:Name="leftTimeBlock" Style="{StaticResource ScrollViewerTextBlock}" HorizontalAlignment="Left" Margin="15 0 0 0"/>
                 <TextBlock x:Name="rightTimeBlock" Style="{StaticResource ScrollViewerTextBlock}" HorizontalAlignment="Right" Margin="0 0 15 0"/>
-                <ScrollViewer Grid.Row="3" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Hidden" Margin="30 0 30 0" ScrollChanged="ScrollViewer_ScrollChanged">
+                <ScrollViewer x:Name="scrollViewer" Grid.Row="3" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Hidden" Margin="30 0 30 0" ScrollChanged="ScrollViewer_ScrollChanged">
                     <Grid x:Name="canvasGrid" Background="Gray">
                         <Grid.RowDefinitions>
                             <RowDefinition/>
@@ -146,7 +148,7 @@
                 </DataGrid>
             </Grid>
         </Grid>
-        <Grid Grid.Row="1" Margin="400 0 400 0">
+        <Grid Grid.Row="1" Width="400">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
                 <ColumnDefinition/>
@@ -156,5 +158,6 @@
             <Button Content="保存" Grid.Column="1" Width="75" Click="SaveButton_Click"/>
             <Button Content="リセット" Grid.Column="2" Width="75" Click="ResetButton_Click"/>
         </Grid>
+        <mah:ProgressRing x:Name="progressRing" IsActive="False"/>
     </Grid>
 </Window>

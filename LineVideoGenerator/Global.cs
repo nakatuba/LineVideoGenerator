@@ -1,10 +1,8 @@
 ﻿using NAudio.Wave;
 using System;
-using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -39,6 +37,47 @@ namespace LineVideoGenerator
         }
 
         /// <summary>
+        /// byte[]を再生
+        /// </summary>
+        /// <param name="bytes">再生する音声のbyte[]</param>
+        public static void PlayByteArray(byte[] bytes)
+        {
+            if (bytes != null)
+            {
+                string path = Path.Combine(MainWindow.tempDirectory, Guid.NewGuid() + ".wav");
+                File.WriteAllBytes(path, bytes);
+
+                AudioFileReader audioFileReader = new AudioFileReader(path);
+                WaveOut waveOut = new WaveOut();
+                waveOut.Init(audioFileReader);
+                waveOut.Play();
+                waveOut.PlaybackStopped += (sender, e) => audioFileReader.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// 指定した再生時間の分だけ繰り返すループ音声のパスを取得
+        /// </summary>
+        /// <param name="inputPath">音声のパス</param>
+        /// <param name="time">音声の再生時間</param>
+        /// <returns>ループ音声のパス</returns>
+        public static string GetLoopAudio(string inputPath, int time)
+        {
+            string outputPath = Path.Combine(MainWindow.tempDirectory, Guid.NewGuid() + ".wav");
+            using (var process = new Process())
+            {
+                process.StartInfo.FileName = "ffmpeg.exe";
+                process.StartInfo.Arguments = $"-stream_loop -1 -i {inputPath} -t {time} {outputPath}";
+                process.StartInfo.CreateNoWindow = true;
+                process.StartInfo.UseShellExecute = false;
+                process.Start();
+                process.WaitForExit();
+            }
+
+            return outputPath;
+        }
+
+        /// <summary>
         /// 音声をWAV形式に変換し、byte[]を取得
         /// </summary>
         /// <param name="fileName">音声のパス</param>
@@ -55,25 +94,6 @@ namespace LineVideoGenerator
             }
 
             return File.ReadAllBytes(path);
-        }
-
-        /// <summary>
-        /// byte[]を再生
-        /// </summary>
-        /// <param name="bytes">再生する音声のbyte[]</param>
-        public static void PlayByteArray(byte[] bytes)
-        {
-            if (bytes != null)
-            {
-                string path = Path.Combine(MainWindow.tempDirectory, Guid.NewGuid() + ".wav");
-                File.WriteAllBytes(path, bytes);
-
-                AudioFileReader audioFileReader = new AudioFileReader(path);
-                WaveOut waveOut = new WaveOut();
-                waveOut.Init(audioFileReader);
-                waveOut.Play();
-                waveOut.PlaybackStopped += (sender, e) => { audioFileReader.Dispose(); };
-            }
         }
 
         /// <summary>
@@ -106,7 +126,7 @@ namespace LineVideoGenerator
                     button.IsEnabled = false;
                 }
 
-                waveOut.PlaybackStopped += (sender2, e2) =>
+                waveOut.PlaybackStopped += (sender, e) =>
                 {
                     audioFileReader.Dispose();
 

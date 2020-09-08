@@ -1,19 +1,7 @@
-﻿using Accord.Video.FFMPEG;
-using Microsoft.Win32;
-using NAudio.Wave;
+﻿using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace LineVideoGenerator
 {
@@ -36,7 +24,6 @@ namespace LineVideoGenerator
                 try
                 {
                     MainWindow mainWindow = Owner as MainWindow;
-                    mainWindow.backgroundPath = openFileDialog.FileName;
                     mainWindow.backgroundType = BackgroundType.Image;
 
                     BitmapImage bitmapImage = new BitmapImage(new Uri(openFileDialog.FileName));
@@ -61,7 +48,6 @@ namespace LineVideoGenerator
                 try
                 {
                     MainWindow mainWindow = Owner as MainWindow;
-                    mainWindow.backgroundPath = openFileDialog.FileName;
                     mainWindow.backgroundType = BackgroundType.Animation;
 
                     mainWindow.backgroundImage.Source = null;
@@ -79,7 +65,6 @@ namespace LineVideoGenerator
         private void ResetButton_Click(object sender, RoutedEventArgs e)
         {
             MainWindow mainWindow = Owner as MainWindow;
-            mainWindow.backgroundPath = "background.png";
             mainWindow.backgroundType = BackgroundType.Default;
 
             BitmapImage bitmapImage = new BitmapImage(new Uri("background.png", UriKind.Relative));

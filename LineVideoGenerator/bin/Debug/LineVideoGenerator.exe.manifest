@@ -78,18 +78,6 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="AviFile.dll" size="36864">
-      <assemblyIdentity name="AviFile" version="1.0.7500.38390" language="neutral" processorArchitecture="msil" />
-      <hash>
-        <dsig:Transforms>
-          <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
-        </dsig:Transforms>
-        <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>SLGv+s5VSaDaAfpMXdOJYT6hADxsHU/xdu/JVy+BJBg=</dsig:DigestValue>
-      </hash>
-    </dependentAssembly>
-  </dependency>
-  <dependency>
     <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="ControlzEx.dll" size="270912">
       <assemblyIdentity name="ControlzEx" version="4.0.0.0" publicKeyToken="69F1C32F803D307E" language="neutral" processorArchitecture="msil" />
       <hash>
@@ -102,14 +90,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="LineVideoGenerator.exe" size="90584">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="LineVideoGenerator.exe" size="94168">
       <assemblyIdentity name="LineVideoGenerator" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>INlN9ho8AS2665CHQYVHTyIk7R68jF5zU81LbHu0sIY=</dsig:DigestValue>
+        <dsig:DigestValue>dTy3I/WY1L9CR5omOqDwvW4YFr5A0y4EtdS6D8avUm0=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -165,6 +153,15 @@
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
       <dsig:DigestValue>U8Gipq05gpGgnTQJmcHhlKkZZey97diWEEixlwRghE4=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="ffmpeg.exe" size="79353358">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>it6wjL+pawfHWFIXR9LBj50n8DbQ0Mn2p18k2bAKQh8=</dsig:DigestValue>
     </hash>
   </file>
   <file name="LineVideoGenerator.exe.config" size="189">

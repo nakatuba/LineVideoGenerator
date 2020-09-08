@@ -11,14 +11,9 @@
             <Setter Property="Height" Value="20"/>
         </Style>
     </Window.Resources>
-    <Grid Margin="0 20 0 20">
-        <Grid.RowDefinitions>
-            <RowDefinition/>
-            <RowDefinition/>
-            <RowDefinition/>
-        </Grid.RowDefinitions>
-        <Button Content="画像" Grid.Row="0" Click="ImageButton_Click"/>
-        <Button Content="動画" Grid.Row="1" Click="AnimationButton_Click"/>
-        <Button x:Name="resetButton" Content="リセット" Grid.Row="2" IsEnabled="False" Click="ResetButton_Click"/>
+    <Grid>
+        <Button Content="画像" Margin="0 0 0 100" Click="ImageButton_Click"/>
+        <Button Content="動画" Click="AnimationButton_Click"/>
+        <Button x:Name="resetButton" Content="リセット" Margin="0 100 0 0" IsEnabled="False" Click="ResetButton_Click"/>
     </Grid>
 </Window>

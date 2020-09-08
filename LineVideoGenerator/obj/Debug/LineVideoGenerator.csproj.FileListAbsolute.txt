@@ -17,12 +17,10 @@
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\bin\Debug\Accord.dll
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\bin\Debug\Accord.Video.dll
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\bin\Debug\Accord.Video.FFMPEG.dll
-\\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\bin\Debug\AviFile.dll
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\bin\Debug\NAudio.dll
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\bin\Debug\Accord.xml
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\bin\Debug\Accord.Video.xml
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\bin\Debug\Accord.Video.FFMPEG.xml
-\\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\bin\Debug\AviFile.pdb
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\bin\Debug\NAudio.xml
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\obj\Debug\LineVideoGenerator.csprojAssemblyReference.cache
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\obj\Debug\AudioButtonControl.baml
@@ -60,3 +58,4 @@
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\bin\Debug\MahApps.Metro.xml
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\bin\Debug\Microsoft.Xaml.Behaviors.pdb
 \\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\bin\Debug\Microsoft.Xaml.Behaviors.xml
+\\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\bin\Debug\ffmpeg.exe
