@@ -25,9 +25,7 @@ namespace LineVideoGenerator
                 {
                     MainWindow mainWindow = Owner as MainWindow;
                     mainWindow.backgroundType = BackgroundType.Image;
-
-                    BitmapImage bitmapImage = new BitmapImage(new Uri(openFileDialog.FileName));
-                    mainWindow.backgroundImage.Source = bitmapImage;
+                    mainWindow.backgroundImage.Source = new BitmapImage(new Uri(openFileDialog.FileName));
                     mainWindow.mediaElement.Source = null;
 
                     resetButton.IsEnabled = true;
@@ -49,7 +47,6 @@ namespace LineVideoGenerator
                 {
                     MainWindow mainWindow = Owner as MainWindow;
                     mainWindow.backgroundType = BackgroundType.Animation;
-
                     mainWindow.backgroundImage.Source = null;
                     mainWindow.mediaElement.Source = new Uri(openFileDialog.FileName);
 
@@ -66,9 +63,7 @@ namespace LineVideoGenerator
         {
             MainWindow mainWindow = Owner as MainWindow;
             mainWindow.backgroundType = BackgroundType.Default;
-
-            BitmapImage bitmapImage = new BitmapImage(new Uri("background.png", UriKind.Relative));
-            mainWindow.backgroundImage.Source = bitmapImage;
+            mainWindow.backgroundImage.Source = new BitmapImage(new Uri("background.png", UriKind.Relative));
             mainWindow.mediaElement.Source = null;
 
             resetButton.IsEnabled = false;
