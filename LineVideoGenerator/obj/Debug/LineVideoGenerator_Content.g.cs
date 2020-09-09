@@ -8,7 +8,15 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("avcodec-57.dll")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("avdevice-57.dll")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("avfilter-6.dll")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("avformat-57.dll")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("avutil-55.dll")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("background.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("postproc-54.dll")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("swresample-2.dll")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("swscale-4.dll")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("ffmpeg.exe")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("no%20image.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("accord.dll.config")]
