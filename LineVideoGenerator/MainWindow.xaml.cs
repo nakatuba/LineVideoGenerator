@@ -292,28 +292,28 @@ namespace LineVideoGenerator
 
         private async void SaveButton_Click(object sender, RoutedEventArgs e)
         {
+            // メインウィンドウ以外のウィンドウを閉じる
+            foreach (var window in Application.Current.Windows.Cast<Window>().Where(w => w != this))
+            {
+                window.Close();
+            }
+
+            // すべてのボタンを無効化
+            Grid grid = saveButton.Parent as Grid;
+            foreach (var button in grid.Children.Cast<Button>())
+            {
+                button.IsEnabled = false;
+            }
+
             SaveFileDialog saveFileDialog = new SaveFileDialog();
             saveFileDialog.Filter = "avi|*.avi";
 
             if (saveFileDialog.ShowDialog() == true)
             {
+                progressRing.IsActive = true;
+
                 try
                 {
-                    progressRing.IsActive = true;
-
-                    // メインウィンドウ以外のウィンドウを閉じる
-                    foreach (var window in Application.Current.Windows.Cast<Window>().Where(w => w != this))
-                    {
-                        window.Close();
-                    }
-
-                    // すべてのボタンを無効化
-                    Grid grid = saveButton.Parent as Grid;
-                    foreach (var button in grid.Children.Cast<Button>())
-                    {
-                        button.IsEnabled = false;
-                    }
-
                     // メッセージグリッドからすべての要素を削除
                     messageGrid.Children.Clear();
                     // メッセージグリッドの余白を初期化
@@ -353,21 +353,24 @@ namespace LineVideoGenerator
                         await Task.Run(() => AddAnimationBackground(animationPath, ref videoPath));
                     }
 
-                    await Task.Run(() => AddVideoAudio(videoPath, saveFileDialog.FileName));
+                    await Task.Run(() => AddVideoAudio(ref videoPath));
 
-                    // すべてのボタンを有効化
-                    foreach (var button in grid.Children.Cast<Button>())
-                    {
-                        button.IsEnabled = true;
-                    }
+                    File.Copy(videoPath, saveFileDialog.FileName, true);
 
-                    progressRing.IsActive = false;
                     MessageBox.Show("保存されました");
                 }
                 catch (Exception)
                 {
                     MessageBox.Show("保存できませんでした");
                 }
+
+                progressRing.IsActive = false;
+            }
+
+            // すべてのボタンを有効化
+            foreach (var button in grid.Children.Cast<Button>())
+            {
+                button.IsEnabled = true;
             }
         }
 
@@ -416,7 +419,7 @@ namespace LineVideoGenerator
             videoPath = overlayPath;
         }
 
-        private void AddVideoAudio(string inputPath, string outputPath)
+        private void AddVideoAudio(ref string videoPath)
         {
             List<AudioFileReader> tempAudioList = new List<AudioFileReader>();
             List<ISampleProvider> sampleProviderList = new List<ISampleProvider>();
@@ -468,9 +471,9 @@ namespace LineVideoGenerator
             if (sampleProviderList.Count > 0)
             {
                 // BGM・効果音・音声を合成
-                string videoAudioPath = Path.Combine(tempDirectory, Guid.NewGuid() + ".wav");
+                string audioPath = Path.Combine(tempDirectory, Guid.NewGuid() + ".wav");
                 MixingSampleProvider mixingSampleProvider = new MixingSampleProvider(sampleProviderList);
-                WaveFileWriter.CreateWaveFile16(videoAudioPath, mixingSampleProvider);
+                WaveFileWriter.CreateWaveFile16(audioPath, mixingSampleProvider);
 
                 foreach (var tempAudio in tempAudioList)
                 {
@@ -478,15 +481,18 @@ namespace LineVideoGenerator
                 }
 
                 // 動画に音声を挿入
+                string outputPath = Path.Combine(tempDirectory, Guid.NewGuid() + ".avi");
                 using (var process = new Process())
                 {
                     process.StartInfo.FileName = "ffmpeg.exe";
-                    process.StartInfo.Arguments = $"-y -i {inputPath} -i {videoAudioPath} -b {bitRate} -s {frameWidth}x{frameHeight} {outputPath}";
+                    process.StartInfo.Arguments = $"-i {videoPath} -i {audioPath} -b {bitRate} -s {frameWidth}x{frameHeight} {outputPath}";
                     process.StartInfo.CreateNoWindow = true;
                     process.StartInfo.UseShellExecute = false;
                     process.Start();
                     process.WaitForExit();
                 }
+
+                videoPath = outputPath;
             }
         }
 

@@ -76,7 +76,7 @@ namespace LineVideoGenerator
 
             message.PropertyChanged += (sender, e) =>
             {
-                totalTimePicker.MinDate = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.messageCollection.Last().NextMessageMinTime));
+                totalTimePicker.MinDate = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.messageCollection.Max(m => m.NextMessageMinTime)));
                 dataGrid.Items.Refresh();
             };
         }
@@ -111,7 +111,7 @@ namespace LineVideoGenerator
             startTimePicker.Value = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.messageStartTime));
             if (mainWindow.data.messageCollection.Count > 0)
             {
-                totalTimePicker.MinDate = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.messageCollection.Last().NextMessageMinTime));
+                totalTimePicker.MinDate = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.messageCollection.Max(m => m.NextMessageMinTime)));
             }
         }
 
@@ -230,7 +230,15 @@ namespace LineVideoGenerator
             Message message = dataGrid.SelectedItem as Message;
             mainWindow.data.messageCollection.Remove(message);
             message.RemoveThumb();
-            totalTimePicker.MinDate = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.messageCollection.Last().NextMessageMinTime));
+
+            if (mainWindow.data.messageCollection.Count > 0)
+            {
+                totalTimePicker.MinDate = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.messageCollection.Max(m => m.NextMessageMinTime)));
+            }
+            else
+            {
+                totalTimePicker.MinDate = DateTime.Today;
+            }
         }
 
         private void LoadButton_Click(object sender, RoutedEventArgs e)
@@ -318,6 +326,8 @@ namespace LineVideoGenerator
 
                 MainWindow mainWindow = Owner as MainWindow;
                 mainWindow.data = new Data();
+                mainWindow.playButton.IsEnabled = false;
+                mainWindow.saveButton.IsEnabled = false;
                 mainWindow.SetMessageCollectionChanged();
                 SetButtonControl();
                 SetTimePicker();
