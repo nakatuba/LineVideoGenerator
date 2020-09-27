@@ -55,24 +55,53 @@ namespace LineVideoGenerator
             }
         }
 
-        /// <summary>
-        /// 指定した再生時間の分だけ繰り返すループ音声のパスを取得
-        /// </summary>
-        /// <param name="inputPath">音声のパス</param>
-        /// <param name="time">音声の再生時間</param>
-        /// <returns>ループ音声のパス</returns>
-        public static string GetLoopAudio(string inputPath, int time)
+        public static void FFMPEG(string arguments)
         {
-            string outputPath = Path.Combine(MainWindow.tempDirectory, Guid.NewGuid() + ".wav");
             using (var process = new Process())
             {
                 process.StartInfo.FileName = "ffmpeg.exe";
-                process.StartInfo.Arguments = $"-stream_loop -1 -i {inputPath} -t {time} {outputPath}";
+                process.StartInfo.Arguments = arguments;
                 process.StartInfo.CreateNoWindow = true;
                 process.StartInfo.UseShellExecute = false;
                 process.Start();
                 process.WaitForExit();
             }
+        }
+
+        /// <summary>
+        /// 指定した再生時間の分だけ繰り返すループ音声のパスを取得
+        /// </summary>
+        /// <param name="inputPath">音声のパス</param>
+        /// <param name="time">再生時間</param>
+        /// <returns>ループ音声のパス</returns>
+        public static string GetLoopAudio(string inputPath, int time)
+        {
+            string outputPath = Path.Combine(MainWindow.tempDirectory, Guid.NewGuid() + ".wav");
+            FFMPEG($"-stream_loop -1 " +
+                   $"-i {inputPath} " +
+                   $"-t {time} " +
+                   $"{outputPath}");
+
+            return outputPath;
+        }
+
+        /// <summary>
+        /// 動画に音声を加え、そのパスを取得
+        /// </summary>
+        /// <param name="videoPath">動画のパス</param>
+        /// <param name="audioPath">音声のパス</param>
+        /// <param name="bitRate">ビットレート</param>
+        /// <param name="frameWidth">フレームの幅</param>
+        /// <param name="frameHeight">フレームの高さ</param>
+        /// <returns>音声を加えた動画のパス</returns>
+        public static string GetVideoWithAudio(string videoPath, string audioPath, int bitRate, int frameWidth, int frameHeight)
+        {
+            string outputPath = Path.Combine(MainWindow.tempDirectory, Guid.NewGuid() + ".avi");
+            FFMPEG($"-i {videoPath} -i {audioPath} " +
+                   $"-map 0:v:0 -map 1:a:0 " +
+                   $"-b {bitRate} " +
+                   $"-s {frameWidth}x{frameHeight} " +
+                   $"{outputPath}");
 
             return outputPath;
         }

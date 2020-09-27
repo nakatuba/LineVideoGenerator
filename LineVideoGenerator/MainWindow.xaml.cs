@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Security.Policy;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -137,6 +138,13 @@ namespace LineVideoGenerator
                 };
             }
 
+            // 背景動画を再生
+            if (backgroundType == BackgroundType.Animation)
+            {
+                mediaElement.Position = TimeSpan.Zero;
+                mediaElement.Play();
+            }
+
             for (int i = 0; i < data.messageCollection.Count; i++)
             {
                 if (i == 0)
@@ -144,6 +152,14 @@ namespace LineVideoGenerator
                     TimeSpan firstMessageTimeSpan = TimeSpan.FromSeconds(data.messageCollection[i].Time);
                     await Task.Delay(firstMessageTimeSpan);
                 }
+
+                SendMessage(data.messageCollection[i]);
+
+                // 効果音を再生
+                Global.PlayByteArray(data.soundEffect);
+
+                // 音声を再生
+                Global.PlayByteArray(data.messageCollection[i].voice);
 
                 // 次のメッセージとの時間差
                 TimeSpan messageTimeSpan;
@@ -155,19 +171,16 @@ namespace LineVideoGenerator
                 {
                     messageTimeSpan = TimeSpan.FromSeconds(data.messageCollection[i + 1].Time - data.messageCollection[i].Time);
                 }
-
-                SendMessage(data.messageCollection[i]);
-
-                // 効果音を再生
-                Global.PlayByteArray(data.soundEffect);
-
-                // 音声を再生
-                Global.PlayByteArray(data.messageCollection[i].voice);
-
                 await Task.Delay(messageTimeSpan);
 
                 // 停止
                 if (clickStopButton) break;
+            }
+
+            // 背景動画を停止
+            if (backgroundType == BackgroundType.Animation)
+            {
+                mediaElement.Pause();
             }
 
             // BGMを停止
@@ -310,10 +323,10 @@ namespace LineVideoGenerator
 
             if (saveFileDialog.ShowDialog() == true)
             {
-                progressRing.IsActive = true;
-
                 try
                 {
+                    progressRing.IsActive = true;
+
                     // メッセージグリッドからすべての要素を削除
                     messageGrid.Children.Clear();
                     // メッセージグリッドの余白を初期化
@@ -323,48 +336,81 @@ namespace LineVideoGenerator
 
                     // 動画を作成
                     string videoPath = Path.Combine(tempDirectory, Guid.NewGuid() + ".avi");
-                    using (var writer = new VideoFileWriter())
+                    if (backgroundType == BackgroundType.Animation)
                     {
-                        writer.Open(videoPath, (int)screenGrid.ActualWidth, (int)screenGrid.ActualHeight, 25, VideoCodec.Default, bitRate);
-                        using (var messageBitmap = GetMessageBitmap())
-                        {
-                            writer.WriteVideoFrame(messageBitmap);
-                        }
+                        // 背景動画を作成
+                        string animationPath = mediaElement.Source.OriginalString;
+                        string loopAnimationPath = Path.Combine(tempDirectory, Guid.NewGuid() + ".avi");
+                        await Task.Run(() => Global.FFMPEG($"-stream_loop -1 " +
+                                                           $"-i {animationPath} " +
+                                                           $"-b {bitRate} " +
+                                                           $"-s {screenGrid.ActualWidth}x{screenGrid.ActualHeight} " +
+                                                           $"-t {data.videoTotalTime} " +
+                                                           $"{loopAnimationPath}"));
 
-                        foreach (var message in data.messageCollection)
+                        string input = $"-i {loopAnimationPath} -i {GetMessageBitmapPath()}";
+                        string overlay = $"\"[0][1]overlay=enable='lt(t,{data.messageCollection.First().Time})'[v1];";
+                        for (int i = 0; i < data.messageCollection.Count; i++)
                         {
-                            SendMessage(message);
+                            SendMessage(data.messageCollection[i]);
                             await Task.Delay(100);
-                            using (var messageBitmap = GetMessageBitmap())
+
+                            input += $" -i {GetMessageBitmapPath()}";
+
+                            if (i == data.messageCollection.Count - 1)
                             {
-                                writer.WriteVideoFrame(messageBitmap, TimeSpan.FromSeconds(message.Time));
+                                overlay += $"[v{i + 1}][{i + 2}]overlay=enable='gte(t,{data.messageCollection[i].Time})'\"";
+                            }
+                            else
+                            {
+                                overlay += $"[v{i + 1}][{i + 2}]overlay=enable='gte(t,{data.messageCollection[i].Time})*lt(t,{data.messageCollection[i + 1].Time})'[v{i + 2}];";
                             }
                         }
 
-                        using (var messageBitamap = GetMessageBitmap())
-                        {
-                            writer.WriteVideoFrame(messageBitamap, TimeSpan.FromSeconds(data.videoTotalTime));
-                        }
+                        await Task.Run(() => Global.FFMPEG($"{input} " +
+                                                           $"-filter_complex {overlay} " +
+                                                           $"-b {bitRate} " +
+                                                           $"-preset ultrafast {videoPath}"));
                     }
-
-                    if (backgroundType == BackgroundType.Animation)
+                    else
                     {
-                        string animationPath = mediaElement.Source.OriginalString;
-                        await Task.Run(() => AddAnimationBackground(animationPath, ref videoPath));
+                        using (var writer = new VideoFileWriter())
+                        {
+                            writer.Open(videoPath, (int)screenGrid.ActualWidth, (int)screenGrid.ActualHeight, 25, VideoCodec.Default, bitRate);
+                            using (var messageBitmap = new Bitmap(GetMessageBitmapPath()))
+                            {
+                                writer.WriteVideoFrame(messageBitmap);
+                            }
+
+                            foreach (var message in data.messageCollection)
+                            {
+                                SendMessage(message);
+                                await Task.Delay(100);
+                                using (var messageBitmap = new Bitmap(GetMessageBitmapPath()))
+                                {
+                                    writer.WriteVideoFrame(messageBitmap, TimeSpan.FromSeconds(message.Time));
+                                }
+                            }
+
+                            using (var messageBitamap = new Bitmap(GetMessageBitmapPath()))
+                            {
+                                writer.WriteVideoFrame(messageBitamap, TimeSpan.FromSeconds(data.videoTotalTime));
+                            }
+                        }
                     }
 
                     await Task.Run(() => AddVideoAudio(ref videoPath));
 
                     File.Copy(videoPath, saveFileDialog.FileName, true);
 
+                    progressRing.IsActive = false;
                     MessageBox.Show("保存されました");
                 }
                 catch (Exception)
                 {
+                    progressRing.IsActive = false;
                     MessageBox.Show("保存できませんでした");
                 }
-
-                progressRing.IsActive = false;
             }
 
             // すべてのボタンを有効化
@@ -374,49 +420,20 @@ namespace LineVideoGenerator
             }
         }
 
-        private Bitmap GetMessageBitmap()
+        private string GetMessageBitmapPath()
         {
             RenderTargetBitmap bitmap = new RenderTargetBitmap((int)screenGrid.ActualWidth, (int)screenGrid.ActualHeight, 96, 96, PixelFormats.Pbgra32);
             bitmap.Render(screenGrid);
             PngBitmapEncoder encoder = new PngBitmapEncoder();
             encoder.Frames.Add(BitmapFrame.Create(bitmap));
 
-            string messagePath = Path.Combine(tempDirectory, Guid.NewGuid() + ".png");
-            using (var fs = File.Create(messagePath))
+            string messageBitmapPath = Path.Combine(tempDirectory, Guid.NewGuid() + ".png");
+            using (var fs = File.Create(messageBitmapPath))
             {
                 encoder.Save(fs);
             }
 
-            return new Bitmap(messagePath);
-        }
-
-        private void AddAnimationBackground(string animationPath, ref string videoPath)
-        {
-            // 背景動画を作成
-            string loopPath = Path.Combine(tempDirectory, Guid.NewGuid() + ".avi");
-            using (var process = new Process())
-            {
-                process.StartInfo.FileName = "ffmpeg.exe";
-                process.StartInfo.Arguments = $"-stream_loop -1 -i {animationPath} -b {bitRate} -t {data.videoTotalTime} -s {screenGrid.ActualWidth}x{screenGrid.ActualHeight} {loopPath}";
-                process.StartInfo.CreateNoWindow = true;
-                process.StartInfo.UseShellExecute = false;
-                process.Start();
-                process.WaitForExit();
-            }
-
-            // 背景動画を合成（https://qiita.com/developer-kikikaikai/items/47a13cbcb6fdb535345a）
-            string overlayPath = Path.Combine(tempDirectory, Guid.NewGuid() + ".avi");
-            using (var process = new Process())
-            {
-                process.StartInfo.FileName = "ffmpeg.exe";
-                process.StartInfo.Arguments = $"-i {loopPath} -i {videoPath} -filter_complex \"[1:0]colorkey[output];[0:0][output]overlay\" -b {bitRate} {overlayPath}";
-                process.StartInfo.CreateNoWindow = true;
-                process.StartInfo.UseShellExecute = false;
-                process.Start();
-                process.WaitForExit();
-            }
-            
-            videoPath = overlayPath;
+            return messageBitmapPath;
         }
 
         private void AddVideoAudio(ref string videoPath)
@@ -480,19 +497,7 @@ namespace LineVideoGenerator
                     tempAudio.Dispose();
                 }
 
-                // 動画に音声を挿入
-                string outputPath = Path.Combine(tempDirectory, Guid.NewGuid() + ".avi");
-                using (var process = new Process())
-                {
-                    process.StartInfo.FileName = "ffmpeg.exe";
-                    process.StartInfo.Arguments = $"-i {videoPath} -i {audioPath} -b {bitRate} -s {frameWidth}x{frameHeight} {outputPath}";
-                    process.StartInfo.CreateNoWindow = true;
-                    process.StartInfo.UseShellExecute = false;
-                    process.Start();
-                    process.WaitForExit();
-                }
-
-                videoPath = outputPath;
+                videoPath = Global.GetVideoWithAudio(videoPath, audioPath, bitRate, frameWidth, frameHeight);
             }
         }
 

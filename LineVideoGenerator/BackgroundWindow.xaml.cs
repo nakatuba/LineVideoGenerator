@@ -49,6 +49,7 @@ namespace LineVideoGenerator
                     mainWindow.backgroundType = BackgroundType.Animation;
                     mainWindow.backgroundImage.Source = null;
                     mainWindow.mediaElement.Source = new Uri(openFileDialog.FileName);
+                    mainWindow.mediaElement.Stop();
 
                     resetButton.IsEnabled = true;
                 }
