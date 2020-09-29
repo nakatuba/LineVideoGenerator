@@ -90,14 +90,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="LineVideoGenerator.exe" size="95704">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="LineVideoGenerator.exe" size="96216">
       <assemblyIdentity name="LineVideoGenerator" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>e07gdb8LS8OqMXHtx9Oqe2+cVkGMMWjLkNO8HKSJUKI=</dsig:DigestValue>
+        <dsig:DigestValue>CcKgOapt1wq248+sEL23XxrgSn35wvzNiHtY4O3wp1M=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

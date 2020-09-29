@@ -18,7 +18,7 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
         <Grid Grid.Row="0" Width="960">
-            <MediaElement x:Name="mediaElement" LoadedBehavior="Manual" ScrubbingEnabled="True" MediaEnded="MediaElement_MediaEnded"/>
+            <MediaElement x:Name="mediaElement" IsMuted="True" LoadedBehavior="Manual" ScrubbingEnabled="True" MediaEnded="MediaElement_MediaEnded"/>
             <Grid x:Name="screenGrid">
                 <Image x:Name="backgroundImage" Source="background.png" Stretch="UniformToFill"/>
                 <Grid x:Name="messageGrid"/>

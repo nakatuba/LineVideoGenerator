@@ -69,16 +69,50 @@ namespace LineVideoGenerator
         }
 
         /// <summary>
-        /// 指定した再生時間の分だけ繰り返すループ音声のパスを取得
+        /// 動画のフレームレートを変更し、そのパスを取得
         /// </summary>
-        /// <param name="inputPath">音声のパス</param>
-        /// <param name="time">再生時間</param>
-        /// <returns>ループ音声のパス</returns>
-        public static string GetLoopAudio(string inputPath, int time)
+        /// <param name="videoPath">動画のパス</param>
+        /// <param name="frameRate">フレームレート</param>
+        /// <returns>フレームレートを変更した動画のパス</returns>
+        public static string ChangeFrameRate(string videoPath, int frameRate)
         {
-            string outputPath = Path.Combine(MainWindow.tempDirectory, Guid.NewGuid() + ".wav");
+            string outputPath = Path.Combine(MainWindow.tempDirectory, Guid.NewGuid() + Path.GetExtension(videoPath));
+            FFMPEG($"-i {videoPath} " +
+                   $"-r {frameRate} " +
+                   $"{outputPath}");
+
+            return outputPath;
+        }
+
+        /// <summary>
+        /// 動画のサイズを変更し、そのパスを取得
+        /// </summary>
+        /// <param name="videoPath">動画のパス</param>
+        /// <param name="width">幅</param>
+        /// <param name="height">高さ</param>
+        /// <returns>サイズを変更した動画のパス</returns>
+        public static string ResizeVideo(string videoPath, int width, int height)
+        {
+            string outputPath = Path.Combine(MainWindow.tempDirectory, Guid.NewGuid() + Path.GetExtension(videoPath));
+            FFMPEG($"-i {videoPath} " +
+                   $"-s {width}x{height} " +
+                   $"{outputPath}");
+
+            return outputPath;
+        }
+
+        /// <summary>
+        /// 指定した再生時間の分だけ繰り返すループ動画（音声）を作成し、そのパスを取得（https://nico-lab.net/input_infinity_with_ffmpeg/）
+        /// </summary>
+        /// <param name="inputPath">動画（音声）のパス</param>
+        /// <param name="time">再生時間</param>
+        /// <returns>ループ動画（音声）のパス</returns>
+        public static string LoopVideoOrAudio(string inputPath, int time)
+        {
+            string outputPath = Path.Combine(MainWindow.tempDirectory, Guid.NewGuid() + Path.GetExtension(inputPath));
             FFMPEG($"-stream_loop -1 " +
                    $"-i {inputPath} " +
+                   $"-c copy " +
                    $"-t {time} " +
                    $"{outputPath}");
 
@@ -86,7 +120,7 @@ namespace LineVideoGenerator
         }
 
         /// <summary>
-        /// 動画に音声を加え、そのパスを取得
+        /// 動画に音声を加え、そのパスを取得（https://qiita.com/niusounds/items/f69a4438f52fbf81f0bd）
         /// </summary>
         /// <param name="videoPath">動画のパス</param>
         /// <param name="audioPath">音声のパス</param>
@@ -94,13 +128,12 @@ namespace LineVideoGenerator
         /// <param name="frameWidth">フレームの幅</param>
         /// <param name="frameHeight">フレームの高さ</param>
         /// <returns>音声を加えた動画のパス</returns>
-        public static string GetVideoWithAudio(string videoPath, string audioPath, int bitRate, int frameWidth, int frameHeight)
+        public static string AddAudioToVideo(string videoPath, string audioPath)
         {
-            string outputPath = Path.Combine(MainWindow.tempDirectory, Guid.NewGuid() + ".avi");
+            string outputPath = Path.Combine(MainWindow.tempDirectory, Guid.NewGuid() + Path.GetExtension(videoPath));
             FFMPEG($"-i {videoPath} -i {audioPath} " +
+                   $"-c:v copy -c:a aac " +
                    $"-map 0:v:0 -map 1:a:0 " +
-                   $"-b {bitRate} " +
-                   $"-s {frameWidth}x{frameHeight} " +
                    $"{outputPath}");
 
             return outputPath;
