@@ -55,7 +55,7 @@ namespace LineVideoGenerator
             }
         }
 
-        public static void FFMPEG(string arguments)
+        public static void FFmpeg(string arguments)
         {
             using (var process = new Process())
             {
@@ -77,7 +77,7 @@ namespace LineVideoGenerator
         public static string ChangeFrameRate(string videoPath, int frameRate)
         {
             string outputPath = Path.Combine(MainWindow.tempDirectory, Guid.NewGuid() + Path.GetExtension(videoPath));
-            FFMPEG($"-i {videoPath} " +
+            FFmpeg($"-i {videoPath} " +
                    $"-r {frameRate} " +
                    $"{outputPath}");
 
@@ -94,7 +94,7 @@ namespace LineVideoGenerator
         public static string ResizeVideo(string videoPath, int width, int height)
         {
             string outputPath = Path.Combine(MainWindow.tempDirectory, Guid.NewGuid() + Path.GetExtension(videoPath));
-            FFMPEG($"-i {videoPath} " +
+            FFmpeg($"-i {videoPath} " +
                    $"-s {width}x{height} " +
                    $"{outputPath}");
 
@@ -110,7 +110,7 @@ namespace LineVideoGenerator
         public static string LoopVideoOrAudio(string inputPath, int time)
         {
             string outputPath = Path.Combine(MainWindow.tempDirectory, Guid.NewGuid() + Path.GetExtension(inputPath));
-            FFMPEG($"-stream_loop -1 " +
+            FFmpeg($"-stream_loop -1 " +
                    $"-i {inputPath} " +
                    $"-c copy " +
                    $"-t {time} " +
@@ -131,7 +131,7 @@ namespace LineVideoGenerator
         public static string AddAudioToVideo(string videoPath, string audioPath)
         {
             string outputPath = Path.Combine(MainWindow.tempDirectory, Guid.NewGuid() + Path.GetExtension(videoPath));
-            FFMPEG($"-i {videoPath} -i {audioPath} " +
+            FFmpeg($"-i {videoPath} -i {audioPath} " +
                    $"-c:v copy -c:a aac " +
                    $"-map 0:v:0 -map 1:a:0 " +
                    $"{outputPath}");

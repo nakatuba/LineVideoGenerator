@@ -4,11 +4,9 @@ using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Security.Policy;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -340,7 +338,9 @@ namespace LineVideoGenerator
                     if (backgroundType == BackgroundType.Animation)
                     {
                         // 背景動画
-                        string animationPath = mediaElement.Source.OriginalString;
+                        string animationPath = Path.Combine(tempDirectory, Guid.NewGuid() + Path.GetExtension(mediaElement.Source.OriginalString));
+                        File.Copy(mediaElement.Source.OriginalString, animationPath, true);
+
                         await Task.Run(() =>
                         {
                             // 背景動画のフレームレートを変更
@@ -353,6 +353,7 @@ namespace LineVideoGenerator
 
                         string input = $"-i {animationPath} -i {GetMessageBitmapPath()} ";
                         string overlay = $"[0][1]overlay=enable='lt(t,{data.messageCollection.First().Time})'[tmp];";
+
                         for (int i = 0; i < data.messageCollection.Count; i++)
                         {
                             SendMessage(data.messageCollection[i]);
@@ -370,7 +371,7 @@ namespace LineVideoGenerator
                             }
                         }
 
-                        await Task.Run(() => Global.FFMPEG($"{input}" +
+                        await Task.Run(() => Global.FFmpeg($"{input}" +
                                                            $"-filter_complex {overlay} " +
                                                            $"-preset ultrafast " +
                                                            $"{videoPath}"));
@@ -380,6 +381,7 @@ namespace LineVideoGenerator
                         using (var writer = new VideoFileWriter())
                         {
                             writer.Open(videoPath, (int)screenGrid.ActualWidth, (int)screenGrid.ActualHeight);
+
                             using (var messageBitmap = new Bitmap(GetMessageBitmapPath()))
                             {
                                 writer.WriteVideoFrame(messageBitmap);
@@ -389,6 +391,7 @@ namespace LineVideoGenerator
                             {
                                 SendMessage(message);
                                 await Task.Delay(100);
+
                                 using (var messageBitmap = new Bitmap(GetMessageBitmapPath()))
                                 {
                                     writer.WriteVideoFrame(messageBitmap, TimeSpan.FromSeconds(message.Time));
