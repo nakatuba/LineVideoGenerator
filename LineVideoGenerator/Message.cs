@@ -1,9 +1,11 @@
-﻿using NAudio.Wave;
+﻿using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
+using System.Windows.Media;
 using System.Xml.Serialization;
 
 namespace LineVideoGenerator
@@ -13,8 +15,9 @@ namespace LineVideoGenerator
         public Person person;
         private string text;
         private int time;
-        public byte[] voice;
-        public double voiceTime;
+        private Color color = Colors.White;
+        private byte[] voice;
+        private double voiceTime = 1;
         [XmlIgnore] public Thumb thumb = new Thumb();
         public event PropertyChangedEventHandler PropertyChanged;
         public string Name
@@ -39,13 +42,44 @@ namespace LineVideoGenerator
                 OnPropertyChanged();
             }
         }
-        public int NextMessageMinTime
+        public Color Color
         {
-            get { return time + (int)voiceTime + 1; }
+            get { return color; }
+            set
+            {
+                color = value;
+                OnPropertyChanged();
+            }
+        }
+        public static Color Green
+        {
+            get { return Color.FromRgb(112, 222, 82); }
+        }
+        public byte[] Voice
+        {
+            get { return voice; }
+            set
+            {
+                voice = value;
+                OnPropertyChanged();
+            }
+        }
+        public double VoiceTime
+        {
+            get { return voiceTime; }
+            set
+            {
+                voiceTime = value;
+                OnPropertyChanged();
+            }
         }
         public bool IsSetVoice
         {
             get { return voice != null; }
+        }
+        public int NextMessageMinTime
+        {
+            get { return time + (int)Math.Ceiling(voiceTime); }
         }
 
         public Message() { }
@@ -55,35 +89,26 @@ namespace LineVideoGenerator
             this.person = person;
             this.text = text;
             this.time = time;
+            if (person.id == 0) color = Green;
             AddThumb(canvas);
-        }
-
-        public void SetVoice(string fileName)
-        {
-            voice = Global.GetByteArray(fileName);
-            AudioFileReader audioFileReader = new AudioFileReader(fileName);
-            voiceTime = audioFileReader.TotalTime.TotalSeconds;
-            thumb.Width = voiceTime * ThumbConverter.per;
-            OnPropertyChanged();
-        }
-
-        public void ResetVoice()
-        {
-            voice = null;
-            voiceTime = 0;
-            thumb.Width = ThumbConverter.per;
-            OnPropertyChanged();
         }
 
         public void AddThumb(Canvas canvas)
         {
-            thumb.Width = ThumbConverter.per;
             thumb.Height = canvas.ActualHeight;
-            Binding binding = new Binding(nameof(Time));
-            binding.Source = this;
-            binding.Mode = BindingMode.TwoWay;
-            binding.Converter = new ThumbConverter();
-            thumb.SetBinding(Canvas.LeftProperty, binding);
+
+            Binding left = new Binding(nameof(Time));
+            left.Source = this;
+            left.Mode = BindingMode.TwoWay;
+            left.Converter = new ThumbConverter();
+            thumb.SetBinding(Canvas.LeftProperty, left);
+
+            Binding width = new Binding(nameof(VoiceTime));
+            width.Source = this;
+            width.Mode = BindingMode.TwoWay;
+            width.Converter = new ThumbConverter();
+            thumb.SetBinding(FrameworkElement.WidthProperty, width);
+
             canvas.Children.Add(thumb);
         }
 

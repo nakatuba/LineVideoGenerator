@@ -122,6 +122,8 @@ namespace LineVideoGenerator
             editWindow.totalTimePicker.MinDate = DateTime.Today.Add(TimeSpan.FromSeconds(message.NextMessageMinTime));
 
             mainWindow.data.messageCollection.Add(message);
+            editWindow.scrollViewer.ScrollToRightEnd();
+            editWindow.dataGrid.ScrollIntoView(message);
 
             messageBox.Text = string.Empty;
         }

@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:LineVideoGenerator"
         xmlns:forms="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
         xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
         Title="編集" Height="600" Width="1200" Closed="Window_Closed">
     <Window.Resources>
@@ -119,11 +120,18 @@
                         <Canvas Grid.Row="4"/>
                     </Grid>
                 </ScrollViewer>
-                <DataGrid x:Name="dataGrid" Grid.Row="4" Margin="20" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" VerticalScrollBarVisibility="Visible">
+                <DataGrid x:Name="dataGrid" Grid.Row="4" Margin="20" AutoGenerateColumns="False" IsReadOnly="True" VerticalScrollBarVisibility="Visible">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="名前" Binding="{Binding Name}" Width="*"/>
-                        <DataGridTextColumn Header="メッセージ" Binding="{Binding Text}" Width="4*"/>
+                        <DataGridTextColumn Header="テキスト" Binding="{Binding Text}" Width="4*"/>
                         <DataGridTextColumn Header="時間" Binding="{Binding Time, Converter={StaticResource TimeConverter}}" Width="*"/>
+                        <DataGridTemplateColumn Header="色" Width="*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <xctk:ColorPicker Height="20" SelectedColor="{Binding Color, UpdateSourceTrigger=PropertyChanged}" AvailableColorsHeader="デフォルト" StandardColorsHeader="基本色" ShowTabHeaders="False" Opened="ColorPicker_Opened"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
                         <DataGridTemplateColumn Width="4*">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>

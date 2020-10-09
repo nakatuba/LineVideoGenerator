@@ -10,12 +10,12 @@ namespace LineVideoGenerator
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return (int)value * per;
+            return System.Convert.ToDouble(value) * per;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return (double)value / per;
+            return System.Convert.ToDouble(value) / per;
         }
     }
 }

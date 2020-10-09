@@ -14,7 +14,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Brushes = System.Windows.Media.Brushes;
-using Color = System.Windows.Media.Color;
 using Image = System.Windows.Controls.Image;
 using Path = System.IO.Path;
 
@@ -157,7 +156,7 @@ namespace LineVideoGenerator
                 Global.PlayByteArray(data.soundEffect);
 
                 // 音声を再生
-                Global.PlayByteArray(data.messageCollection[i].voice);
+                Global.PlayByteArray(data.messageCollection[i].Voice);
 
                 // 次のメッセージとの時間差
                 TimeSpan messageTimeSpan;
@@ -212,6 +211,7 @@ namespace LineVideoGenerator
             Border messageBorder = new Border();
             messageBorder.Child = messageBlock;
             messageBorder.VerticalAlignment = VerticalAlignment.Top;
+            messageBorder.Background = new SolidColorBrush(message.Color);
             messageBorder.CornerRadius = new CornerRadius(20);
 
             Image bubble = new Image();
@@ -227,7 +227,7 @@ namespace LineVideoGenerator
 
             if (message.person.id == 0)
             {
-                if (personChanged)
+                if (personChanged && message.Color == Message.Green)
                 {
                     bubble.Source = new BitmapImage(new Uri("green bubble.png", UriKind.Relative));
                     bubble.HorizontalAlignment = HorizontalAlignment.Right;
@@ -237,7 +237,6 @@ namespace LineVideoGenerator
 
                 messageBorder.HorizontalAlignment = HorizontalAlignment.Right;
                 messageBorder.Margin = new Thickness(0, messageTop, messageRight, 0);
-                messageBorder.Background = new SolidColorBrush(Color.FromArgb(255, 112, 222, 82));
 
                 double timeBlockTop = messageBorder.Margin.Top + Global.GetHeight(messageBorder) - Global.GetHeight(timeBlock) - timeBottom;
                 double timeBlockRight = messageRight + Global.GetWidth(messageBorder) + timeSide;
@@ -272,15 +271,17 @@ namespace LineVideoGenerator
 
                     messageTop += Global.GetHeight(nameBlock) + 4;
 
-                    bubble.Source = new BitmapImage(new Uri("white bubble.png", UriKind.Relative));
-                    bubble.HorizontalAlignment = HorizontalAlignment.Left;
-                    bubble.Margin = new Thickness(messageLeft - bubble.Width / 2, messageTop, 0, 0);
-                    messageGrid.Children.Add(bubble);
+                    if (message.Color == Colors.White)
+                    {
+                        bubble.Source = new BitmapImage(new Uri("white bubble.png", UriKind.Relative));
+                        bubble.HorizontalAlignment = HorizontalAlignment.Left;
+                        bubble.Margin = new Thickness(messageLeft - bubble.Width / 2, messageTop, 0, 0);
+                        messageGrid.Children.Add(bubble);
+                    }
                 }
 
                 messageBorder.HorizontalAlignment = HorizontalAlignment.Left;
                 messageBorder.Margin = new Thickness(messageLeft, messageTop, 0, 0);
-                messageBorder.Background = Brushes.White;
 
                 double timeBlockTop = messageBorder.Margin.Top + Global.GetHeight(messageBorder) - Global.GetHeight(timeBlock) - timeBottom;
                 double timeBlockLeft = messageLeft + Global.GetWidth(messageBorder) + timeSide;
@@ -490,7 +491,7 @@ namespace LineVideoGenerator
             foreach (var message in data.messageCollection.Where(m => m.IsSetVoice))
             {
                 string voicePath = Path.Combine(tempDirectory, Guid.NewGuid() + ".wav");
-                File.WriteAllBytes(voicePath, message.voice);
+                File.WriteAllBytes(voicePath, message.Voice);
 
                 AudioFileReader voiceAudio = new AudioFileReader(voicePath);
                 tempAudioList.Add(voiceAudio);

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32;
+using NAudio.Wave;
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -9,7 +10,10 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
 using System.Xml.Serialization;
+using Xceed.Wpf.Toolkit;
+using MessageBox = System.Windows.MessageBox;
 
 namespace LineVideoGenerator
 {
@@ -24,6 +28,22 @@ namespace LineVideoGenerator
             Loaded += (sender, e) =>
             {
                 SetEditWindow();
+
+                Canvas canvas = canvasGrid.Children.Cast<Canvas>().Last();
+
+                FrameworkElementFactory line = new FrameworkElementFactory(typeof(Line));
+                line.SetValue(Line.Y1Property, canvas.ActualHeight - canvasGrid.ActualHeight);
+                line.SetValue(Line.Y2Property, canvas.ActualHeight);
+                line.SetValue(Shape.StrokeProperty, Brushes.Red);
+
+                Thumb thumb = new Thumb();
+                Canvas.SetLeft(thumb, 0);
+
+                ControlTemplate template = new ControlTemplate(typeof(Thumb));
+                template.VisualTree = line;
+                thumb.Template = template;
+
+                canvas.Children.Add(thumb);
             };
         }
 
@@ -142,8 +162,8 @@ namespace LineVideoGenerator
         {
             MainWindow mainWindow = Owner as MainWindow;
             Thumb thumb = sender as Thumb;
-            dataGrid.SelectedItem = mainWindow.data.messageCollection.First(m => m.thumb == thumb);
-
+            dataGrid.SelectedItem = mainWindow.data.messageCollection.FirstOrDefault(m => m.thumb == thumb);
+            
             // 選択項目が表示されるようデータグリッドをスクロール
             if (dataGrid.SelectedItem != null)
             {
@@ -154,7 +174,6 @@ namespace LineVideoGenerator
         private void Thumb_DragDelta(object sender, DragDeltaEventArgs e)
         {
             Thumb thumb = sender as Thumb;
-            Canvas canvas = thumb.Parent as Canvas;
 
             double x = Canvas.GetLeft(thumb) + e.HorizontalChange;
             x = Math.Max(x, 0);
@@ -181,6 +200,15 @@ namespace LineVideoGenerator
             }
         }
 
+        private void ColorPicker_Opened(object sender, RoutedEventArgs e)
+        {
+            ColorPicker colorPicker = sender as ColorPicker;
+            ColorItem white = new ColorItem(Colors.White, "White");
+            ColorItem green = new ColorItem(Message.Green, "Green");
+            ObservableCollection<ColorItem> defaultColors = new ObservableCollection<ColorItem>() { white, green };
+            colorPicker.AvailableColors = defaultColors;
+        }
+
         private void EditMessageButton_Click(object sender, RoutedEventArgs e)
         {
             Button editButton = sender as Button;
@@ -202,7 +230,9 @@ namespace LineVideoGenerator
                 try
                 {
                     Message message = dataGrid.SelectedItem as Message;
-                    message.SetVoice(openFileDialog.FileName);
+                    message.Voice = Global.GetByteArray(openFileDialog.FileName);
+                    AudioFileReader audioFileReader = new AudioFileReader(openFileDialog.FileName);
+                    message.VoiceTime = audioFileReader.TotalTime.TotalSeconds;
                 }
                 catch (NotSupportedException)
                 {
@@ -215,13 +245,14 @@ namespace LineVideoGenerator
         {
             Message message = dataGrid.SelectedItem as Message;
             Button playVoiceButton = sender as Button;
-            Global.PlayButton_Click(message.voice, playVoiceButton, PlayVoiceButton_Click);
+            Global.PlayButton_Click(message.Voice, playVoiceButton, PlayVoiceButton_Click);
         }
 
         private void ResetVoiceButton_Click(object sender, RoutedEventArgs e)
         {
             Message message = dataGrid.SelectedItem as Message;
-            message.ResetVoice();
+            message.Voice = null;
+            message.VoiceTime = 1;
         }
 
         private void DeleteMessageButton_Click(object sender, RoutedEventArgs e)
