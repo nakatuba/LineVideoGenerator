@@ -123,7 +123,7 @@ namespace LineVideoGenerator
 
             mainWindow.data.messageCollection.Add(message);
             editWindow.scrollViewer.ScrollToRightEnd();
-            editWindow.dataGrid.ScrollIntoView(message);
+            editWindow.dataGrid.SelectedItem = message;
 
             messageBox.Text = string.Empty;
         }

@@ -162,12 +162,9 @@ namespace LineVideoGenerator
         {
             MainWindow mainWindow = Owner as MainWindow;
             Thumb thumb = sender as Thumb;
-            dataGrid.SelectedItem = mainWindow.data.messageCollection.FirstOrDefault(m => m.thumb == thumb);
-            
-            // 選択項目が表示されるようデータグリッドをスクロール
-            if (dataGrid.SelectedItem != null)
+            if (mainWindow.data.messageCollection.Any(m => m.thumb == thumb))
             {
-                dataGrid.ScrollIntoView(dataGrid.SelectedItem);
+                dataGrid.SelectedItem = mainWindow.data.messageCollection.First(m => m.thumb == thumb);
             }
         }
 
@@ -179,6 +176,42 @@ namespace LineVideoGenerator
             x = Math.Max(x, 0);
             Canvas.SetLeft(thumb, x);
 
+            ScrollIntoThumb(thumb);
+
+            // メッセージを時間順にソート（https://yomon.hatenablog.com/entry/2014/01/14/C%23%E3%81%AEObservableCollection%E3%81%AB%E3%81%8A%E3%81%91%E3%82%8B%E8%A6%81%E7%B4%A0%E3%81%AE%E4%B8%A6%E3%81%B9%E6%9B%BF%E3%81%88%E6%96%B9%E6%B3%95）
+            MainWindow mainWindow = Owner as MainWindow;
+            mainWindow.data.messageCollection = new ObservableCollection<Message>(mainWindow.data.messageCollection.OrderBy(m => m.Time));
+            mainWindow.SetMessageCollectionChanged();
+            dataGrid.ItemsSource = mainWindow.data.messageCollection;
+
+            // ドラッグ中のメッセージが表示されるようデータグリッドをスクロール
+            if (mainWindow.data.messageCollection.Any(m => m.thumb == thumb))
+            {
+                dataGrid.ScrollIntoView(mainWindow.data.messageCollection.First(m => m.thumb == thumb));
+            }
+        }
+
+        private void DataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (dataGrid.SelectedItem is Message selectedMessage)
+            {
+                MainWindow mainWindow = Owner as MainWindow;
+                foreach (var message in mainWindow.data.messageCollection)
+                {
+                    message.thumb.BorderThickness = new Thickness();
+                    message.thumb.BorderBrush = Brushes.Transparent;
+                }
+
+                selectedMessage.thumb.BorderThickness = new Thickness(2);
+                selectedMessage.thumb.BorderBrush = Brushes.Blue;
+
+                ScrollIntoThumb(selectedMessage.thumb);
+                dataGrid.ScrollIntoView(selectedMessage);
+            }
+        }
+
+        private void ScrollIntoThumb(Thumb thumb)
+        {
             if (Canvas.GetLeft(thumb) < scrollViewer.HorizontalOffset)
             {
                 scrollViewer.ScrollToHorizontalOffset(Canvas.GetLeft(thumb));
@@ -186,17 +219,6 @@ namespace LineVideoGenerator
             else if (scrollViewer.HorizontalOffset + scrollViewer.ActualWidth < Canvas.GetLeft(thumb) + thumb.ActualWidth)
             {
                 scrollViewer.ScrollToHorizontalOffset(Canvas.GetLeft(thumb) + thumb.ActualWidth - scrollViewer.ActualWidth);
-            }
-
-            // メッセージを時間順にソート（https://yomon.hatenablog.com/entry/2014/01/14/C%23%E3%81%AEObservableCollection%E3%81%AB%E3%81%8A%E3%81%91%E3%82%8B%E8%A6%81%E7%B4%A0%E3%81%AE%E4%B8%A6%E3%81%B9%E6%9B%BF%E3%81%88%E6%96%B9%E6%B3%95）
-            MainWindow mainWindow = Owner as MainWindow;
-            mainWindow.data.messageCollection = new ObservableCollection<Message>(mainWindow.data.messageCollection.OrderBy(m => m.Time));
-            dataGrid.ItemsSource = mainWindow.data.messageCollection;
-
-            // 選択項目が表示されるようデータグリッドをスクロール
-            if (dataGrid.SelectedItem != null)
-            {
-                dataGrid.ScrollIntoView(dataGrid.SelectedItem);
             }
         }
 
