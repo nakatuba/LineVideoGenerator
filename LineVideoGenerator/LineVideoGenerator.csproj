@@ -150,10 +150,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="StartTime.cs" />
     <Compile Include="EditMessageWindow.xaml.cs">
       <DependentUpon>EditMessageWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Global.cs" />
+    <Compile Include="Original.cs" />
     <Compile Include="Person.cs" />
     <Compile Include="SendMessageControl.xaml.cs">
       <DependentUpon>SendMessageControl.xaml</DependentUpon>
@@ -162,7 +163,8 @@
       <DependentUpon>AudioButtonControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="ThumbConverter.cs" />
-    <Compile Include="TimeConverter.cs" />
+    <Compile Include="DurationConverter.cs" />
+    <Compile Include="VideoTotalTimeConverter.cs" />
     <Page Include="AudioButtonControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

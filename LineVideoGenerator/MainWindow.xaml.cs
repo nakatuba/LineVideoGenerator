@@ -36,6 +36,7 @@ namespace LineVideoGenerator
         private double messageRight = 20; // メッセージの右の余白
         private double messageLeft = 100; // メッセージの左の余白
         private double iconSide = 10; // アイコンの横の余白
+        private double nameBottom = 4; // 名前の下の余白
         private double timeBottom = 4; // 時刻の下の余白
         private double timeSide = 8; // 時刻の横の余白
         private int frameRate = 25; // フレームレート
@@ -51,10 +52,7 @@ namespace LineVideoGenerator
             Directory.CreateDirectory(tempDirectory);
         }
 
-        /// <summary>
-        /// メッセージの追加・削除後にメッセージがあれば再生ボタンと保存ボタンを有効化し、メッセージがなければ無効化するよう設定
-        /// </summary>
-        public void SetMessageCollectionChanged()
+        public void SetMessageCollectionCollectionChanged()
         {
             data.messageCollection.CollectionChanged += (sender, e) =>
             {
@@ -142,32 +140,34 @@ namespace LineVideoGenerator
                 mediaElement.Play();
             }
 
+            TimeSpan firstMessageTimeSpan = TimeSpan.FromSeconds(data.messageCollection.First().Duration);
+            await Task.Delay(firstMessageTimeSpan);
+
+            DateTime time = new DateTime();
+            if (data.startTimeList.Any(s => s.Duration <= data.messageCollection.First().Duration))
+            {
+                time = data.startTimeList.OrderBy(s => s.Duration).Last(s => s.Duration <= data.messageCollection.First().Duration).Time;
+            }
+
             for (int i = 0; i < data.messageCollection.Count; i++)
             {
-                if (i == 0)
+                if (i != 0 && data.startTimeList.Any(s => data.messageCollection[i - 1].Duration < s.Duration && s.Duration <= data.messageCollection[i].Duration))
                 {
-                    TimeSpan firstMessageTimeSpan = TimeSpan.FromSeconds(data.messageCollection[i].Time);
-                    await Task.Delay(firstMessageTimeSpan);
+                    time = data.startTimeList.OrderBy(s => s.Duration).Last(s => data.messageCollection[i - 1].Duration < s.Duration && s.Duration <= data.messageCollection[i].Duration).Time;
                 }
 
-                SendMessage(data.messageCollection[i]);
+                SendMessage(data.messageCollection[i], ref time);
 
                 // 効果音を再生
-                Global.PlayByteArray(data.soundEffect);
+                Original.PlayByteArray(data.soundEffect);
 
                 // 音声を再生
-                Global.PlayByteArray(data.messageCollection[i].Voice);
+                Original.PlayByteArray(data.messageCollection[i].Voice);
 
-                // 次のメッセージとの時間差
-                TimeSpan messageTimeSpan;
-                if (i == data.messageCollection.Count - 1)
-                {
-                    messageTimeSpan = TimeSpan.FromSeconds(data.videoTotalTime - data.messageCollection[i].Time);
-                }
-                else
-                {
-                    messageTimeSpan = TimeSpan.FromSeconds(data.messageCollection[i + 1].Time - data.messageCollection[i].Time);
-                }
+                // 次のメッセージとの再生時間の差
+                TimeSpan messageTimeSpan = (i == data.messageCollection.Count - 1)
+                                           ? TimeSpan.FromSeconds(data.videoTotalTime - data.messageCollection[i].Duration)
+                                           : TimeSpan.FromSeconds(data.messageCollection[i + 1].Duration - data.messageCollection[i].Duration);
                 await Task.Delay(messageTimeSpan);
 
                 // 停止
@@ -199,7 +199,7 @@ namespace LineVideoGenerator
             playButton.Click += PlayButton_Click;
         }
 
-        private void SendMessage(Message message)
+        private void SendMessage(Message message, ref DateTime time)
         {
             TextBlock messageBlock = new TextBlock();
             messageBlock.Text = message.Text;
@@ -219,7 +219,7 @@ namespace LineVideoGenerator
             bubble.Width = 20;
 
             TextBlock timeBlock = new TextBlock();
-            timeBlock.Text = TimeSpan.FromSeconds(data.messageStartTime + message.Time).ToString(@"h\:mm");
+            timeBlock.Text = time.ToString("t");
             timeBlock.Foreground = Brushes.White;
 
             int messageIndex = data.messageCollection.IndexOf(message);
@@ -227,7 +227,8 @@ namespace LineVideoGenerator
 
             if (message.person.id == 0)
             {
-                if (personChanged && message.Color == Message.Green)
+                // 吹き出しの表示
+                if (personChanged && message.Color == Original.Green)
                 {
                     bubble.Source = new BitmapImage(new Uri("green bubble.png", UriKind.Relative));
                     bubble.HorizontalAlignment = HorizontalAlignment.Right;
@@ -238,15 +239,23 @@ namespace LineVideoGenerator
                 messageBorder.HorizontalAlignment = HorizontalAlignment.Right;
                 messageBorder.Margin = new Thickness(0, messageTop, messageRight, 0);
 
-                double timeBlockTop = messageBorder.Margin.Top + Global.GetHeight(messageBorder) - Global.GetHeight(timeBlock) - timeBottom;
-                double timeBlockRight = messageRight + Global.GetWidth(messageBorder) + timeSide;
-                timeBlock.HorizontalAlignment = HorizontalAlignment.Right;
-                timeBlock.Margin = new Thickness(0, timeBlockTop, timeBlockRight, 0);
+                // 時刻の表示
+                if (message.Color == Original.Green)
+                {
+                    double timeBlockTop = messageBorder.Margin.Top + Original.GetHeight(messageBorder) - Original.GetHeight(timeBlock) - timeBottom;
+                    double timeBlockRight = messageRight + Original.GetWidth(messageBorder) + timeSide;
+                    timeBlock.HorizontalAlignment = HorizontalAlignment.Right;
+                    timeBlock.Margin = new Thickness(0, timeBlockTop, timeBlockRight, 0);
+                    messageGrid.Children.Add(timeBlock);
+
+                    time += TimeSpan.FromMinutes(message.TimeInterval);
+                }
             }
             else
             {
                 if (personChanged)
                 {
+                    // アイコンの表示
                     ImageBrush iconBrush = new ImageBrush();
                     iconBrush.ImageSource = message.person.Icon;
                     iconBrush.Stretch = Stretch.UniformToFill;
@@ -260,6 +269,7 @@ namespace LineVideoGenerator
                     iconEllipse.Margin = new Thickness(iconSide, messageTop, 0, 0);
                     messageGrid.Children.Add(iconEllipse);
 
+                    // 名前の表示
                     TextBlock nameBlock = new TextBlock();
                     nameBlock.Text = message.person.Name;
                     nameBlock.FontSize = 20;
@@ -269,8 +279,9 @@ namespace LineVideoGenerator
                     nameBlock.Margin = new Thickness(messageLeft, messageTop, 0, 0);
                     messageGrid.Children.Add(nameBlock);
 
-                    messageTop += Global.GetHeight(nameBlock) + 4;
+                    messageTop += Original.GetHeight(nameBlock) + nameBottom;
 
+                    // 吹き出しの表示
                     if (message.Color == Colors.White)
                     {
                         bubble.Source = new BitmapImage(new Uri("white bubble.png", UriKind.Relative));
@@ -283,16 +294,22 @@ namespace LineVideoGenerator
                 messageBorder.HorizontalAlignment = HorizontalAlignment.Left;
                 messageBorder.Margin = new Thickness(messageLeft, messageTop, 0, 0);
 
-                double timeBlockTop = messageBorder.Margin.Top + Global.GetHeight(messageBorder) - Global.GetHeight(timeBlock) - timeBottom;
-                double timeBlockLeft = messageLeft + Global.GetWidth(messageBorder) + timeSide;
-                timeBlock.HorizontalAlignment = HorizontalAlignment.Left;
-                timeBlock.Margin = new Thickness(timeBlockLeft, timeBlockTop, 0, 0);
+                // 時刻の表示
+                if (message.Color == Colors.White)
+                {
+                    double timeBlockTop = messageBorder.Margin.Top + Original.GetHeight(messageBorder) - Original.GetHeight(timeBlock) - timeBottom;
+                    double timeBlockLeft = messageLeft + Original.GetWidth(messageBorder) + timeSide;
+                    timeBlock.HorizontalAlignment = HorizontalAlignment.Left;
+                    timeBlock.Margin = new Thickness(timeBlockLeft, timeBlockTop, 0, 0);
+                    messageGrid.Children.Add(timeBlock);
+
+                    time += TimeSpan.FromMinutes(message.TimeInterval);
+                }
             }
 
             messageGrid.Children.Add(messageBorder);
-            messageGrid.Children.Add(timeBlock);
 
-            messageTop += Global.GetHeight(messageBorder) + messageDistance;
+            messageTop += Original.GetHeight(messageBorder) + messageDistance;
 
             double inputBarTop = messageGrid.ActualHeight - inputBar.ActualHeight;
             if (inputBarTop < messageTop)
@@ -345,34 +362,39 @@ namespace LineVideoGenerator
                         await Task.Run(() =>
                         {
                             // 背景動画のフレームレートを変更
-                            animationPath = Global.ChangeFrameRate(animationPath, frameRate);
+                            animationPath = Original.ChangeFrameRate(animationPath, frameRate);
                             // 背景動画のサイズを変更
-                            animationPath = Global.ResizeVideo(animationPath, (int)screenGrid.ActualWidth, (int)screenGrid.ActualHeight);
+                            animationPath = Original.ResizeVideo(animationPath, (int)screenGrid.ActualWidth, (int)screenGrid.ActualHeight);
                             // 背景動画のループ動画を作成
-                            animationPath = Global.LoopVideoOrAudio(animationPath, data.videoTotalTime);
+                            animationPath = Original.LoopVideoOrAudio(animationPath, data.videoTotalTime);
                         });
 
+                        DateTime time = new DateTime();
+                        if (data.startTimeList.Any(s => s.Duration <= data.messageCollection.First().Duration))
+                        {
+                            time = data.startTimeList.OrderBy(s => s.Duration).Last(s => s.Duration <= data.messageCollection.First().Duration).Time;
+                        }
+
                         string input = $"-i {animationPath} -i {GetMessageBitmapPath()} ";
-                        string overlay = $"[0][1]overlay=enable='lt(t,{data.messageCollection.First().Time})'[tmp];";
+                        string overlay = $"[0][1]overlay=enable='lt(t,{data.messageCollection.First().Duration})'[tmp];";
 
                         for (int i = 0; i < data.messageCollection.Count; i++)
                         {
-                            SendMessage(data.messageCollection[i]);
+                            if (i != 0 && data.startTimeList.Any(s => data.messageCollection[i - 1].Duration < s.Duration && s.Duration <= data.messageCollection[i].Duration))
+                            {
+                                time = data.startTimeList.OrderBy(s => s.Duration).Last(s => data.messageCollection[i - 1].Duration < s.Duration && s.Duration <= data.messageCollection[i].Duration).Time;
+                            }
+
+                            SendMessage(data.messageCollection[i], ref time);
                             await Task.Delay(100);
 
                             input += $"-i {GetMessageBitmapPath()} ";
-
-                            if (i == data.messageCollection.Count - 1)
-                            {
-                                overlay += $"[tmp][{i + 2}]overlay=enable='gte(t,{data.messageCollection[i].Time})'";
-                            }
-                            else
-                            {
-                                overlay += $"[tmp][{i + 2}]overlay=enable='gte(t,{data.messageCollection[i].Time})*lt(t,{data.messageCollection[i + 1].Time})'[tmp];";
-                            }
+                            overlay += (i == data.messageCollection.Count - 1)
+                                       ? $"[tmp][{i + 2}]overlay=enable='gte(t,{data.messageCollection[i].Duration})'"
+                                       : $"[tmp][{i + 2}]overlay=enable='gte(t,{data.messageCollection[i].Duration})*lt(t,{data.messageCollection[i + 1].Duration})'[tmp];";
                         }
 
-                        await Task.Run(() => Global.FFmpeg($"{input}" +
+                        await Task.Run(() => Original.FFmpeg($"{input}" +
                                                            $"-filter_complex {overlay} " +
                                                            $"-preset ultrafast " +
                                                            $"{videoPath}"));
@@ -387,15 +409,26 @@ namespace LineVideoGenerator
                             {
                                 writer.WriteVideoFrame(messageBitmap);
                             }
-                            
-                            foreach (var message in data.messageCollection)
+
+                            DateTime time = new DateTime();
+                            if (data.startTimeList.Any(s => s.Duration <= data.messageCollection.First().Duration))
                             {
-                                SendMessage(message);
+                                time = data.startTimeList.OrderBy(s => s.Duration).Last(s => s.Duration <= data.messageCollection.First().Duration).Time;
+                            }
+
+                            for (int i = 0; i < data.messageCollection.Count; i++)
+                            {
+                                if (i != 0 && data.startTimeList.Any(s => data.messageCollection[i - 1].Duration < s.Duration && s.Duration <= data.messageCollection[i].Duration))
+                                {
+                                    time = data.startTimeList.OrderBy(s => s.Duration).Last(s => data.messageCollection[i - 1].Duration < s.Duration && s.Duration <= data.messageCollection[i].Duration).Time;
+                                }
+
+                                SendMessage(data.messageCollection[i], ref time);
                                 await Task.Delay(100);
 
                                 using (var messageBitmap = new Bitmap(GetMessageBitmapPath()))
                                 {
-                                    writer.WriteVideoFrame(messageBitmap, TimeSpan.FromSeconds(message.Time));
+                                    writer.WriteVideoFrame(messageBitmap, TimeSpan.FromSeconds(data.messageCollection[i].Duration));
                                 }
                             }
 
@@ -406,13 +439,13 @@ namespace LineVideoGenerator
                         }
 
                         // 動画のフレームレートを変更
-                        await Task.Run(() => videoPath = Global.ChangeFrameRate(videoPath, frameRate));
+                        await Task.Run(() => videoPath = Original.ChangeFrameRate(videoPath, frameRate));
                     }
 
                     await Task.Run(() =>
                     {
                         // 動画のサイズを変更
-                        videoPath = Global.ResizeVideo(videoPath, frameWidth, frameHeight);
+                        videoPath = Original.ResizeVideo(videoPath, frameWidth, frameHeight);
                         // 動画に音声を挿入
                         videoPath = GetVideoWithAudio(videoPath);
                     });
@@ -463,7 +496,7 @@ namespace LineVideoGenerator
                 string bgmPath = Path.Combine(tempDirectory, Guid.NewGuid() + ".wav");
                 File.WriteAllBytes(bgmPath, data.bgm);
 
-                AudioFileReader bgmAudio = new AudioFileReader(Global.LoopVideoOrAudio(bgmPath, data.videoTotalTime));
+                AudioFileReader bgmAudio = new AudioFileReader(Original.LoopVideoOrAudio(bgmPath, data.videoTotalTime));
                 tempAudioList.Add(bgmAudio);
 
                 OffsetSampleProvider offsetSampleProvider = new OffsetSampleProvider(bgmAudio);
@@ -482,7 +515,7 @@ namespace LineVideoGenerator
                     tempAudioList.Add(soundEffectAudio);
 
                     OffsetSampleProvider offsetSampleProvider = new OffsetSampleProvider(soundEffectAudio);
-                    offsetSampleProvider.DelayBy = TimeSpan.FromSeconds(message.Time);
+                    offsetSampleProvider.DelayBy = TimeSpan.FromSeconds(message.Duration);
                     sampleProviderList.Add(offsetSampleProvider);
                 }
             }
@@ -497,7 +530,7 @@ namespace LineVideoGenerator
                 tempAudioList.Add(voiceAudio);
 
                 OffsetSampleProvider offsetSampleProvider = new OffsetSampleProvider(voiceAudio);
-                offsetSampleProvider.DelayBy = TimeSpan.FromSeconds(message.Time);
+                offsetSampleProvider.DelayBy = TimeSpan.FromSeconds(message.Duration);
                 sampleProviderList.Add(offsetSampleProvider);
             }
 
@@ -514,7 +547,7 @@ namespace LineVideoGenerator
                 }
 
                 // 動画に音声を挿入
-                videoPath = Global.AddAudioToVideo(videoPath, audioPath);
+                videoPath = Original.AddAudioToVideo(videoPath, audioPath);
             }
 
             return videoPath;

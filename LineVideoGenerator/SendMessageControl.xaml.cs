@@ -109,21 +109,23 @@ namespace LineVideoGenerator
             Person person = mainWindow.data.personList.First(p => p.id == Grid.GetRow(this));
             editWindow.SetPersonPropertyChanged(person);
 
-            int time = 1;
+            int duration = 1;
             if (mainWindow.data.messageCollection.Count > 0)
             {
-                time = mainWindow.data.messageCollection.Last().NextMessageMinTime;
+                duration = mainWindow.data.messageCollection.Last().NextMessageDuration;
             }
 
-            Canvas canvas = editWindow.canvasGrid.Children.Cast<Canvas>().First(c => Grid.GetRow(c) == Grid.GetRow(this));
+            Canvas canvas = editWindow.messageCanvasGrid.Children.Cast<Canvas>().First(c => Grid.GetRow(c) == Grid.GetRow(this));
 
-            Message message = new Message(person, messageBox.Text, time, canvas);
+            Message message = new Message(person, messageBox.Text, duration, canvas);
             editWindow.SetMessagePropertyChanged(message);
-            editWindow.totalTimePicker.MinDate = DateTime.Today.Add(TimeSpan.FromSeconds(message.NextMessageMinTime));
+            editWindow.timePicker.MinDate = DateTime.Today.Add(TimeSpan.FromSeconds(message.NextMessageDuration));
+
+            message.thumb.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+            message.thumb.Arrange(new Rect(message.thumb.DesiredSize));
+            editWindow.dataGrid.SelectedItem = message;
 
             mainWindow.data.messageCollection.Add(message);
-            editWindow.scrollViewer.ScrollToRightEnd();
-            editWindow.dataGrid.SelectedItem = message;
 
             messageBox.Text = string.Empty;
         }

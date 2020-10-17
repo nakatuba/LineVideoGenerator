@@ -5,36 +5,24 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LineVideoGenerator"
         xmlns:forms="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
-        xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
         Title="編集" Height="600" Width="1200" Closed="Window_Closed">
     <Window.Resources>
+        <local:DurationConverter x:Key="DurationConverter"/>
+        <local:ThumbConverter x:Key="ThumbConverter"/>
+        <local:VideoTotalTimeConverter x:Key="VideoTotalTimeConverter"/>
         <Style TargetType="Button">
             <Setter Property="Height" Value="20"/>
         </Style>
-        <Style TargetType="TextBlock" x:Key="TimePickerTextBlock">
-            <Setter Property="FontSize" Value="16"/>
-            <Setter Property="HorizontalAlignment" Value="Right"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
-        <Style TargetType="WindowsFormsHost">
-            <Setter Property="FontSize" Value="16"/>
-            <Setter Property="HorizontalAlignment" Value="Center"/>
-        </Style>
-        <Style TargetType="TextBlock" x:Key="ScrollViewerTextBlock">
-            <Setter Property="Grid.Row" Value="2"/>
-            <Setter Property="VerticalAlignment" Value="Bottom"/>
-        </Style>
         <Style TargetType="Canvas">
             <Setter Property="HorizontalAlignment" Value="Left"/>
-            <Setter Property="Background" Value="LightGray"/>
         </Style>
         <Style TargetType="Thumb">
             <EventSetter Event="DragStarted" Handler="Thumb_DragStarted"/>
             <EventSetter Event="DragDelta" Handler="Thumb_DragDelta"/>
         </Style>
-        <local:TimeConverter x:Key="TimeConverter"/>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -62,77 +50,73 @@
             </Grid>
             <Grid Grid.Column="1">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="2*"/>
-                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="4*"/>
                     <RowDefinition/>
                     <RowDefinition Height="8*"/>
                     <RowDefinition Height="12*"/>
                 </Grid.RowDefinitions>
-                <Grid Grid.Row="0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                        <ColumnDefinition/>
-                    </Grid.ColumnDefinitions>
-                    <local:AudioButtonControl x:Name="bgmButtonControl" Grid.Column="0" AudioType="BGM"/>
-                    <local:AudioButtonControl x:Name="soundEffectButtonControl" Grid.Column="1" AudioType="SoundEffect"/>
-                </Grid>
-                <Grid Grid.Row="1" Margin="0 0 40 0">
+                <Grid Grid.Row="0" Margin="40 0 40 0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition/>
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
                     <Grid Grid.Column="0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition/>
-                            <ColumnDefinition/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Text="総再生時間" Grid.Column="0" Style="{StaticResource TimePickerTextBlock}"/>
-                        <WindowsFormsHost Grid.Column="1">
-                            <forms:DateTimePicker x:Name="totalTimePicker" Format="Custom" CustomFormat="mm分ss秒" ShowUpDown="True" ValueChanged="TotaTimePicker_ValueChanged"/>
-                        </WindowsFormsHost>
-                    </Grid>
-                    <Grid Grid.Column="1">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition/>
-                            <ColumnDefinition/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Text="開始時刻" Grid.Column="0" Style="{StaticResource TimePickerTextBlock}"/>
-                        <WindowsFormsHost Grid.Column="1">
-                            <forms:DateTimePicker x:Name="startTimePicker" Format="Custom" CustomFormat="H時mm分" ShowUpDown="True" ValueChanged="StartTimePicker_ValueChanged"/>
-                        </WindowsFormsHost>
-                    </Grid>
-                </Grid>
-                <TextBlock x:Name="leftTimeBlock" Style="{StaticResource ScrollViewerTextBlock}" HorizontalAlignment="Left" Margin="15 0 0 0"/>
-                <TextBlock x:Name="rightTimeBlock" Style="{StaticResource ScrollViewerTextBlock}" HorizontalAlignment="Right" Margin="0 0 15 0"/>
-                <ScrollViewer x:Name="scrollViewer" Grid.Row="3" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Hidden" Margin="30 0 30 0" ScrollChanged="ScrollViewer_ScrollChanged">
-                    <Grid x:Name="canvasGrid" Background="Gray">
                         <Grid.RowDefinitions>
                             <RowDefinition/>
                             <RowDefinition/>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                            <RowDefinition/>
                         </Grid.RowDefinitions>
-                        <Canvas Grid.Row="0"/>
-                        <Canvas Grid.Row="1"/>
-                        <Canvas Grid.Row="2"/>
-                        <Canvas Grid.Row="3"/>
-                        <Canvas Grid.Row="4"/>
+                        <local:AudioButtonControl x:Name="bgmButtonControl" Grid.Row="0" AudioType="BGM"/>
+                        <local:AudioButtonControl x:Name="soundEffectButtonControl" Grid.Row="1" AudioType="SoundEffect"/>
+                    </Grid>
+                    <Grid Grid.Column="1" Margin="20 0 20 0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="総再生時間" Grid.Column="0" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <WindowsFormsHost Grid.Column="1" FontSize="16">
+                            <forms:DateTimePicker x:Name="timePicker" Format="Custom" CustomFormat="mm分ss秒" ShowUpDown="True" ValueChanged="TimePicker_ValueChanged"/>
+                        </WindowsFormsHost>
+                    </Grid>
+                </Grid>
+                <TextBlock x:Name="leftTimeBlock" Grid.Row="1" HorizontalAlignment="Left" Margin="15 0 0 0"/>
+                <TextBlock x:Name="rightTimeBlock" Grid.Row="1" HorizontalAlignment="Right" Margin="0 0 15 0"/>
+                <ScrollViewer x:Name="scrollViewer" Grid.Row="2" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Hidden" Margin="30 0 30 0" ScrollChanged="ScrollViewer_ScrollChanged">
+                    <Grid Background="Gray">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="5*"/>
+                        </Grid.RowDefinitions>
+                        <Grid x:Name="messageCanvasGrid" Grid.Row="1">
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <Canvas Grid.Row="0" Background="LightGray"/>
+                            <Canvas Grid.Row="1" Background="LightGray"/>
+                            <Canvas Grid.Row="2" Background="LightGray"/>
+                            <Canvas Grid.Row="3" Background="LightGray"/>
+                            <Canvas Grid.Row="4" Background="LightGray"/>
+                        </Grid>
+                        <Canvas x:Name="startTimeCanvas" Grid.Row="0" Background="White" MouseLeftButtonDown="StartTimeCanvas_MouseLeftButtonDown"/>
                     </Grid>
                 </ScrollViewer>
-                <DataGrid x:Name="dataGrid" Grid.Row="4" Margin="20" AutoGenerateColumns="False" IsReadOnly="True" VerticalScrollBarVisibility="Visible" SelectionChanged="DataGrid_SelectionChanged">
+                <DataGrid x:Name="dataGrid" Grid.Row="3" Margin="20" AutoGenerateColumns="False" IsReadOnly="True" VerticalScrollBarVisibility="Visible" SelectionChanged="DataGrid_SelectionChanged">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="名前" Binding="{Binding Name}" Width="*"/>
-                        <DataGridTextColumn Header="テキスト" Binding="{Binding Text}" Width="4*"/>
-                        <DataGridTextColumn Header="時間" Binding="{Binding Time, Converter={StaticResource TimeConverter}}" Width="*"/>
-                        <DataGridTemplateColumn Header="色" Width="*">
+                        <DataGridTextColumn Header="名前" Binding="{Binding Name}" Width="3*"/>
+                        <DataGridTextColumn Header="テキスト" Binding="{Binding Text}" Width="6*"/>
+                        <DataGridTextColumn Header="時間" Binding="{Binding Duration, Converter={StaticResource DurationConverter}}" Width="3*"/>
+                        <DataGridTemplateColumn Header="色" Width="2*">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <xctk:ColorPicker Height="22" SelectedColor="{Binding Color, UpdateSourceTrigger=PropertyChanged}" AvailableColorsHeader="デフォルト" StandardColorsHeader="基本色" ShowTabHeaders="False" Opened="ColorPicker_Opened"/>
+                                    <xctk:ColorPicker Height="22" SelectedColor="{Binding Color, UpdateSourceTrigger=PropertyChanged}" AvailableColorsHeader="デフォルト" StandardColorsHeader="その他" ShowTabHeaders="False" Opened="ColorPicker_Opened"/>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
-                        <DataGridTemplateColumn Width="4*">
+                        <DataGridTemplateColumn Width="10*">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <Grid>

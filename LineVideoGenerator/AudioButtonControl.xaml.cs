@@ -49,10 +49,10 @@ namespace LineVideoGenerator
                     switch (AudioType)
                     {
                         case AudioType.BGM:
-                            mainWindow.data.bgm = Global.GetByteArray(openFileDialog.FileName);
+                            mainWindow.data.bgm = Original.GetByteArray(openFileDialog.FileName);
                             break;
                         case AudioType.SoundEffect:
-                            mainWindow.data.soundEffect = Global.GetByteArray(openFileDialog.FileName);
+                            mainWindow.data.soundEffect = Original.GetByteArray(openFileDialog.FileName);
                             break;
                     }
 
@@ -74,10 +74,10 @@ namespace LineVideoGenerator
             switch (AudioType)
             {
                 case AudioType.BGM:
-                    Global.PlayButton_Click(mainWindow.data.bgm, playButton, PlayButton_Click);
+                    Original.PlayButton_Click(mainWindow.data.bgm, playButton, PlayButton_Click);
                     break;
                 case AudioType.SoundEffect:
-                    Global.PlayButton_Click(mainWindow.data.soundEffect, playButton, PlayButton_Click);
+                    Original.PlayButton_Click(mainWindow.data.soundEffect, playButton, PlayButton_Click);
                     break;
             }
         }

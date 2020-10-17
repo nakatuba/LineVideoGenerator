@@ -14,8 +14,8 @@ namespace LineVideoGenerator
     {
         public Person person;
         private string text;
-        private int time;
-        private Color color = Colors.White;
+        private int duration;
+        private Color color;
         private byte[] voice;
         private double voiceTime = 1;
         [XmlIgnore] public Thumb thumb = new Thumb();
@@ -33,12 +33,12 @@ namespace LineVideoGenerator
                 OnPropertyChanged();
             }
         }
-        public int Time
+        public int Duration
         {
-            get { return time; }
+            get { return duration; }
             set
             {
-                time = value;
+                duration = value;
                 OnPropertyChanged();
             }
         }
@@ -50,10 +50,6 @@ namespace LineVideoGenerator
                 color = value;
                 OnPropertyChanged();
             }
-        }
-        public static Color Green
-        {
-            get { return Color.FromRgb(112, 222, 82); }
         }
         public byte[] Voice
         {
@@ -73,41 +69,47 @@ namespace LineVideoGenerator
                 OnPropertyChanged();
             }
         }
+        public int TimeInterval
+        {
+            get
+            { return new Random().Next(3); }
+        }
         public bool IsSetVoice
         {
             get { return voice != null; }
         }
-        public int NextMessageMinTime
+        public int NextMessageDuration
         {
-            get { return time + (int)Math.Ceiling(voiceTime); }
+            get { return duration + (int)Math.Ceiling(voiceTime); }
         }
 
         public Message() { }
 
-        public Message(Person person, string text, int time, Canvas canvas)
+        public Message(Person person, string text, int duration, Canvas canvas)
         {
             this.person = person;
             this.text = text;
-            this.time = time;
-            if (person.id == 0) color = Green;
+            this.duration = duration;
+            color = (person.id == 0) ? Original.Green : Colors.White;
             AddThumb(canvas);
         }
 
         public void AddThumb(Canvas canvas)
         {
             thumb.Height = canvas.ActualHeight;
+            thumb.BorderBrush = Brushes.Blue;
 
-            Binding left = new Binding(nameof(Time));
-            left.Source = this;
-            left.Mode = BindingMode.TwoWay;
-            left.Converter = new ThumbConverter();
-            thumb.SetBinding(Canvas.LeftProperty, left);
+            Binding durationBinding = new Binding(nameof(Duration));
+            durationBinding.Source = this;
+            durationBinding.Mode = BindingMode.TwoWay;
+            durationBinding.Converter = new ThumbConverter();
+            thumb.SetBinding(Canvas.LeftProperty, durationBinding);
 
-            Binding width = new Binding(nameof(VoiceTime));
-            width.Source = this;
-            width.Mode = BindingMode.TwoWay;
-            width.Converter = new ThumbConverter();
-            thumb.SetBinding(FrameworkElement.WidthProperty, width);
+            Binding voiceTimeBinding = new Binding(nameof(VoiceTime));
+            voiceTimeBinding.Source = this;
+            voiceTimeBinding.Mode = BindingMode.TwoWay;
+            voiceTimeBinding.Converter = new ThumbConverter();
+            thumb.SetBinding(FrameworkElement.WidthProperty, voiceTimeBinding);
 
             canvas.Children.Add(thumb);
         }

@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using System.Xml.Serialization;
 using Xceed.Wpf.Toolkit;
 using MessageBox = System.Windows.MessageBox;
@@ -22,36 +22,48 @@ namespace LineVideoGenerator
     /// </summary>
     public partial class EditWindow : Window
     {
+        public ContextMenu StartTimeMenu
+        {
+            get
+            {
+                ContextMenu contextMenu = new ContextMenu();
+
+                MenuItem menuItem = new MenuItem();
+                menuItem.Header = "削除";
+                menuItem.Click += (sender, e) =>
+                {
+                    MainWindow mainWindow = Owner as MainWindow;
+                    Thumb thumb = contextMenu.PlacementTarget as Thumb;
+
+                    if (mainWindow.data.startTimeList.Any(s => s.thumb == thumb))
+                    {
+                        StartTime startTime = mainWindow.data.startTimeList.First(s => s.thumb == thumb);
+                        mainWindow.data.startTimeList.Remove(startTime);
+                        startTime.RemoveThumb();
+                    }
+                };
+
+                contextMenu.Items.Add(menuItem);
+
+                return contextMenu;
+            }
+        }
+
         public EditWindow()
         {
             InitializeComponent();
             Loaded += (sender, e) =>
             {
                 SetEditWindow();
-
-                Canvas canvas = canvasGrid.Children.Cast<Canvas>().Last();
-
-                FrameworkElementFactory line = new FrameworkElementFactory(typeof(Line));
-                line.SetValue(Line.Y1Property, canvas.ActualHeight - canvasGrid.ActualHeight);
-                line.SetValue(Line.Y2Property, canvas.ActualHeight);
-                line.SetValue(Shape.StrokeProperty, Brushes.Red);
-
-                Thumb thumb = new Thumb();
-                Canvas.SetLeft(thumb, 0);
-
-                ControlTemplate template = new ControlTemplate(typeof(Thumb));
-                template.VisualTree = line;
-                thumb.Template = template;
-
-                canvas.Children.Add(thumb);
             };
         }
 
         private void SetEditWindow()
         {
             MainWindow mainWindow = Owner as MainWindow;
+            DataContext = mainWindow.data;
 
-            mainWindow.SetMessageCollectionChanged();
+            mainWindow.SetMessageCollectionCollectionChanged();
 
             foreach (var message in mainWindow.data.messageCollection)
             {
@@ -77,9 +89,21 @@ namespace LineVideoGenerator
             }
 
             // タイムスライダーをセット
+            if (mainWindow.data.startTimeList.Count == 0)
+            {
+                mainWindow.data.startTimeList.Add(new StartTime(0, startTimeCanvas, StartTimeMenu));
+            }
+            else
+            {
+                foreach (var startTime in mainWindow.data.startTimeList)
+                {
+                    startTime.AddThumb(startTimeCanvas, StartTimeMenu);
+                }
+            }
+
             foreach (var message in mainWindow.data.messageCollection)
             {
-                Canvas canvas = canvasGrid.Children.Cast<Canvas>().First(c => Grid.GetRow(c) == message.person.id);
+                Canvas canvas = messageCanvasGrid.Children.Cast<Canvas>().First(c => Grid.GetRow(c) == message.person.id);
                 message.AddThumb(canvas);
             }
 
@@ -87,23 +111,17 @@ namespace LineVideoGenerator
             dataGrid.ItemsSource = mainWindow.data.messageCollection;
         }
 
-        /// <summary>
-        /// メッセージの編集後にデータグリッドを更新するよう設定
-        /// </summary>
         public void SetMessagePropertyChanged(Message message)
         {
             MainWindow mainWindow = Owner as MainWindow;
 
             message.PropertyChanged += (sender, e) =>
             {
-                totalTimePicker.MinDate = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.messageCollection.Max(m => m.NextMessageMinTime)));
+                timePicker.MinDate = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.messageCollection.Max(m => m.NextMessageDuration)));
                 dataGrid.Items.Refresh();
             };
         }
 
-        /// <summary>
-        /// 人物の編集後にデータグリッドを更新するよう設定
-        /// </summary>
         public void SetPersonPropertyChanged(Person person)
         {
             person.PropertyChanged += (sender, e) =>
@@ -126,30 +144,25 @@ namespace LineVideoGenerator
         private void SetTimePicker()
         {
             MainWindow mainWindow = Owner as MainWindow;
+            timePicker.Value = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.videoTotalTime));
 
-            totalTimePicker.Value = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.videoTotalTime));
-            startTimePicker.Value = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.messageStartTime));
             if (mainWindow.data.messageCollection.Count > 0)
             {
-                totalTimePicker.MinDate = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.messageCollection.Max(m => m.NextMessageMinTime)));
+                timePicker.MinDate = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.messageCollection.Max(m => m.NextMessageDuration)));
             }
         }
 
-        private void TotaTimePicker_ValueChanged(object sender, EventArgs e)
+        private void TimePicker_ValueChanged(object sender, EventArgs e)
         {
             MainWindow mainWindow = Owner as MainWindow;
-            mainWindow.data.videoTotalTime = (int)totalTimePicker.Value.TimeOfDay.TotalSeconds;
+            mainWindow.data.videoTotalTime = (int)timePicker.Value.TimeOfDay.TotalSeconds;
 
-            foreach (var canvas in canvasGrid.Children.Cast<Canvas>())
+            foreach (var canvas in messageCanvasGrid.Children.Cast<Canvas>())
             {
                 canvas.Width = mainWindow.data.videoTotalTime * ThumbConverter.per;
             }
-        }
 
-        private void StartTimePicker_ValueChanged(object sender, EventArgs e)
-        {
-            MainWindow mainWindow = Owner as MainWindow;
-            mainWindow.data.messageStartTime = (int)startTimePicker.Value.TimeOfDay.TotalSeconds;
+            startTimeCanvas.Width = mainWindow.data.videoTotalTime * ThumbConverter.per;
         }
 
         private void ScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
@@ -162,6 +175,7 @@ namespace LineVideoGenerator
         {
             MainWindow mainWindow = Owner as MainWindow;
             Thumb thumb = sender as Thumb;
+
             if (mainWindow.data.messageCollection.Any(m => m.thumb == thumb))
             {
                 dataGrid.SelectedItem = mainWindow.data.messageCollection.First(m => m.thumb == thumb);
@@ -180,8 +194,8 @@ namespace LineVideoGenerator
 
             // メッセージを時間順にソート（https://yomon.hatenablog.com/entry/2014/01/14/C%23%E3%81%AEObservableCollection%E3%81%AB%E3%81%8A%E3%81%91%E3%82%8B%E8%A6%81%E7%B4%A0%E3%81%AE%E4%B8%A6%E3%81%B9%E6%9B%BF%E3%81%88%E6%96%B9%E6%B3%95）
             MainWindow mainWindow = Owner as MainWindow;
-            mainWindow.data.messageCollection = new ObservableCollection<Message>(mainWindow.data.messageCollection.OrderBy(m => m.Time));
-            mainWindow.SetMessageCollectionChanged();
+            mainWindow.data.messageCollection = new ObservableCollection<Message>(mainWindow.data.messageCollection.OrderBy(m => m.Duration));
+            mainWindow.SetMessageCollectionCollectionChanged();
             dataGrid.ItemsSource = mainWindow.data.messageCollection;
 
             // ドラッグ中のメッセージが表示されるようデータグリッドをスクロール
@@ -189,6 +203,17 @@ namespace LineVideoGenerator
             {
                 dataGrid.ScrollIntoView(mainWindow.data.messageCollection.First(m => m.thumb == thumb));
             }
+        }
+
+        private void StartTimeCanvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ClickCount == 2)
+            {
+                MainWindow mainWindow = Owner as MainWindow;
+                int duration = (int)e.GetPosition(startTimeCanvas).X / ThumbConverter.per;
+                mainWindow.data.startTimeList.Add(new StartTime(duration, startTimeCanvas, StartTimeMenu));
+            }
+
         }
 
         private void DataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -199,11 +224,9 @@ namespace LineVideoGenerator
                 foreach (var message in mainWindow.data.messageCollection)
                 {
                     message.thumb.BorderThickness = new Thickness();
-                    message.thumb.BorderBrush = Brushes.Transparent;
                 }
 
                 selectedMessage.thumb.BorderThickness = new Thickness(2);
-                selectedMessage.thumb.BorderBrush = Brushes.Blue;
 
                 ScrollIntoThumb(selectedMessage.thumb);
                 dataGrid.ScrollIntoView(selectedMessage);
@@ -226,7 +249,7 @@ namespace LineVideoGenerator
         {
             ColorPicker colorPicker = sender as ColorPicker;
             ColorItem white = new ColorItem(Colors.White, "White");
-            ColorItem green = new ColorItem(Message.Green, "Green");
+            ColorItem green = new ColorItem(Original.Green, "Green");
             ObservableCollection<ColorItem> defaultColors = new ObservableCollection<ColorItem>() { white, green };
             colorPicker.AvailableColors = defaultColors;
         }
@@ -252,7 +275,7 @@ namespace LineVideoGenerator
                 try
                 {
                     Message message = dataGrid.SelectedItem as Message;
-                    message.Voice = Global.GetByteArray(openFileDialog.FileName);
+                    message.Voice = Original.GetByteArray(openFileDialog.FileName);
                     AudioFileReader audioFileReader = new AudioFileReader(openFileDialog.FileName);
                     message.VoiceTime = audioFileReader.TotalTime.TotalSeconds;
                 }
@@ -267,7 +290,7 @@ namespace LineVideoGenerator
         {
             Message message = dataGrid.SelectedItem as Message;
             Button playVoiceButton = sender as Button;
-            Global.PlayButton_Click(message.Voice, playVoiceButton, PlayVoiceButton_Click);
+            Original.PlayButton_Click(message.Voice, playVoiceButton, PlayVoiceButton_Click);
         }
 
         private void ResetVoiceButton_Click(object sender, RoutedEventArgs e)
@@ -280,17 +303,20 @@ namespace LineVideoGenerator
         private void DeleteMessageButton_Click(object sender, RoutedEventArgs e)
         {
             MainWindow mainWindow = Owner as MainWindow;
-            Message message = dataGrid.SelectedItem as Message;
-            mainWindow.data.messageCollection.Remove(message);
-            message.RemoveThumb();
+
+            if (dataGrid.SelectedItem is Message message)
+            {
+                mainWindow.data.messageCollection.Remove(message);
+                message.RemoveThumb();
+            }
 
             if (mainWindow.data.messageCollection.Count > 0)
             {
-                totalTimePicker.MinDate = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.messageCollection.Max(m => m.NextMessageMinTime)));
+                timePicker.MinDate = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.messageCollection.Max(m => m.NextMessageDuration)));
             }
             else
             {
-                totalTimePicker.MinDate = DateTime.Today;
+                timePicker.MinDate = DateTime.Today;
             }
         }
 
@@ -304,7 +330,7 @@ namespace LineVideoGenerator
                 try
                 {
                     ResetSendGrid();
-                    ResetCanvasGrid();
+                    ResetTimeSlider();
                     ResetTimePicker();
 
                     MainWindow mainWindow = Owner as MainWindow;
@@ -374,14 +400,14 @@ namespace LineVideoGenerator
             if (result == MessageBoxResult.OK)
             {
                 ResetSendGrid();
-                ResetCanvasGrid();
                 ResetTimePicker();
+                ResetTimeSlider();
 
                 MainWindow mainWindow = Owner as MainWindow;
                 mainWindow.data = new Data();
                 mainWindow.playButton.IsEnabled = false;
                 mainWindow.saveButton.IsEnabled = false;
-                mainWindow.SetMessageCollectionChanged();
+                mainWindow.SetMessageCollectionCollectionChanged();
                 SetButtonControl();
                 SetTimePicker();
                 dataGrid.ItemsSource = mainWindow.data.messageCollection;
@@ -399,25 +425,31 @@ namespace LineVideoGenerator
             }
         }
 
-        private void ResetCanvasGrid()
+        private void ResetTimePicker()
+        {
+            timePicker.MinDate = DateTime.Today;
+        }
+
+        private void ResetTimeSlider()
         {
             MainWindow mainWindow = Owner as MainWindow;
+
+            foreach (var startTime in mainWindow.data.startTimeList)
+            {
+                startTime.RemoveThumb();
+            }
+
             foreach (var message in mainWindow.data.messageCollection)
             {
                 message.RemoveThumb();
             }
         }
 
-        private void ResetTimePicker()
-        {
-            totalTimePicker.MinDate = DateTime.Today;
-        }
-
         private void Window_Closed(object sender, EventArgs e)
         {
             MainWindow mainWindow = Owner as MainWindow;
             mainWindow.editButton.IsEnabled = true;
-            ResetCanvasGrid();
+            ResetTimeSlider();
         }
     }
 }

@@ -5,16 +5,22 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace LineVideoGenerator
 {
-    class Global
+    class Original
     {
+        public static Color Green
+        {
+            get { return Color.FromRgb(112, 222, 82); }
+        }
+
         /// <summary>
-        /// TextBlock及びその親要素の幅を取得（https://stackoverflow.com/questions/9264398/how-to-calculate-wpf-textblock-width-for-its-known-font-size-and-characters）
+        /// TextBlockの幅を取得（https://stackoverflow.com/questions/9264398/how-to-calculate-wpf-textblock-width-for-its-known-font-size-and-characters）
         /// </summary>
-        /// <param name="element">TextBlock及びその親要素</param>
-        /// <returns>TextBlock及びその親要素の幅</returns>
+        /// <param name="element">TextBlock</param>
+        /// <returns>TextBlockの幅</returns>
         public static double GetWidth(FrameworkElement element)
         {
             element.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
@@ -24,10 +30,10 @@ namespace LineVideoGenerator
         }
 
         /// <summary>
-        /// TextBlock及びその親要素の高さを取得（https://stackoverflow.com/questions/9264398/how-to-calculate-wpf-textblock-width-for-its-known-font-size-and-characters）
+        /// TextBlockの高さを取得（https://stackoverflow.com/questions/9264398/how-to-calculate-wpf-textblock-width-for-its-known-font-size-and-characters）
         /// </summary>
-        /// <param name="element">TextBlock及びその親要素</param>
-        /// <returns>TextBlock及びその親要素の高さ</returns>
+        /// <param name="element">TextBlock</param>
+        /// <returns>TextBlockの高さ</returns>
         public static double GetHeight(FrameworkElement element)
         {
             element.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
@@ -55,6 +61,10 @@ namespace LineVideoGenerator
             }
         }
 
+        /// <summary>
+        /// FFmpegを起動
+        /// </summary>
+        /// <param name="arguments">引数</param>
         public static void FFmpeg(string arguments)
         {
             using (var process = new Process())
