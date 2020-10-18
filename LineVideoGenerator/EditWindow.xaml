@@ -75,7 +75,7 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="総再生時間" Grid.Column="0" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         <WindowsFormsHost Grid.Column="1" FontSize="16">
-                            <forms:DateTimePicker x:Name="timePicker" Format="Custom" CustomFormat="mm分ss秒" ShowUpDown="True" ValueChanged="TimePicker_ValueChanged"/>
+                            <forms:DateTimePicker x:Name="totalTimePicker" Format="Custom" CustomFormat="mm分ss秒" ShowUpDown="True" ValueChanged="TotalTimePicker_ValueChanged"/>
                         </WindowsFormsHost>
                     </Grid>
                 </Grid>
@@ -101,14 +101,14 @@
                             <Canvas Grid.Row="3" Background="LightGray"/>
                             <Canvas Grid.Row="4" Background="LightGray"/>
                         </Grid>
-                        <Canvas x:Name="startTimeCanvas" Grid.Row="0" Background="White" MouseLeftButtonDown="StartTimeCanvas_MouseLeftButtonDown"/>
+                        <Canvas x:Name="startTimeCanvas" Grid.Row="0" Background="LightBlue" MouseLeftButtonDown="StartTimeCanvas_MouseLeftButtonDown"/>
                     </Grid>
                 </ScrollViewer>
                 <DataGrid x:Name="dataGrid" Grid.Row="3" Margin="20" AutoGenerateColumns="False" IsReadOnly="True" VerticalScrollBarVisibility="Visible" SelectionChanged="DataGrid_SelectionChanged">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="名前" Binding="{Binding Name}" Width="3*"/>
-                        <DataGridTextColumn Header="テキスト" Binding="{Binding Text}" Width="6*"/>
-                        <DataGridTextColumn Header="時間" Binding="{Binding Duration, Converter={StaticResource DurationConverter}}" Width="3*"/>
+                        <DataGridTextColumn Header="テキスト" Binding="{Binding Text}" Width="8*"/>
+                        <DataGridTextColumn Header="時間" Binding="{Binding Duration, Converter={StaticResource DurationConverter}}" Width="2*"/>
                         <DataGridTemplateColumn Header="色" Width="2*">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
@@ -129,8 +129,28 @@
                                         </Grid.ColumnDefinitions>
                                         <Button Grid.Column="0" Content="編集" Click="EditMessageButton_Click"/>
                                         <Button Grid.Column="1" Content="音声" Click="VoiceButton_Click"/>
-                                        <Button Grid.Column="2" Content="再生" IsEnabled="{Binding IsSetVoice}" Click="PlayVoiceButton_Click"/>
-                                        <Button Grid.Column="3" Content="リセット" IsEnabled="{Binding IsSetVoice}" Click="ResetVoiceButton_Click"/>
+                                        <Button Grid.Column="2" Content="再生" Click="PlayVoiceButton_Click">
+                                            <Button.Style>
+                                                <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Voice}" Value="{x:Null}">
+                                                            <Setter Property="IsEnabled" Value="False"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+                                        <Button Grid.Column="3" Content="リセット" Click="ResetVoiceButton_Click">
+                                            <Button.Style>
+                                                <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Voice}" Value="{x:Null}">
+                                                            <Setter Property="IsEnabled" Value="False"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
                                         <Button Grid.Column="4" Content="削除" Click="DeleteMessageButton_Click"/>
                                     </Grid>
                                 </DataTemplate>

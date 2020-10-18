@@ -51,8 +51,7 @@ namespace LineVideoGenerator
             FrameworkElementFactory timePicker = new FrameworkElementFactory(typeof(TimePicker));
             timePicker.SetValue(FrameworkElement.HeightProperty, canvas.ActualHeight);
             timePicker.SetValue(FrameworkElement.VerticalAlignmentProperty, VerticalAlignment.Top);
-            // timePicker.SetValue(InputBase.AllowTextInputProperty, false);
-            timePicker.SetValue(TimePicker.CurrentDateTimePartProperty, DateTimePart.Minute);
+            timePicker.SetValue(InputBase.AllowTextInputProperty, false);
             timePicker.SetValue(DateTimePickerBase.ShowDropDownButtonProperty, false);
 
             Binding timeBinding = new Binding(nameof(Time));

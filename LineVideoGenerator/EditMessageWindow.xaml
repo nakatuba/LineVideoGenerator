@@ -17,7 +17,7 @@
             <ColumnDefinition Width="4*"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <TextBox x:Name="messageBox" Grid.Column="0" Margin="20" VerticalScrollBarVisibility="Auto" AcceptsReturn="True" TextWrapping="Wrap" TextChanged="MessageBox_TextChanged"/>
+        <TextBox x:Name="messageBox" Grid.Column="0" Margin="20" VerticalScrollBarVisibility="Auto" AcceptsReturn="True" TextWrapping="Wrap" TextChanged="MessageBox_TextChanged" PreviewKeyDown="MessageBox_PreviewKeyDown"/>
         <Button x:Name="changeButton" Content="変更" Margin="0 0 0 50" Click="ChangeButton_Click"/>
         <Button x:Name="cancelButton" Content="キャンセル" Margin="0 50 0 0" Click="CancelButton_Click"/>
     </Grid>

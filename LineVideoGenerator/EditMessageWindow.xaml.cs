@@ -1,5 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Input;
 
 namespace LineVideoGenerator
 {
@@ -21,6 +23,15 @@ namespace LineVideoGenerator
         private void MessageBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             changeButton.IsEnabled = true;
+        }
+
+        private void MessageBox_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter && Keyboard.Modifiers.HasFlag(ModifierKeys.Shift))
+            {
+                if (changeButton.IsEnabled) changeButton.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
+                e.Handled = true;
+            }
         }
 
         private void ChangeButton_Click(object sender, RoutedEventArgs e)

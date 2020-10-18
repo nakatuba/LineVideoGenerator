@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -109,22 +110,22 @@ namespace LineVideoGenerator
             messageTop = groupBar.ActualHeight + messageDistance;
 
             // BGMを再生
-            WaveOut waveOut = new WaveOut();
-            bool loop = true;
+            WaveOut bgmWave = new WaveOut();
+            bool bgmLoop = true;
             if (data.bgm != null)
             {
                 string bgmPath = Path.Combine(tempDirectory, Guid.NewGuid() + ".wav");
                 File.WriteAllBytes(bgmPath, data.bgm);
                 AudioFileReader bgmAudio = new AudioFileReader(bgmPath);
 
-                waveOut.Init(bgmAudio);
-                waveOut.Play();
-                waveOut.PlaybackStopped += (sender2, e2) =>
+                bgmWave.Init(bgmAudio);
+                bgmWave.Play();
+                bgmWave.PlaybackStopped += (sender2, e2) =>
                 {
-                    if (loop)
+                    if (bgmLoop)
                     {
                         bgmAudio.Position = 0;
-                        if (loop) waveOut.Play();
+                        if (bgmLoop) bgmWave.Play();
                     }
                     else
                     {
@@ -140,8 +141,11 @@ namespace LineVideoGenerator
                 mediaElement.Play();
             }
 
-            TimeSpan firstMessageTimeSpan = TimeSpan.FromSeconds(data.messageCollection.First().Duration);
-            await Task.Delay(firstMessageTimeSpan);
+            for (int i = 0; i < data.messageCollection.First().Duration; i++)
+            {
+                if (clickStopButton) break;
+                await Task.Delay(1000);
+            }
 
             DateTime time = new DateTime();
             if (data.startTimeList.Any(s => s.Duration <= data.messageCollection.First().Duration))
@@ -151,27 +155,57 @@ namespace LineVideoGenerator
 
             for (int i = 0; i < data.messageCollection.Count; i++)
             {
+                if (clickStopButton) break;
+
                 if (i != 0 && data.startTimeList.Any(s => data.messageCollection[i - 1].Duration < s.Duration && s.Duration <= data.messageCollection[i].Duration))
                 {
                     time = data.startTimeList.OrderBy(s => s.Duration).Last(s => data.messageCollection[i - 1].Duration < s.Duration && s.Duration <= data.messageCollection[i].Duration).Time;
                 }
 
-                SendMessage(data.messageCollection[i], ref time);
+                DrawMessage(data.messageCollection[i], ref time);
 
                 // 効果音を再生
-                Original.PlayByteArray(data.soundEffect);
+                WaveOut soundEffectWave = new WaveOut();
+                if (data.soundEffect != null)
+                {
+                    string path = Path.Combine(tempDirectory, Guid.NewGuid() + ".wav");
+                    File.WriteAllBytes(path, data.soundEffect);
+                    AudioFileReader soundEffectAudio = new AudioFileReader(path);
+
+                    soundEffectWave.Init(soundEffectAudio);
+                    soundEffectWave.Play();
+                    soundEffectWave.PlaybackStopped += (sender2, e2) => soundEffectAudio.Dispose();
+                }
 
                 // 音声を再生
-                Original.PlayByteArray(data.messageCollection[i].Voice);
+                WaveOut voideWave = new WaveOut();
+                if (data.messageCollection[i].Voice != null)
+                {
+                    string path = Path.Combine(tempDirectory, Guid.NewGuid() + ".wav");
+                    File.WriteAllBytes(path, data.messageCollection[i].Voice);
+                    AudioFileReader voiceAudio = new AudioFileReader(path);
 
-                // 次のメッセージとの再生時間の差
-                TimeSpan messageTimeSpan = (i == data.messageCollection.Count - 1)
-                                           ? TimeSpan.FromSeconds(data.videoTotalTime - data.messageCollection[i].Duration)
-                                           : TimeSpan.FromSeconds(data.messageCollection[i + 1].Duration - data.messageCollection[i].Duration);
-                await Task.Delay(messageTimeSpan);
+                    voideWave.Init(voiceAudio);
+                    voideWave.Play();
+                    voideWave.PlaybackStopped += (sender2, e2) => voiceAudio.Dispose();
+                }
 
-                // 停止
-                if (clickStopButton) break;
+                // 次のメッセージとの時間差
+                int durationInterval = (i == data.messageCollection.Count - 1)
+                                       ? data.videoTotalTime - data.messageCollection[i].Duration
+                                       : data.messageCollection[i + 1].Duration - data.messageCollection[i].Duration;
+                for (int j = 0; j < durationInterval; j++)
+                {
+                    if (clickStopButton)
+                    {
+                        // 効果音を停止
+                        soundEffectWave.Stop();
+                        // 音声を停止
+                        voideWave.Stop();
+                        break;
+                    }
+                    await Task.Delay(1000);
+                }
             }
 
             // 背景動画を停止
@@ -183,8 +217,8 @@ namespace LineVideoGenerator
             // BGMを停止
             if (data.bgm != null)
             {
-                loop = false;
-                waveOut.Stop();
+                bgmLoop = false;
+                bgmWave.Stop();
             }
 
             // 再生ボタン以外のボタンを有効化
@@ -199,7 +233,7 @@ namespace LineVideoGenerator
             playButton.Click += PlayButton_Click;
         }
 
-        private void SendMessage(Message message, ref DateTime time)
+        private void DrawMessage(Message message, ref DateTime time)
         {
             TextBlock messageBlock = new TextBlock();
             messageBlock.Text = message.Text;
@@ -248,7 +282,7 @@ namespace LineVideoGenerator
                     timeBlock.Margin = new Thickness(0, timeBlockTop, timeBlockRight, 0);
                     messageGrid.Children.Add(timeBlock);
 
-                    time += TimeSpan.FromMinutes(message.TimeInterval);
+                    time += TimeSpan.FromMinutes(message.timeInterval);
                 }
             }
             else
@@ -303,7 +337,7 @@ namespace LineVideoGenerator
                     timeBlock.Margin = new Thickness(timeBlockLeft, timeBlockTop, 0, 0);
                     messageGrid.Children.Add(timeBlock);
 
-                    time += TimeSpan.FromMinutes(message.TimeInterval);
+                    time += TimeSpan.FromMinutes(message.timeInterval);
                 }
             }
 
@@ -385,7 +419,7 @@ namespace LineVideoGenerator
                                 time = data.startTimeList.OrderBy(s => s.Duration).Last(s => data.messageCollection[i - 1].Duration < s.Duration && s.Duration <= data.messageCollection[i].Duration).Time;
                             }
 
-                            SendMessage(data.messageCollection[i], ref time);
+                            DrawMessage(data.messageCollection[i], ref time);
                             await Task.Delay(100);
 
                             input += $"-i {GetMessageBitmapPath()} ";
@@ -395,9 +429,9 @@ namespace LineVideoGenerator
                         }
 
                         await Task.Run(() => Original.FFmpeg($"{input}" +
-                                                           $"-filter_complex {overlay} " +
-                                                           $"-preset ultrafast " +
-                                                           $"{videoPath}"));
+                                                             $"-filter_complex {overlay} " +
+                                                             $"-preset ultrafast " +
+                                                             $"{videoPath}"));
                     }
                     else
                     {
@@ -423,7 +457,7 @@ namespace LineVideoGenerator
                                     time = data.startTimeList.OrderBy(s => s.Duration).Last(s => data.messageCollection[i - 1].Duration < s.Duration && s.Duration <= data.messageCollection[i].Duration).Time;
                                 }
 
-                                SendMessage(data.messageCollection[i], ref time);
+                                DrawMessage(data.messageCollection[i], ref time);
                                 await Task.Delay(100);
 
                                 using (var messageBitmap = new Bitmap(GetMessageBitmapPath()))
@@ -455,7 +489,7 @@ namespace LineVideoGenerator
                     progressRing.IsActive = false;
                     MessageBox.Show("保存されました");
                 }
-                catch (Exception)
+                catch
                 {
                     progressRing.IsActive = false;
                     MessageBox.Show("保存できませんでした");
@@ -521,7 +555,7 @@ namespace LineVideoGenerator
             }
 
             // 音声
-            foreach (var message in data.messageCollection.Where(m => m.IsSetVoice))
+            foreach (var message in data.messageCollection.Where(m => m.Voice != null))
             {
                 string voicePath = Path.Combine(tempDirectory, Guid.NewGuid() + ".wav");
                 File.WriteAllBytes(voicePath, message.Voice);

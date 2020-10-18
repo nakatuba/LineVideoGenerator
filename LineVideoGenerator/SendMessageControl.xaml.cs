@@ -3,6 +3,8 @@ using System;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -13,7 +15,14 @@ namespace LineVideoGenerator
     /// </summary>
     public partial class SendMessageControl : UserControl
     {
-        public bool isSetIcon = false;
+        private bool IsSetIcon
+        {
+            get
+            {
+                ImageBrush imageBrush = iconButton.Template.FindName("imageBrush", iconButton) as ImageBrush;
+                return imageBrush.ImageSource != new BitmapImage(new Uri("no image.png", UriKind.Relative));
+            }
+        }
         private bool CanSendMessage
         {
             get
@@ -24,7 +33,7 @@ namespace LineVideoGenerator
                 }
                 else
                 {
-                    return isSetIcon && !string.IsNullOrWhiteSpace(nameBox.Text) && !string.IsNullOrWhiteSpace(messageBox.Text);
+                    return IsSetIcon && !string.IsNullOrWhiteSpace(nameBox.Text) && !string.IsNullOrWhiteSpace(messageBox.Text);
                 }
             }
         }
@@ -53,7 +62,6 @@ namespace LineVideoGenerator
                     ImageBrush imageBrush = iconButton.Template.FindName("imageBrush", iconButton) as ImageBrush;
                     BitmapImage icon = new BitmapImage(new Uri(openFileDialog.FileName));
                     imageBrush.ImageSource = icon;
-                    isSetIcon = true;
 
                     // 同じidの人物のアイコンを変更
                     EditWindow editWindow = Window.GetWindow(this) as EditWindow;
@@ -65,7 +73,7 @@ namespace LineVideoGenerator
 
                     sendButton.IsEnabled = CanSendMessage;
                 }
-                catch (NotSupportedException)
+                catch
                 {
                     MessageBox.Show("異なる形式を選択してください");
                 }
@@ -91,6 +99,15 @@ namespace LineVideoGenerator
         private void MessageBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             sendButton.IsEnabled = CanSendMessage;
+        }
+
+        private void MessageBox_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter && Keyboard.Modifiers.HasFlag(ModifierKeys.Shift))
+            {
+                if (sendButton.IsEnabled) sendButton.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
+                e.Handled = true;
+            }
         }
 
         private void SendButton_Click(object sender, RoutedEventArgs e)
@@ -119,7 +136,7 @@ namespace LineVideoGenerator
 
             Message message = new Message(person, messageBox.Text, duration, canvas);
             editWindow.SetMessagePropertyChanged(message);
-            editWindow.timePicker.MinDate = DateTime.Today.Add(TimeSpan.FromSeconds(message.NextMessageDuration));
+            editWindow.totalTimePicker.MinDate = DateTime.Today.Add(TimeSpan.FromSeconds(message.NextMessageDuration));
 
             message.thumb.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
             message.thumb.Arrange(new Rect(message.thumb.DesiredSize));

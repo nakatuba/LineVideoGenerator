@@ -18,6 +18,7 @@ namespace LineVideoGenerator
         private Color color;
         private byte[] voice;
         private double voiceTime = 1;
+        public int timeInterval = new Random().Next(3);
         [XmlIgnore] public Thumb thumb = new Thumb();
         public event PropertyChangedEventHandler PropertyChanged;
         public string Name
@@ -68,15 +69,6 @@ namespace LineVideoGenerator
                 voiceTime = value;
                 OnPropertyChanged();
             }
-        }
-        public int TimeInterval
-        {
-            get
-            { return new Random().Next(3); }
-        }
-        public bool IsSetVoice
-        {
-            get { return voice != null; }
         }
         public int NextMessageDuration
         {

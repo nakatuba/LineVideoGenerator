@@ -59,7 +59,7 @@ namespace LineVideoGenerator
                     playButton.IsEnabled = true;
                     resetButton.IsEnabled = true;
                 }
-                catch (NotSupportedException)
+                catch
                 {
                     MessageBox.Show("異なる形式を選択してください");
                 }

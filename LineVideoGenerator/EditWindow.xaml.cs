@@ -75,32 +75,20 @@ namespace LineVideoGenerator
                 SetPersonPropertyChanged(person);
             }
 
-            SetButtonControl();
-            SetTimePicker();
-
             // アイコンと名前をセット
-            foreach (var group in mainWindow.data.messageCollection.GroupBy(m => m.person.id))
+            foreach (var person in mainWindow.data.personList)
             {
-                SendMessageControl control = sendGrid.Children.Cast<SendMessageControl>().First(c => Grid.GetRow(c) == group.Key);
+                SendMessageControl control = sendGrid.Children.Cast<SendMessageControl>().First(c => Grid.GetRow(c) == person.id);
                 ImageBrush imageBrush = control.iconButton.Template.FindName("imageBrush", control.iconButton) as ImageBrush;
-                imageBrush.ImageSource = group.First().person.Icon;
-                control.isSetIcon = true;
-                control.nameBox.Text = group.First().person.Name;
+                imageBrush.ImageSource = person.Icon;
+                control.nameBox.Text = person.Name;
             }
 
-            // タイムスライダーをセット
-            if (mainWindow.data.startTimeList.Count == 0)
-            {
-                mainWindow.data.startTimeList.Add(new StartTime(0, startTimeCanvas, StartTimeMenu));
-            }
-            else
-            {
-                foreach (var startTime in mainWindow.data.startTimeList)
-                {
-                    startTime.AddThumb(startTimeCanvas, StartTimeMenu);
-                }
-            }
+            SetButtonControl();
+            SetTotalTimePicker();
+            SetStartTimeCanvas();
 
+            // スライダーをセット
             foreach (var message in mainWindow.data.messageCollection)
             {
                 Canvas canvas = messageCanvasGrid.Children.Cast<Canvas>().First(c => Grid.GetRow(c) == message.person.id);
@@ -117,7 +105,7 @@ namespace LineVideoGenerator
 
             message.PropertyChanged += (sender, e) =>
             {
-                timePicker.MinDate = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.messageCollection.Max(m => m.NextMessageDuration)));
+                totalTimePicker.MinDate = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.messageCollection.Max(m => m.NextMessageDuration)));
                 dataGrid.Items.Refresh();
             };
         }
@@ -141,21 +129,38 @@ namespace LineVideoGenerator
             soundEffectButtonControl.resetButton.IsEnabled = mainWindow.data.soundEffect != null;
         }
 
-        private void SetTimePicker()
+        private void SetTotalTimePicker()
         {
             MainWindow mainWindow = Owner as MainWindow;
-            timePicker.Value = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.videoTotalTime));
+            totalTimePicker.Value = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.videoTotalTime));
 
             if (mainWindow.data.messageCollection.Count > 0)
             {
-                timePicker.MinDate = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.messageCollection.Max(m => m.NextMessageDuration)));
+                totalTimePicker.MinDate = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.messageCollection.Max(m => m.NextMessageDuration)));
             }
         }
 
-        private void TimePicker_ValueChanged(object sender, EventArgs e)
+        private void SetStartTimeCanvas()
         {
             MainWindow mainWindow = Owner as MainWindow;
-            mainWindow.data.videoTotalTime = (int)timePicker.Value.TimeOfDay.TotalSeconds;
+
+            if (mainWindow.data.startTimeList.Count == 0)
+            {
+                mainWindow.data.startTimeList.Add(new StartTime(0, startTimeCanvas, StartTimeMenu));
+            }
+            else
+            {
+                foreach (var startTime in mainWindow.data.startTimeList)
+                {
+                    startTime.AddThumb(startTimeCanvas, StartTimeMenu);
+                }
+            }
+        }
+
+        private void TotalTimePicker_ValueChanged(object sender, EventArgs e)
+        {
+            MainWindow mainWindow = Owner as MainWindow;
+            mainWindow.data.videoTotalTime = (int)totalTimePicker.Value.TimeOfDay.TotalSeconds;
 
             foreach (var canvas in messageCanvasGrid.Children.Cast<Canvas>())
             {
@@ -279,7 +284,7 @@ namespace LineVideoGenerator
                     AudioFileReader audioFileReader = new AudioFileReader(openFileDialog.FileName);
                     message.VoiceTime = audioFileReader.TotalTime.TotalSeconds;
                 }
-                catch (NotSupportedException)
+                catch
                 {
                     MessageBox.Show("異なる形式を選択してください");
                 }
@@ -308,15 +313,21 @@ namespace LineVideoGenerator
             {
                 mainWindow.data.messageCollection.Remove(message);
                 message.RemoveThumb();
+
+                // 同じidの人物がいなければ人物を削除
+                if (!mainWindow.data.messageCollection.Any(m => m.person.id == message.person.id))
+                {
+                    mainWindow.data.personList.Remove(message.person);
+                }
             }
 
             if (mainWindow.data.messageCollection.Count > 0)
             {
-                timePicker.MinDate = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.messageCollection.Max(m => m.NextMessageDuration)));
+                totalTimePicker.MinDate = DateTime.Today.Add(TimeSpan.FromSeconds(mainWindow.data.messageCollection.Max(m => m.NextMessageDuration)));
             }
             else
             {
-                timePicker.MinDate = DateTime.Today;
+                totalTimePicker.MinDate = DateTime.Today;
             }
         }
 
@@ -330,8 +341,8 @@ namespace LineVideoGenerator
                 try
                 {
                     ResetSendGrid();
-                    ResetTimeSlider();
-                    ResetTimePicker();
+                    ResetTotalTimePicker();
+                    ResetDurationSlider();
 
                     MainWindow mainWindow = Owner as MainWindow;
 
@@ -354,7 +365,7 @@ namespace LineVideoGenerator
 
                     SetEditWindow();
                 }
-                catch (NotSupportedException)
+                catch
                 {
                     MessageBox.Show("異なる形式を選択してください");
                 }
@@ -386,7 +397,7 @@ namespace LineVideoGenerator
                     progressRing.IsActive = false;
                     MessageBox.Show("保存されました");
                 }
-                catch (Exception)
+                catch
                 {
                     MessageBox.Show("保存できませんでした");
                 }
@@ -400,8 +411,8 @@ namespace LineVideoGenerator
             if (result == MessageBoxResult.OK)
             {
                 ResetSendGrid();
-                ResetTimePicker();
-                ResetTimeSlider();
+                ResetTotalTimePicker();
+                ResetDurationSlider();
 
                 MainWindow mainWindow = Owner as MainWindow;
                 mainWindow.data = new Data();
@@ -409,7 +420,8 @@ namespace LineVideoGenerator
                 mainWindow.saveButton.IsEnabled = false;
                 mainWindow.SetMessageCollectionCollectionChanged();
                 SetButtonControl();
-                SetTimePicker();
+                SetTotalTimePicker();
+                SetStartTimeCanvas();
                 dataGrid.ItemsSource = mainWindow.data.messageCollection;
             }
         }
@@ -425,12 +437,12 @@ namespace LineVideoGenerator
             }
         }
 
-        private void ResetTimePicker()
+        private void ResetTotalTimePicker()
         {
-            timePicker.MinDate = DateTime.Today;
+            totalTimePicker.MinDate = DateTime.Today;
         }
 
-        private void ResetTimeSlider()
+        private void ResetDurationSlider()
         {
             MainWindow mainWindow = Owner as MainWindow;
 
@@ -449,7 +461,7 @@ namespace LineVideoGenerator
         {
             MainWindow mainWindow = Owner as MainWindow;
             mainWindow.editButton.IsEnabled = true;
-            ResetTimeSlider();
+            ResetDurationSlider();
         }
     }
 }

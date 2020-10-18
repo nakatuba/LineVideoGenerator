@@ -17,10 +17,10 @@ namespace LineVideoGenerator
         }
 
         /// <summary>
-        /// TextBlockの幅を取得（https://stackoverflow.com/questions/9264398/how-to-calculate-wpf-textblock-width-for-its-known-font-size-and-characters）
+        /// 描画されていない要素の幅を取得（https://stackoverflow.com/questions/9264398/how-to-calculate-wpf-textblock-width-for-its-known-font-size-and-characters）
         /// </summary>
-        /// <param name="element">TextBlock</param>
-        /// <returns>TextBlockの幅</returns>
+        /// <param name="element">描画されていない要素</param>
+        /// <returns>描画されていない要素の幅</returns>
         public static double GetWidth(FrameworkElement element)
         {
             element.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
@@ -30,35 +30,16 @@ namespace LineVideoGenerator
         }
 
         /// <summary>
-        /// TextBlockの高さを取得（https://stackoverflow.com/questions/9264398/how-to-calculate-wpf-textblock-width-for-its-known-font-size-and-characters）
+        /// 描画されていない要素の高さを取得（https://stackoverflow.com/questions/9264398/how-to-calculate-wpf-textblock-width-for-its-known-font-size-and-characters）
         /// </summary>
-        /// <param name="element">TextBlock</param>
-        /// <returns>TextBlockの高さ</returns>
+        /// <param name="element">描画されていない要素</param>
+        /// <returns>描画されていない要素の高さ</returns>
         public static double GetHeight(FrameworkElement element)
         {
             element.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
             element.Arrange(new Rect(element.DesiredSize));
 
             return element.ActualHeight;
-        }
-
-        /// <summary>
-        /// byte[]を再生
-        /// </summary>
-        /// <param name="bytes">再生する音声のbyte[]</param>
-        public static void PlayByteArray(byte[] bytes)
-        {
-            if (bytes != null)
-            {
-                string path = Path.Combine(MainWindow.tempDirectory, Guid.NewGuid() + ".wav");
-                File.WriteAllBytes(path, bytes);
-
-                AudioFileReader audioFileReader = new AudioFileReader(path);
-                WaveOut waveOut = new WaveOut();
-                waveOut.Init(audioFileReader);
-                waveOut.Play();
-                waveOut.PlaybackStopped += (sender, e) => audioFileReader.Dispose();
-            }
         }
 
         /// <summary>
