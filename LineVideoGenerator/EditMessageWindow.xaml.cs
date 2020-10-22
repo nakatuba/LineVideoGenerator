@@ -22,7 +22,7 @@ namespace LineVideoGenerator
 
         private void MessageBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            changeButton.IsEnabled = true;
+            changeButton.IsEnabled = !string.IsNullOrWhiteSpace(messageBox.Text);
         }
 
         private void MessageBox_PreviewKeyDown(object sender, KeyEventArgs e)

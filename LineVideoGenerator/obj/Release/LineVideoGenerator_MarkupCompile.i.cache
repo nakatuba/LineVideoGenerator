@@ -4,16 +4,16 @@
 winexe
 C#
 .cs
-\\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\obj\Release\
+\\Mac\iCloud\アプリ開発\WPF\LINE動画ジェネレータ\LineVideoGenerator\LineVideoGenerator\obj\Release\
 LineVideoGenerator
 none
 false
 TRACE
-\\Mac\Home\Desktop\LineVideoGenerator\LineVideoGenerator\App.xaml
+\\Mac\iCloud\アプリ開発\WPF\LINE動画ジェネレータ\LineVideoGenerator\LineVideoGenerator\App.xaml
 6484738189
-121406463326
+12287897301
 19-511772986
-32-742723477
+321073338981
 AudioButtonControl.xaml;BackgroundWindow.xaml;EditMessageWindow.xaml;EditWindow.xaml;MainWindow.xaml;SendMessageControl.xaml;
 
 False
